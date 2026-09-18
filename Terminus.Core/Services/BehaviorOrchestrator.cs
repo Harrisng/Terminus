@@ -392,8 +392,8 @@ public class BehaviorOrchestrator
 
             var timeUntil = CalculateTimeUntil(currentTime, ctx.Timing.WarningTime);
             var firstClassInfo = ctx.Timing.FirstClassTime.HasValue
-                ? $"First class at {ctx.Timing.FirstClassTime.Value}"
-                : "No early classes tomorrow";
+                ? $"明日早課 {ctx.Timing.FirstClassTime.Value.ToString("HH:mm", null)}"
+                : "明日無早課";
 
             await _notificationService.ShowPreWarningAsync(timeUntil, firstClassInfo);
         }
@@ -411,7 +411,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "Sleep Cycle Warning",
+                Title = "睡眠週期警告",
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -480,7 +480,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "Sleep Cycle Warning",
+                Title = "睡眠週期警告",
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -516,7 +516,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "Sleep Cycle Warning",
+                Title = "睡眠週期警告",
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -600,12 +600,12 @@ public class BehaviorOrchestrator
     {
         if (ctx.Timing.Classification == DayClassification.EarlyClass)
         {
-            return $"You have class at {ctx.Timing.FirstClassTime?.ToString("HH:mm", null) ?? "unknown"}. " +
-                   $"Quota remaining: {ctx.CurrentCycle.QuotaRemaining.TotalMinutes:F0} minutes.";
+            return $"明日早課 {ctx.Timing.FirstClassTime?.ToString("HH:mm", null) ?? "未知"}。" +
+                   $"剩餘額度：{ctx.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘。";
         }
         else
         {
-            return "No early classes tomorrow. Manual delays are unlimited.";
+            return "明日無早課，手動延後無限制。";
         }
     }
 

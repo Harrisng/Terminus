@@ -5,25 +5,26 @@ namespace Terminus.UI.Windows;
 
 public partial class WarningDialog : Window
 {
-    private readonly WarningNotificationArgs _args;
-
-    public WarningDialog(WarningNotificationArgs args)
+    public WarningDialog(string title, string message, string? quotaText = null,
+        bool showDelayButton = false, bool showShutdownButton = false, string? icon = null)
     {
         InitializeComponent();
-        _args = args;
+        TitleText.Text = title;
+        MessageText.Text = message;
+        IconText.Text = icon ?? "⚠️";
 
-        TitleText.Text = args.Title;
-        MessageText.Text = args.Message;
+        if (!string.IsNullOrEmpty(quotaText))
+        {
+            QuotaText.Text = quotaText;
+        }
+        else
+        {
+            QuotaBorder.Visibility = Visibility.Collapsed;
+        }
 
-        var quotaText = args.IsUnlimitedDelay
-            ? "延後次數：無限制"
-            : $"剩餘配額：{args.QuotaRemaining.TotalMinutes:F0} 分鐘";
-        QuotaText.Text = quotaText;
-
-        // Hide buttons based on args
-        if (!args.ShowDelayButton)
+        if (!showDelayButton)
             DelayButton.Visibility = Visibility.Collapsed;
-        if (!args.ShowShutdownButton)
+        if (!showShutdownButton)
             ShutdownButton.Visibility = Visibility.Collapsed;
     }
 
