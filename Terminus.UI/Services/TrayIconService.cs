@@ -80,7 +80,7 @@ public class TrayIconService : IDisposable
         // Subscribe to state changes
         _orchestrator.StateChanged += (s, e) =>
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 var stateText = e.NewState switch
                 {
