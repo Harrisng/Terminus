@@ -81,3 +81,9 @@ Terminus.Core/bin/
 Terminus.Core/obj/
 Terminus.Tests/bin/
 Terminus.Tests/obj/
+
+# Installer build artifacts
+Terminus.Installer/*.msi
+Terminus.Installer/*.wixpdb
+Terminus.Installer/bin/
+Terminus.Installer/obj/

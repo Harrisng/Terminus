@@ -58,7 +58,7 @@
                                      Height="38"
                                      VerticalContentAlignment="Center"
                                      Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="從 ITP Moodle 日曆獲取 webcal:// 地址"
+                            <TextBlock Text="從你的日曆獲取 webcal:// 或 https:// 地址"
                                        FontSize="{StaticResource FontSizeXS}"
                                        Foreground="{DynamicResource TextTertiary}"
                                        Margin="4,8,0,0"/>
