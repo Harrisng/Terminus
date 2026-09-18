@@ -114,10 +114,26 @@ public partial class DashboardPage : Page
         ClassificationText.Foreground = classInfo.Brush;
         ClassificationIndicator.Fill = classInfo.Brush;
 
-        if (context.Timing.WarningTime != LocalTime.Midnight)
-            WarningTimeText.Text = context.Timing.WarningTime.ToString("HH:mm", null);
+        // 下次預警時間：延遲中顯示延遲到期時間（警告重現時間），否則顯示排程預警時間（已過則 --）
+        if (context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
+        {
+            if (context.NextActionTime.HasValue)
+                WarningTimeText.Text = context.NextActionTime.Value.ToDateTimeUnspecified().ToString("HH:mm");
+            else
+                WarningTimeText.Text = "--";
+        }
+        else if (context.Timing.WarningTime != LocalTime.Midnight)
+        {
+            var nowTime = new LocalTime(now.Hour, now.Minute);
+            if (nowTime < context.Timing.WarningTime)
+                WarningTimeText.Text = context.Timing.WarningTime.ToString("HH:mm", null);
+            else
+                WarningTimeText.Text = "--";
+        }
         else
+        {
             WarningTimeText.Text = "--";
+        }
 
         if (context.Timing.IsUnlimitedManualDelay)
         {
