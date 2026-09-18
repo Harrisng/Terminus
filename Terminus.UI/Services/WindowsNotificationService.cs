@@ -5,65 +5,58 @@ using Terminus.UI.Windows;
 namespace Terminus.UI.Services;
 
 /// <summary>
-/// Windows notification service.
-/// Warnings use a topmost WarningDialog with action buttons.
-/// Other notifications use MessageBox parented to the MainWindow.
+/// All notifications use WarningDialog (dark-themed, topmost) for consistent UI.
 /// </summary>
 public class WindowsNotificationService : INotificationService
 {
     public Task ShowPreWarningAsync(TimeSpan timeUntilWarning, string firstClassInfo)
     {
-        ShowNotification("睡眠週期預警",
-            $"主警告將在 {timeUntilWarning.TotalMinutes:F0} 分鐘後出現\n{firstClassInfo}",
-            MessageBoxImage.Information);
+        var timeStr = FormatTimeSpan(timeUntilWarning);
+        ShowDialog("睡眠週期預警", "ℹ️",
+            $"主警告將在 {timeStr} 後出現\n{firstClassInfo}");
         return Task.CompletedTask;
     }
 
     public Task ShowWarningAsync(WarningNotificationArgs args)
     {
-        Application.Current?.Dispatcher.BeginInvoke(() =>
-        {
-            var dialog = new WarningDialog(args);
-            dialog.Show();
-            dialog.Activate();
-        });
+        var quotaText = args.IsUnlimitedDelay
+            ? "延後次數：無限制"
+            : $"剩餘配額：{FormatTimeSpan(args.QuotaRemaining)}";
+        ShowDialog(args.Title, "⚠️", args.Message, quotaText,
+            showDelayButton: args.ShowDelayButton,
+            showShutdownButton: args.ShowShutdownButton);
         return Task.CompletedTask;
     }
 
     public Task ShowDelayConfirmationAsync(TimeSpan delayedUntil, TimeSpan quotaRemaining, bool isUnlimited)
     {
         var quotaText = isUnlimited
-            ? "無限次延後"
-            : $"剩餘配額: {quotaRemaining.TotalMinutes:F0} 分鐘";
-
-        ShowNotification("已延後",
-            $"下次警告: {delayedUntil.TotalMinutes:F0} 分鐘後\n{quotaText}",
-            MessageBoxImage.Information);
+            ? "延後次數：無限制"
+            : $"剩餘配額：{FormatTimeSpan(quotaRemaining)}";
+        ShowDialog("已延後", "✅",
+            $"下次警告：{FormatTimeSpan(delayedUntil)} 後", quotaText);
         return Task.CompletedTask;
     }
 
     public Task ShowAIModeStartedAsync(string taskDescription)
     {
-        ShowNotification("AI 通宵模式已啟動",
-            $"{taskDescription}\n任務完成後系統將自動關機",
-            MessageBoxImage.Information);
+        ShowDialog("AI 通宵模式", "🤖",
+            $"{taskDescription}\n任務完成後系統將自動關機");
         return Task.CompletedTask;
     }
 
     public Task ShowAIModeCompletedAsync(string taskDescription, bool success)
     {
         var status = success ? "✓ 已成功完成" : "✗ 失敗";
-        ShowNotification("AI 模式已完成",
-            $"{taskDescription}\n{status}",
-            success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        ShowDialog("AI 模式已完成", success ? "✅" : "⚠️",
+            $"{taskDescription}\n{status}");
         return Task.CompletedTask;
     }
 
     public Task ShowShutdownImminentAsync(TimeSpan timeRemaining)
     {
-        ShowNotification("⚠ 即將關機",
-            $"系統將在 {timeRemaining.TotalSeconds:F0} 秒後關機",
-            MessageBoxImage.Warning);
+        ShowDialog("即將關機", "🚨",
+            $"系統將在 {FormatTimeSpan(timeRemaining)} 後關機");
         return Task.CompletedTask;
     }
 
@@ -72,10 +65,8 @@ public class WindowsNotificationService : INotificationService
         var cacheInfo = cacheAgeHours.HasValue
             ? $"使用 {cacheAgeHours.Value:F1} 小時前的快取"
             : "無可用快取";
-
-        ShowNotification("⚠ 日曆獲取錯誤",
-            $"連續失敗 {consecutiveFailures} 次\n{cacheInfo}",
-            MessageBoxImage.Warning);
+        ShowDialog("日曆獲取錯誤", "⚠️",
+            $"連續失敗 {consecutiveFailures} 次\n{cacheInfo}");
         return Task.CompletedTask;
     }
 
@@ -84,28 +75,28 @@ public class WindowsNotificationService : INotificationService
         return Task.CompletedTask;
     }
 
-    private void ShowNotification(string title, string message, MessageBoxImage icon)
+    private void ShowDialog(string title, string icon, string message,
+        string? quotaText = null, bool showDelayButton = false, bool showShutdownButton = false)
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            var mainWindow = App.MainWindow;
-            if (mainWindow != null)
-            {
-                // Bring MainWindow to front so the MessageBox is visible
-                if (!mainWindow.IsVisible)
-                    mainWindow.Show();
-                if (mainWindow.WindowState == WindowState.Minimized)
-                    mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Topmost = true;
-                mainWindow.Topmost = false;
-                mainWindow.Activate();
-
-                MessageBox.Show(mainWindow, message, title, MessageBoxButton.OK, icon);
-            }
-            else
-            {
-                MessageBox.Show(message, title, MessageBoxButton.OK, icon);
-            }
+            var dialog = new WarningDialog(title, message, quotaText, showDelayButton, showShutdownButton, icon);
+            dialog.Show();
+            dialog.Activate();
         });
+    }
+
+    /// <summary>
+    /// Formats a TimeSpan as "X 小時 Y 分鐘" or "Y 分鐘" or "Z 秒".
+    /// </summary>
+    private static string FormatTimeSpan(TimeSpan ts)
+    {
+        if (ts.TotalDays >= 1)
+            return $"{(int)ts.TotalDays} 天 {ts.Hours} 小時";
+        if (ts.TotalHours >= 1)
+            return $"{(int)ts.TotalHours} 小時 {ts.Minutes} 分鐘";
+        if (ts.TotalMinutes >= 1)
+            return $"{(int)ts.TotalMinutes} 分鐘";
+        return $"{(int)ts.TotalSeconds} 秒";
     }
 }
