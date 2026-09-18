@@ -85,8 +85,8 @@ cd D:\code\own\Terminus\Terminus.UI\bin\Debug\net8.0-windows
 
 1. **設置日曆 URL**
    - 打開設置窗口
-   - 輸入你的 ITP Moodle 日曆 URL (webcal://)
-   - 示例: `webcal://moodle.vtc.edu.hk/...`
+   - 輸入你的日曆 URL (webcal:// 或 https://)
+   - 示例: `webcal://your-calendar-server/...`
 
 2. **配置緩衝時間** (可選，默認已優化)
    - 睡眠時間: 360 分鐘 (6小時)

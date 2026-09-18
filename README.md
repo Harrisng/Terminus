@@ -9,7 +9,7 @@ A Windows desktop application that manages your sleep cycle by monitoring your c
 ## ✨ Features
 
 ### 🧠 Core Sleep Management
-- **iCal Calendar Sync** — Fetches your class timetable from a `webcal://` or `https://` ICS URL (Moodle, Google Calendar, etc.), refreshes every 6 hours with offline cache fallback.
+- **iCal Calendar Sync** — Fetches your class timetable from a `webcal://` or `https://` ICS URL (Google Calendar, iCloud, etc.), refreshes every 6 hours with offline cache fallback.
 - **Smart Timing Calculator** — Computes warning & hard-shutdown times based on your first class of the day, with configurable buffers (sleep, wash, breakfast, commute, pre-sleep).
 - **Early / Non-Early Classification** — Uses a 12:00 noon boundary to decide whether a day is "early class" (limited delay quota) or "non-early" (unlimited delays).
 - **Delay System** — Snooze the warning in 30-minute increments. Early-class days get a 90-minute quota; non-early days are unlimited.
