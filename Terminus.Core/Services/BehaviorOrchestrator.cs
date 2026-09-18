@@ -129,7 +129,7 @@ public class BehaviorOrchestrator
     /// <summary>
     /// User pressed delay button.
     /// </summary>
-    public async Task OnDelayRequestedAsync()
+    public async Task<bool> OnDelayRequestedAsync()
     {
         BehaviorContext? ctx;
         lock (_lock)
@@ -138,7 +138,7 @@ public class BehaviorOrchestrator
         }
 
         if (ctx == null || ctx.State != BehaviorState.Warning)
-            return;
+            return false;
 
         var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
 
@@ -149,15 +149,15 @@ public class BehaviorOrchestrator
             {
                 await _notificationService.ShowWarningAsync(new WarningNotificationArgs
                 {
-                    Title = "Quota Exhausted",
-                    Message = "No delay quota remaining. Shutting down soon.",
+                    Title = "配額已用完",
+                    Message = "延遲配額已用完，即將關機。",
                     QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                     IsUnlimitedDelay = false,
                     ShowDelayButton = false,
                     ShowShutdownButton = true,
                     ShowAIModeButton = true
                 });
-                return;
+                return false;
             }
 
             ctx.CurrentCycle.QuotaRemaining -= ctx.DelayIncrement;
@@ -175,6 +175,7 @@ public class BehaviorOrchestrator
             ctx.DelayIncrement,
             ctx.CurrentCycle.QuotaRemaining,
             ctx.Timing.IsUnlimitedManualDelay);
+        return true;
     }
 
     /// <summary>
