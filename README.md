@@ -19,7 +19,7 @@ A Windows desktop application that manages your sleep cycle by monitoring your c
 ### 🖥️ Modern UI
 - **Dashboard** — Live state display: today's first class, warning time, countdown, delay quota remaining, and shutdown time.
 - **Calendar Page** — Monthly and weekly views of your schedule. Click any date to see detailed event list (time, title, location).
-- **Settings Page** — Configure calendar URL, buffer times, theme, and startup behavior.
+- **Settings Page** — Configure calendar URL, buffer times, early-class classification (cutoff hour & delay quota), theme, and startup behavior.
 - **AI Overnight Mode** — Optional AI-assisted wake-up flow with configurable endpoint, API key, and model.
 - **Logs Window** — In-app log viewer with filtering and live updates.
 - **Dark / Light Theme** — Full dark mode support with dynamic resource-based theming.
