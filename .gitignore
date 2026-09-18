@@ -1,0 +1,83 @@
+# Build output
+bin/
+obj/
+publish/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+nuget.exe
+*.nuget.props
+*.nuget.targets
+
+# .NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.dll
+*.exe
+*.pdb
+*.mdb
+
+# WPF / ClickOnce
+*.publish.xml
+publish/
+*.pfx
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.bak
+*.tmp
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment / secrets
+*.env
+*.secret
+secrets.json
+appsettings.local.json
+
+# Terminus local data
+Terminus.UI/bin/
+Terminus.UI/obj/
+Terminus.Core/bin/
+Terminus.Core/obj/
+Terminus.Tests/bin/
+Terminus.Tests/obj/

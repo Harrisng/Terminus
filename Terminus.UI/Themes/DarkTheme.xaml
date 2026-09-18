@@ -1,0 +1,105 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Background Colors - Termius style dark theme -->
+    <SolidColorBrush x:Key="BgPrimary" Color="#1a1d2e"/>
+    <SolidColorBrush x:Key="BgSecondary" Color="#222539"/>
+    <SolidColorBrush x:Key="BgTertiary" Color="#2d314d"/>
+    <SolidColorBrush x:Key="BgCard" Color="#25283d"/>
+    <SolidColorBrush x:Key="BgSidebar" Color="#161827"/>
+    <SolidColorBrush x:Key="BgHeader" Color="#1e2033"/>
+    <SolidColorBrush x:Key="BgInput" Color="#1e2038"/>
+    <SolidColorBrush x:Key="BgHover" Color="#323652"/>
+
+    <!-- Accent Colors - Purple/Indigo -->
+    <SolidColorBrush x:Key="AccentPrimary" Color="#7c6df2"/>
+    <SolidColorBrush x:Key="AccentSecondary" Color="#9b8af5"/>
+    <SolidColorBrush x:Key="AccentGlow" Color="#6c5ce7"/>
+    <SolidColorBrush x:Key="AccentSoft" Color="#2d2a5a"/>
+    <SolidColorBrush x:Key="AccentActive" Color="#3c3870"/>
+
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="TextPrimary" Color="#f0f2f8"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="#9ba1b5"/>
+    <SolidColorBrush x:Key="TextTertiary" Color="#6b728e"/>
+    <SolidColorBrush x:Key="TextMuted" Color="#4d5268"/>
+    <SolidColorBrush x:Key="TextAccent" Color="#9b8af5"/>
+    <SolidColorBrush x:Key="TextWhite" Color="#ffffff"/>
+
+    <!-- Border Colors -->
+    <SolidColorBrush x:Key="BorderPrimary" Color="#333652"/>
+    <SolidColorBrush x:Key="BorderSecondary" Color="#3d4160"/>
+    <SolidColorBrush x:Key="BorderAccent" Color="#7c6df2"/>
+
+    <!-- Status Colors -->
+    <SolidColorBrush x:Key="StatusSuccess" Color="#00d68f"/>
+    <SolidColorBrush x:Key="StatusWarning" Color="#ffaa00"/>
+    <SolidColorBrush x:Key="StatusError" Color="#ff5c5c"/>
+    <SolidColorBrush x:Key="StatusInfo" Color="#4a9eff"/>
+    <SolidColorBrush x:Key="StatusIdle" Color="#7c6df2"/>
+
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="SidebarGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#161827" Offset="0"/>
+        <GradientStop Color="#1a1d2e" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#7c6df2" Offset="0"/>
+        <GradientStop Color="#a78bfa" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1e2033" Offset="0"/>
+        <GradientStop Color="#1a1d2e" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#25283d" Offset="0"/>
+        <GradientStop Color="#1f2235" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Glow Effects -->
+    <DropShadowEffect x:Key="AccentGlowEffect" Color="#7c6df2" Opacity="0.25" BlurRadius="16" ShadowDepth="0"/>
+    <DropShadowEffect x:Key="CardShadow" Color="#000000" Opacity="0.3" BlurRadius="12" ShadowDepth="2"/>
+    <DropShadowEffect x:Key="SoftShadow" Color="#000000" Opacity="0.15" BlurRadius="8" ShadowDepth="1"/>
+
+    <!-- Font Sizes -->
+    <sys:Double x:Key="FontSizeXS">11</sys:Double>
+    <sys:Double x:Key="FontSizeSM">12</sys:Double>
+    <sys:Double x:Key="FontSizeBase">13</sys:Double>
+    <sys:Double x:Key="FontSizeLG">15</sys:Double>
+    <sys:Double x:Key="FontSizeXL">17</sys:Double>
+    <sys:Double x:Key="FontSize2XL">20</sys:Double>
+    <sys:Double x:Key="FontSize3XL">26</sys:Double>
+    <sys:Double x:Key="FontSize4XL">32</sys:Double>
+    <sys:Double x:Key="FontSizeDisplay">42</sys:Double>
+
+    <!-- Spacing -->
+    <Thickness x:Key="SpacingXSThickness">4</Thickness>
+    <Thickness x:Key="SpacingSMThickness">8</Thickness>
+    <Thickness x:Key="SpacingMDThickness">16</Thickness>
+    <Thickness x:Key="SpacingLGThickness">20</Thickness>
+    <Thickness x:Key="SpacingXLThickness">24</Thickness>
+    <Thickness x:Key="Spacing2XLThickness">32</Thickness>
+
+    <!-- Common Margins -->
+    <Thickness x:Key="MarginBottomXS">0,0,0,4</Thickness>
+    <Thickness x:Key="MarginBottomSM">0,0,0,8</Thickness>
+    <Thickness x:Key="MarginBottomMD">0,0,0,16</Thickness>
+    <Thickness x:Key="MarginBottomLG">0,0,0,20</Thickness>
+    <Thickness x:Key="MarginBottomXL">0,0,0,24</Thickness>
+    <Thickness x:Key="MarginRightMD">0,0,16,0</Thickness>
+    <Thickness x:Key="MarginRightBottomMD">0,0,16,16</Thickness>
+    <Thickness x:Key="MarginRightBottomSM">0,0,12,8</Thickness>
+    <Thickness x:Key="MarginTopBottomMD">0,16,0,16</Thickness>
+    <Thickness x:Key="MarginTopLGBottomMD">0,20,0,16</Thickness>
+
+    <!-- Corner Radius -->
+    <CornerRadius x:Key="CornerRadiusSM">4</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusMD">8</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusLG">12</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusXL">16</CornerRadius>
+
+</ResourceDictionary>

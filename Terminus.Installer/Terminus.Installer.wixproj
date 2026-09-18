@@ -1,0 +1,8 @@
+<Project Sdk="WixToolset.Sdk/5.0.0">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>TerminusSetup</OutputName>
+    <PackageLanguage>zh-TW</PackageLanguage>
+    <PackagePlatform>x64</PackagePlatform>
+  </PropertyGroup>
+</Project>
