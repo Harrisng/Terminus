@@ -43,7 +43,7 @@ public partial class DashboardPage : Page
 
     private void OnStateChanged(object? sender, BehaviorStateChangedEventArgs e)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.BeginInvoke(() =>
         {
             UpdateDisplay(null, EventArgs.Empty);
             LoadSchedulePreview();
