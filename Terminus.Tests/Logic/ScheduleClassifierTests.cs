@@ -43,16 +43,46 @@ public class ScheduleClassifierTests
     }
 
     [Fact]
-    public void TestCaseB_ClassExactlyAt1200_IsNonEarlyClassDay()
+    public void TestCaseB_ClassAtCutoffBoundary_IsNonEarlyClassDay()
     {
-        // Edge case: class exactly at 12:00 is NON-early-class
+        // Edge case: class exactly at cutoff hour is NON-early-class
         var targetDate = new LocalDate(2026, 6, 18);
         var events = new List<CalendarEvent>
         {
             CreateEvent(targetDate, 12, 0, "ITP3915", isQualifying: true)
         };
 
-        var classification = ScheduleClassifier.ClassifyDay(targetDate, events);
+        var classification = ScheduleClassifier.ClassifyDay(targetDate, events, cutoffHour: 12);
+
+        classification.Should().Be(DayClassification.NonEarlyClass);
+    }
+
+    [Fact]
+    public void TestCaseB_CustomCutoffHour_ChangesClassification()
+    {
+        // With cutoff at 15:00, a 13:30 class becomes early-class
+        var targetDate = new LocalDate(2026, 6, 18);
+        var events = new List<CalendarEvent>
+        {
+            CreateEvent(targetDate, 13, 30, "ITP4416", isQualifying: true)
+        };
+
+        var classification = ScheduleClassifier.ClassifyDay(targetDate, events, cutoffHour: 15);
+
+        classification.Should().Be(DayClassification.EarlyClass);
+    }
+
+    [Fact]
+    public void TestCaseB_CustomCutoffHour_ExactlyAtCutoff_IsNonEarly()
+    {
+        // Class exactly at custom cutoff is NON-early-class
+        var targetDate = new LocalDate(2026, 6, 18);
+        var events = new List<CalendarEvent>
+        {
+            CreateEvent(targetDate, 15, 0, "ITP4416", isQualifying: true)
+        };
+
+        var classification = ScheduleClassifier.ClassifyDay(targetDate, events, cutoffHour: 15);
 
         classification.Should().Be(DayClassification.NonEarlyClass);
     }
@@ -132,9 +162,9 @@ public class ScheduleClassifierTests
         var targetDate = new LocalDate(2026, 6, 18);
         var events = new List<CalendarEvent>
         {
-            // Non-qualifying events (bookings, gym, etc.)
-            CreateEvent(targetDate, 9, 30, "Gym Session", isQualifying: false),
-            CreateEvent(targetDate, 10, 0, "Online check In", isQualifying: false)
+            // All-day events and "NO CLASS" events are non-qualifying
+            CreateEventAllDay(targetDate, "Public Holiday", isQualifying: false),
+            CreateEvent(targetDate, 10, 0, "NO CLASS - ITP4416", isQualifying: false)
         };
 
         var classification = ScheduleClassifier.ClassifyDay(targetDate, events);
@@ -148,7 +178,7 @@ public class ScheduleClassifierTests
         var targetDate = new LocalDate(2026, 6, 18);
         var events = new List<CalendarEvent>
         {
-            CreateEvent(targetDate, 8, 0, "Gym", isQualifying: false),
+            CreateEventAllDay(targetDate, "Holiday", isQualifying: false),
             CreateEvent(targetDate, 13, 30, "ITP4416", isQualifying: true) // Only afternoon class
         };
 
@@ -164,12 +194,28 @@ public class ScheduleClassifierTests
         var targetDate = new LocalDate(2026, 6, 18);
         var events = new List<CalendarEvent>
         {
-            CreateEventAllDay(targetDate, "ITP4416 - NO CLASS", isQualifying: false)
+            CreateEventAllDay(targetDate, "ITP4416", isQualifying: false)
         };
 
         var classification = ScheduleClassifier.ClassifyDay(targetDate, events);
 
         classification.Should().Be(DayClassification.NonEarlyClass);
+    }
+
+    [Fact]
+    public void ClassifyDay_AnyTimedEvent_IsQualifying()
+    {
+        // With the new logic, ANY timed event (not all-day, no "NO CLASS") is qualifying
+        var targetDate = new LocalDate(2026, 6, 18);
+        var events = new List<CalendarEvent>
+        {
+            CreateEvent(targetDate, 9, 30, "Team Meeting", isQualifying: true),
+            CreateEvent(targetDate, 10, 0, "Doctor Appointment", isQualifying: true)
+        };
+
+        var classification = ScheduleClassifier.ClassifyDay(targetDate, events);
+
+        classification.Should().Be(DayClassification.EarlyClass);
     }
 
     [Fact]

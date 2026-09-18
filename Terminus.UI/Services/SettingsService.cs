@@ -155,6 +155,60 @@ public class SettingsService
         catch { }
     }
 
+    /// <summary>
+    /// Hour (0-23) that separates early-class vs non-early-class days.
+    /// Default is 12 (noon). Any class starting before this hour is "early".
+    /// </summary>
+    public int GetEarlyClassCutoffHour()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(_registryPath);
+            return key?.GetValue("EarlyClassCutoffHour") as int? ?? 12;
+        }
+        catch
+        {
+            return 12;
+        }
+    }
+
+    public void SetEarlyClassCutoffHour(int hour)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(_registryPath);
+            key.SetValue("EarlyClassCutoffHour", Math.Clamp(hour, 0, 23));
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Delay quota in minutes for early-class days.
+    /// Default is 90 minutes.
+    /// </summary>
+    public int GetEarlyClassDelayQuotaMinutes()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(_registryPath);
+            return key?.GetValue("EarlyClassDelayQuotaMinutes") as int? ?? 90;
+        }
+        catch
+        {
+            return 90;
+        }
+    }
+
+    public void SetEarlyClassDelayQuotaMinutes(int minutes)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(_registryPath);
+            key.SetValue("EarlyClassDelayQuotaMinutes", Math.Max(0, minutes));
+        }
+        catch { }
+    }
+
     public bool GetStartWithWindows()
     {
         try

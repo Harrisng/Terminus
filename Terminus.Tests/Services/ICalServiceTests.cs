@@ -14,41 +14,55 @@ namespace Terminus.Core.Tests.Services;
 public class ICalServiceTests
 {
     [Fact]
-    public void CourseCodePattern_MatchesValidCodes()
+    public void QualifyingCourse_AnyTimedEvent_IsQualifying()
     {
-        // Test various valid course code formats
-        var validCodes = new[]
+        // With the new logic, ANY timed event is qualifying
+        var summaries = new[]
         {
-            "ITP4416",
-            "ITE3006",
-            "ITP-3915",
-            "COMP1234",
-            "CS-5678"
+            "Team Meeting",
+            "Doctor Appointment",
+            "ITP4416 Lecture",
+            "Gym Session",
+            "Lunch with friends",
+            "線上會議"
         };
 
-        foreach (var code in validCodes)
+        foreach (var summary in summaries)
         {
-            IsMatchingCourseCode(code).Should().BeTrue($"{code} should match pattern");
+            IsQualifyingCourse(summary, isAllDay: false).Should().BeTrue($"'{summary}' should be qualifying");
         }
     }
 
     [Fact]
-    public void CourseCodePattern_RejectsInvalidCodes()
+    public void QualifyingCourse_AllDayEvent_IsNotQualifying()
     {
-        var invalidCodes = new[]
+        var summaries = new[]
         {
-            "Gym Session",
-            "Online check In",
-            "錄音室預約",
-            "123456",
-            "A1234",
-            "ABCDEFG",
-            "NO CLASS"
+            "Public Holiday",
+            "ITP4416",
+            "Team Offsite"
         };
 
-        foreach (var code in invalidCodes)
+        foreach (var summary in summaries)
         {
-            IsMatchingCourseCode(code).Should().BeFalse($"{code} should NOT match pattern");
+            IsQualifyingCourse(summary, isAllDay: true).Should().BeFalse($"'{summary}' should NOT be qualifying (all-day)");
+        }
+    }
+
+    [Fact]
+    public void QualifyingCourse_NoClassEvent_IsNotQualifying()
+    {
+        var summaries = new[]
+        {
+            "ITP4416 - NO CLASS",
+            "NO CLASS today",
+            "no class",
+            "No Class"
+        };
+
+        foreach (var summary in summaries)
+        {
+            IsQualifyingCourse(summary, isAllDay: false).Should().BeFalse($"'{summary}' should NOT be qualifying (NO CLASS)");
         }
     }
 
@@ -73,10 +87,16 @@ public class ICalServiceTests
         converted.Should().Be(httpsUrl);
     }
 
-    // Helper method to test course code matching
-    private static bool IsMatchingCourseCode(string summary)
+    // Helper method mirroring ICalService.IsQualifyingCourse logic
+    private static bool IsQualifyingCourse(string summary, bool isAllDay)
     {
-        return System.Text.RegularExpressions.Regex.IsMatch(summary, @"^[A-Z]{2,4}-?\d{4}");
+        if (isAllDay)
+            return false;
+
+        if (summary.Contains("NO CLASS", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
     }
 
     private static string ConvertWebcalToHttps(string url)

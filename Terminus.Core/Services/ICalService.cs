@@ -2,7 +2,6 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using NodaTime;
-using System.Text.RegularExpressions;
 using Terminus.Core.Models;
 
 namespace Terminus.Core.Services;
@@ -15,11 +14,6 @@ public partial class ICalService
 {
     private static readonly DateTimeZone HongKongTimeZone = DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"];
     private readonly HttpClient _httpClient;
-
-    // Course code pattern: 2-4 uppercase letters, optional hyphen, 4 digits
-    // Examples: ITP4416, ITE3006, ITP-3915
-    [GeneratedRegex(@"^[A-Z]{2,4}-?\d{4}")]
-    private static partial Regex CourseCodeRegex();
 
     public ICalService(HttpClient httpClient)
     {
@@ -201,10 +195,11 @@ public partial class ICalService
     }
 
     /// <summary>
-    /// Determines if an event qualifies as a course based on spec criteria:
-    /// - SUMMARY matches ^[A-Z]{2,4}-?\d{4}
-    /// - NOT an all-day event (VALUE=DATE)
-    /// - SUMMARY does NOT contain "NO CLASS"
+    /// Determines if an event qualifies as a course.
+    /// Any timed (non-all-day) event counts as a qualifying course,
+    /// except events whose summary contains "NO CLASS".
+    /// This makes the app compatible with any calendar format, not just
+    /// course-code-style timetables.
     /// </summary>
     private static bool IsQualifyingCourse(string summary, bool isAllDay)
     {
@@ -214,6 +209,6 @@ public partial class ICalService
         if (summary.Contains("NO CLASS", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return CourseCodeRegex().IsMatch(summary);
+        return true;
     }
 }

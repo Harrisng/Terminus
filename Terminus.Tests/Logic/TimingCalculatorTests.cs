@@ -147,7 +147,7 @@ public class TimingCalculatorTests
     }
 
     [Fact]
-    public void EarlyClassDay_Has90MinuteQuota()
+    public void EarlyClassDay_DefaultQuota_Is90Minutes()
     {
         var firstClassTime = new LocalTime(9, 30);
 
@@ -157,6 +157,22 @@ public class TimingCalculatorTests
 
         timing.TotalQuota.Should().Be(TimeSpan.FromMinutes(90));
         timing.IsUnlimitedManualDelay.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EarlyClassDay_CustomQuota_IsUsed()
+    {
+        var firstClassTime = new LocalTime(9, 30);
+        var customQuota = TimeSpan.FromMinutes(120);
+
+        var timing = TimingCalculator.CalculateTiming(
+            DayClassification.EarlyClass,
+            firstClassTime,
+            earlyClassQuota: customQuota);
+
+        timing.TotalQuota.Should().Be(customQuota);
+        // Warning is 00:15, + 120min = 02:15
+        timing.HardShutdownTime.Should().Be(new LocalTime(2, 15));
     }
 
     [Fact]

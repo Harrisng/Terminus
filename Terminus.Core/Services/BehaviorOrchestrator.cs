@@ -20,6 +20,19 @@ public class BehaviorOrchestrator
     private Timer? _timer;
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Hour (0-23) that separates early-class vs non-early-class days.
+    /// Any class starting before this hour is considered "early".
+    /// Default is 12 (noon).
+    /// </summary>
+    public int EarlyClassCutoffHour { get; set; } = 12;
+
+    /// <summary>
+    /// Delay quota for early-class days.
+    /// Default is 90 minutes.
+    /// </summary>
+    public TimeSpan EarlyClassDelayQuota { get; set; } = TimeSpan.FromMinutes(90);
+
     public event EventHandler<BehaviorStateChangedEventArgs>? StateChanged;
     public event EventHandler<string>? ErrorOccurred;
 
@@ -254,14 +267,17 @@ public class BehaviorOrchestrator
 
         LoggerService.Info($"Orchestrator: 日曆數據, 事件數={events.Count}, hasData={hasData}, status={status}");
 
-        // Classify day
-        var classification = ScheduleClassifier.ClassifyDay(cycle.TargetDate, events, hasData);
-        var firstClassTime = ScheduleClassifier.GetFirstClassTime(cycle.TargetDate, events);
+        // Classify day (using configurable cutoff hour)
+        var cutoffHour = EarlyClassCutoffHour;
+        var classification = ScheduleClassifier.ClassifyDay(cycle.TargetDate, events, hasData, cutoffHour);
+        var firstClassTime = ScheduleClassifier.GetFirstClassTime(cycle.TargetDate, events, cutoffHour);
 
-        LoggerService.Info($"Orchestrator: 日期分類={classification}, 首節課時間={(firstClassTime.HasValue ? firstClassTime.Value.ToString("HH:mm", null) : "無")}");
+        LoggerService.Info($"Orchestrator: 日期分類={classification}, 首節課時間={(firstClassTime.HasValue ? firstClassTime.Value.ToString("HH:mm", null) : "無")}, 早課截止={cutoffHour}:00");
 
-        // Calculate timing
-        var timing = TimingCalculator.CalculateTiming(classification, firstClassTime);
+        // Calculate timing (using configurable delay quota)
+        var timing = TimingCalculator.CalculateTiming(
+            classification, firstClassTime,
+            earlyClassQuota: EarlyClassDelayQuota);
 
         LoggerService.Info($"Orchestrator: 預警={timing.PreWarningTime}, 警告={timing.WarningTime}, 硬關機={timing.HardShutdownTime}");
 

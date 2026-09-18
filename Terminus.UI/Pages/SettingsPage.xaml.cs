@@ -95,9 +95,10 @@ public partial class SettingsPage : Page
             _settingsService.SetStartWithWindows(StartWithWindowsCheckBox.IsChecked ?? false);
 
             // Immediately restart orchestrator with new URL
-    var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
+            var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
             if (orchestrator != null)
             {
+                App.ApplyOrchestratorSettings(orchestrator, _settingsService);
                 await orchestrator.RestartAsync(url);
             }
 

@@ -105,6 +105,7 @@ public partial class App : Application
                 // Existing user: start orchestrator and show dashboard
                 Terminus.Core.Services.LoggerService.Info("App: 已有用戶, 啟動 orchestrator 並跳轉到儀表板");
                 var orchestrator = _host.Services.GetRequiredService<BehaviorOrchestrator>();
+                ApplyOrchestratorSettings(orchestrator, settings);
                 await orchestrator.StartAsync(calendarUrl);
                 _mainWindow.NavigateToDashboard();
             }
@@ -135,4 +136,14 @@ public partial class App : Application
     public static IServiceProvider Services => ((App)Current)._host!.Services;
 
     public static MainWindow? MainWindow => ((App)Current)._mainWindow;
+
+    /// <summary>
+    /// Applies configurable user settings to the BehaviorOrchestrator.
+    /// Called on startup and whenever settings are saved.
+    /// </summary>
+    public static void ApplyOrchestratorSettings(BehaviorOrchestrator orchestrator, SettingsService settings)
+    {
+        orchestrator.EarlyClassCutoffHour = settings.GetEarlyClassCutoffHour();
+        orchestrator.EarlyClassDelayQuota = TimeSpan.FromMinutes(settings.GetEarlyClassDelayQuotaMinutes());
+    }
 }
