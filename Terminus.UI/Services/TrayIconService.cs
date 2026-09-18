@@ -109,12 +109,16 @@ public class TrayIconService : IDisposable
             return;
         }
 
-        mainWindow.Show();
-        mainWindow.WindowState = WindowState.Normal;
-        mainWindow.Activate();
-        mainWindow.Focus();
+        if (!mainWindow.IsVisible)
+            mainWindow.Show();
+        if (mainWindow.WindowState == WindowState.Minimized)
+            mainWindow.WindowState = WindowState.Normal;
+
+        // Topmost trick to force foreground, THEN activate/focus after
         mainWindow.Topmost = true;
         mainWindow.Topmost = false;
+        mainWindow.Activate();
+        mainWindow.Focus();
     }
 
     private void ShowSettings()
@@ -126,12 +130,15 @@ public class TrayIconService : IDisposable
             return;
         }
 
-        mainWindow.Show();
-        mainWindow.WindowState = WindowState.Normal;
-        mainWindow.Activate();
-        mainWindow.Focus();
+        if (!mainWindow.IsVisible)
+            mainWindow.Show();
+        if (mainWindow.WindowState == WindowState.Minimized)
+            mainWindow.WindowState = WindowState.Normal;
+
         mainWindow.Topmost = true;
         mainWindow.Topmost = false;
+        mainWindow.Activate();
+        mainWindow.Focus();
         mainWindow.NavigateToSettings();
     }
 
