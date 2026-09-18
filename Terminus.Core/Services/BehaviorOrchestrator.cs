@@ -172,7 +172,8 @@ public class BehaviorOrchestrator
             ChangeState(ctx, BehaviorState.Delayed);
         }
 
-        SaveCycleState("manual", (int)delayAmount.TotalMinutes);
+        var delayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
+        SaveCycleState("manual", (int)delayAmount.TotalMinutes, delayedTo);
 
         await _notificationService.ShowDelayConfirmationAsync(
             delayAmount,
@@ -459,7 +460,8 @@ public class BehaviorOrchestrator
             {
                 ChangeState(ctx, BehaviorState.AutoDelaying);
             }
-            SaveCycleState("auto", (int)ctx.DelayIncrement.TotalMinutes);
+            var autoDelayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
+            SaveCycleState("auto", (int)ctx.DelayIncrement.TotalMinutes, autoDelayedTo);
         }
 
         // Check if hard shutdown time reached
@@ -636,7 +638,7 @@ public class BehaviorOrchestrator
     /// <summary>
     /// 將當前週期狀態加密存檔。可附帶一筆延遲歷史記錄。
     /// </summary>
-    private void SaveCycleState(string? delayType = null, int delayMinutes = 0)
+    private void SaveCycleState(string? delayType = null, int delayMinutes = 0, string? delayedTo = null)
     {
         try
         {
@@ -655,6 +657,7 @@ public class BehaviorOrchestrator
                 {
                     Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                     DurationMinutes = delayMinutes,
+                    DelayedTo = delayedTo ?? "",
                     Type = delayType
                 });
             }
@@ -772,8 +775,9 @@ public class BehaviorOrchestrator
 
     private class DelayRecord
     {
-        public string Timestamp { get; set; } = "";
-        public int DurationMinutes { get; set; }
-        public string Type { get; set; } = ""; // "manual" or "auto"
+        public string Timestamp { get; set; } = "";       // 點擊時間
+        public int DurationMinutes { get; set; }          // 延遲分鐘數
+        public string DelayedTo { get; set; } = "";        // 延後到幾點幾分
+        public string Type { get; set; } = "";             // "manual" or "auto"
     }
 }
