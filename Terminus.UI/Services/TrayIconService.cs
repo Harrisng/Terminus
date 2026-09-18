@@ -54,11 +54,36 @@ public class TrayIconService : IDisposable
 
         // Quick actions
         var delayItem = new MenuItem { Header = "⏰ 延遲 30 分鐘" };
-        delayItem.Click += async (s, e) => await _orchestrator.OnDelayRequestedAsync();
+        delayItem.Click += async (s, e) =>
+        {
+            var success = await _orchestrator.OnDelayRequestedAsync();
+            if (!success)
+            {
+                Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    var feedback = new Windows.WarningDialog("無法延遲",
+                        "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
+                    feedback.Show();
+                    feedback.Activate();
+                });
+            }
+        };
         contextMenu.Items.Add(delayItem);
 
         var shutdownItem = new MenuItem { Header = "⚡ 立即關機" };
-        shutdownItem.Click += async (s, e) => await _orchestrator.OnShutdownNowRequestedAsync();
+        shutdownItem.Click += (s, e) =>
+        {
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                var dialog = new Windows.WarningDialog("確認關機", "確定要立即關機嗎？\n此操作無法復原。", icon: "⚡");
+                dialog.SetConfirmMode("立即關機", isDanger: true);
+                dialog.ShowDialog();
+                if (dialog.DialogResult == true)
+                {
+                    _ = _orchestrator.OnShutdownNowRequestedAsync();
+                }
+            });
+        };
         contextMenu.Items.Add(shutdownItem);
 
         contextMenu.Items.Add(new Separator());

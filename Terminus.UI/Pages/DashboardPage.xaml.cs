@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using Terminus.Core.Services;
 using Terminus.Core.Logic;
 using Terminus.Core.Models;
+using Terminus.UI.Windows;
 using NodaTime;
 
 namespace Terminus.UI.Pages;
@@ -277,13 +278,30 @@ public partial class DashboardPage : Page
 
     private async void DelayButton_Click(object sender, RoutedEventArgs e)
     {
-        await _orchestrator.OnDelayRequestedAsync();
+        var dialog = new WarningDialog("確認延遲", "確定要延遲 30 分鐘嗎？", icon: "⏰");
+        dialog.SetConfirmMode("確認延遲");
+        dialog.ShowDialog();
+
+        if (dialog.DialogResult != true)
+            return;
+
+        var success = await _orchestrator.OnDelayRequestedAsync();
+        if (!success)
+        {
+            var feedback = new WarningDialog("無法延遲",
+                "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
+            feedback.Show();
+            feedback.Activate();
+        }
     }
 
     private async void ShutdownNowButton_Click(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show("確定要立即關機嗎？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-        if (result == MessageBoxResult.Yes)
+        var dialog = new WarningDialog("確認關機", "確定要立即關機嗎？\n此操作無法復原。", icon: "⚡");
+        dialog.SetConfirmMode("立即關機", isDanger: true);
+        dialog.ShowDialog();
+
+        if (dialog.DialogResult == true)
         {
             await _orchestrator.OnShutdownNowRequestedAsync();
         }
@@ -291,6 +309,8 @@ public partial class DashboardPage : Page
 
     private void AIModeButton_Click(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("AI 通宵模式功能開發中...", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+        var dialog = new WarningDialog("AI 通宵模式", "此功能開發中，敬請期待。", icon: "🤖");
+        dialog.Show();
+        dialog.Activate();
     }
 }
