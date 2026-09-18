@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows;
 using Terminus.Core.Services;
 
@@ -5,6 +6,11 @@ namespace Terminus.UI.Windows;
 
 public partial class WarningDialog : Window
 {
+    /// <summary>
+    /// 警告模式（有延後/關機按鈕）下為 false，用戶必須選一個操作才能關閉。
+    /// </summary>
+    private bool _allowClose = true;
+
     public WarningDialog(string title, string message, string? quotaText = null,
         bool showDelayButton = false, bool showShutdownButton = false, string? icon = null)
     {
@@ -26,6 +32,13 @@ public partial class WarningDialog : Window
             DelayButton.Visibility = Visibility.Collapsed;
         if (!showShutdownButton)
             ShutdownButton.Visibility = Visibility.Collapsed;
+
+        // 警告模式：必須選操作才能關閉，隱藏「關閉」按鈕
+        if (showDelayButton || showShutdownButton)
+        {
+            _allowClose = false;
+            CloseButton.Visibility = Visibility.Collapsed;
+        }
     }
 
     /// <summary>
@@ -40,6 +53,7 @@ public partial class WarningDialog : Window
         CloseButton.Visibility = Visibility.Collapsed;
         DelayButton.Visibility = Visibility.Collapsed;
         ShutdownButton.Visibility = Visibility.Collapsed;
+        _allowClose = true;
 
         if (isDanger)
         {
@@ -49,14 +63,22 @@ public partial class WarningDialog : Window
         }
     }
 
+    private void Window_Closing(object? sender, CancelEventArgs e)
+    {
+        if (!_allowClose)
+            e.Cancel = true;
+    }
+
     private void ConfirmButton_Click(object sender, RoutedEventArgs e)
     {
+        _allowClose = true;
         DialogResult = true;
         Close();
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
+        _allowClose = true;
         DialogResult = false;
         Close();
     }
@@ -70,6 +92,7 @@ public partial class WarningDialog : Window
                 await orchestrator.OnDelayRequestedAsync();
         }
         catch { }
+        _allowClose = true;
         Close();
     }
 
@@ -82,11 +105,13 @@ public partial class WarningDialog : Window
                 await orchestrator.OnShutdownNowRequestedAsync();
         }
         catch { }
+        _allowClose = true;
         Close();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
+        _allowClose = true;
         Close();
     }
 }
