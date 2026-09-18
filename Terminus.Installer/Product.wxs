@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Terminus Sleep Cycle Manager"
+           Manufacturer="Terminus"
+           Version="2.5.0.0"
+           UpgradeCode="B8F9A7C1-3D2E-4F6A-9B8C-1E5D7A9F3C4B">
+
+    <MajorUpgrade DowngradeErrorMessage="已安裝較新版本。" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Terminus" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Terminus"/>
+    </StandardDirectory>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Terminus Sleep Cycle Manager"
+                  Target="[INSTALLFOLDER]Terminus.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="TerminusIcon.exe"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Terminus"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component>
+        <File Source="..\publish\Terminus.exe" KeyPath="yes" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Terminus.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Terminus.Core.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Terminus.runtimeconfig.json" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Terminus.deps.json" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Ical.Net.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\NodaTime.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Microsoft.Extensions.DependencyInjection.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Microsoft.Extensions.Hosting.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Microsoft.Extensions.Hosting.Abstractions.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Hardcodet.NotifyIcon.Wpf.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\Microsoft.Toolkit.Uwp.Notifications.dll" />
+      </Component>
+      <Component>
+        <File Source="..\publish\CommunityToolkit.WinUI.Notifications.dll" />
+      </Component>
+    </ComponentGroup>
+
+    <Icon Id="TerminusIcon.exe" SourceFile="..\publish\Terminus.exe" />
+    <Property Id="ARPPRODUCTICON" Value="TerminusIcon.exe" />
+
+  </Package>
+</Wix>

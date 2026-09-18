@@ -1,0 +1,50 @@
+<Window x:Class="Terminus.UI.AIModeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AI 通宵模式"
+        Width="420" Height="280"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display"
+        Background="{DynamicResource BgPrimary}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="AI 通宵模式"
+                   FontSize="{StaticResource FontSize2XL}"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextPrimary}"
+                   Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="請描述 AI 需要執行的任務："
+                       FontSize="{StaticResource FontSizeBase}"
+                       Foreground="{DynamicResource TextSecondary}"
+                       Margin="0,0,0,10"/>
+            <TextBox x:Name="TaskDescriptionTextBox"
+                     Height="80"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto"
+                     Margin="0,0,0,10"
+                     Style="{StaticResource DefaultTextBoxStyle}"/>
+
+            <TextBlock Text="系統將在任務完成後自動關機。"
+                       FontSize="{StaticResource FontSizeSM}"
+                       Foreground="{DynamicResource TextTertiary}"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button x:Name="StartButton" Content="啟動" Width="100" Height="36" Margin="0,0,10,0"
+                    Style="{StaticResource PrimaryButtonStyle}" Click="StartButton_Click"/>
+            <Button x:Name="CancelButton" Content="取消" Width="100" Height="36"
+                    Style="{StaticResource SecondaryButtonStyle}" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
