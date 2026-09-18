@@ -21,19 +21,49 @@ public partial class WarningDialog : Window
     [DllImport("user32.dll")]
     private static extern bool MessageBeep(uint uType);
 
-    /// <summary>
-    /// 警告模式（有延後/關機按鈕）下為 false，用戶必須選一個操作才能關閉。
-    /// </summary>
+    /// <summary>警告模式（有延後/關機按鈕）下為 false，用戶必須選一個操作才能關閉。</summary>
     private bool _allowClose = true;
+
+    // ── 單例管理：防止多個警告對話框堆疊 ──
+    private static WarningDialog? _activeDialog;
+    private static readonly object _dialogLock = new();
+
+    /// <summary>若已有警告對話框開啟，先關閉舊的再顯示新的。</summary>
+    public static void ShowSingleton(WarningDialog dialog)
+    {
+        lock (_dialogLock)
+        {
+            if (_activeDialog != null && _activeDialog.IsLoaded)
+            {
+                try
+                {
+                    _activeDialog._allowClose = true;
+                    _activeDialog.Close();
+                }
+                catch { /* 關閉舊對話框失敗時忽略 */ }
+            }
+            _activeDialog = dialog;
+        }
+
+        dialog.Show();
+        dialog.Activate();
+    }
+
+    // ── 回調（取代直接從 DI 容器解析 Orchestrator） ──
+    private readonly Func<TimeSpan, Task>? _onDelay;
+    private readonly Func<Task>? _onShutdown;
 
     public WarningDialog(string title, string message, string? quotaText = null,
         bool showDelayButton = false, bool showShutdownButton = false, string? icon = null,
-        TimeSpan? quotaRemaining = null, bool isUnlimitedDelay = false)
+        TimeSpan? quotaRemaining = null, bool isUnlimitedDelay = false,
+        Func<TimeSpan, Task>? onDelay = null, Func<Task>? onShutdown = null)
     {
         InitializeComponent();
         TitleText.Text = title;
         MessageText.Text = message;
         IconText.Text = icon ?? "⚠️";
+        _onDelay = onDelay;
+        _onShutdown = onShutdown;
 
         if (!string.IsNullOrEmpty(quotaText))
         {
@@ -76,9 +106,9 @@ public partial class WarningDialog : Window
     {
         var q = isUnlimited ? TimeSpan.MaxValue : (quotaRemaining ?? TimeSpan.Zero);
 
-        Delay30Button.Visibility = q >= TimeSpan.FromMinutes(30) ? Visibility.Visible : Visibility.Collapsed;
-        Delay60Button.Visibility = q >= TimeSpan.FromMinutes(60) ? Visibility.Visible : Visibility.Collapsed;
-        Delay90Button.Visibility = q >= TimeSpan.FromMinutes(90) ? Visibility.Visible : Visibility.Collapsed;
+        Delay30Button.Visibility = q >= BehaviorOrchestrator.DelayOptionShort ? Visibility.Visible : Visibility.Collapsed;
+        Delay60Button.Visibility = q >= BehaviorOrchestrator.DelayOptionMedium ? Visibility.Visible : Visibility.Collapsed;
+        Delay90Button.Visibility = q >= BehaviorOrchestrator.DelayOptionLong ? Visibility.Visible : Visibility.Collapsed;
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -142,17 +172,19 @@ public partial class WarningDialog : Window
     {
         try
         {
-            var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
-            if (orchestrator != null)
+            if (_onDelay != null)
             {
-                var duration = sender == Delay30Button ? TimeSpan.FromMinutes(30)
-                    : sender == Delay60Button ? TimeSpan.FromMinutes(60)
-                    : sender == Delay90Button ? TimeSpan.FromMinutes(90)
-                    : TimeSpan.FromMinutes(30);
-                await orchestrator.OnDelayRequestedAsync(duration);
+                var duration = sender == Delay30Button ? BehaviorOrchestrator.DelayOptionShort
+                    : sender == Delay60Button ? BehaviorOrchestrator.DelayOptionMedium
+                    : sender == Delay90Button ? BehaviorOrchestrator.DelayOptionLong
+                    : BehaviorOrchestrator.DelayOptionShort;
+                await _onDelay(duration);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            LoggerService.Error("WarningDialog: DelayButton_Click 回調失敗", ex);
+        }
         _allowClose = true;
         Close();
     }
@@ -161,11 +193,13 @@ public partial class WarningDialog : Window
     {
         try
         {
-            var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
-            if (orchestrator != null)
-                await orchestrator.OnShutdownNowRequestedAsync();
+            if (_onShutdown != null)
+                await _onShutdown();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            LoggerService.Error("WarningDialog: ShutdownButton_Click 回調失敗", ex);
+        }
         _allowClose = true;
         Close();
     }

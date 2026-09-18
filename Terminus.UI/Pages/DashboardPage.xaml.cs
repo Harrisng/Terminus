@@ -13,8 +13,20 @@ namespace Terminus.UI.Pages;
 
 public partial class DashboardPage : Page
 {
-    private readonly BehaviorOrchestrator _orchestrator;
-    private readonly DispatcherTimer _timer;
+    private readonly BehaviorOrchestrator _orchestrator = null!;
+    private readonly DispatcherTimer _timer = null!;
+
+    // ── Brush 快取（避免每秒 FindResource） ──
+    private Brush? _brushStatusWarning;
+    private Brush? _brushStatusIdle;
+    private Brush? _brushStatusInfo;
+    private Brush? _brushStatusError;
+    private Brush? _brushStatusSuccess;
+    private Brush? _brushTextSecondary;
+    private Brush? _brushTextTertiary;
+    private bool _brushesCached = false;
+
+    private bool _lastHasData = false;
 
     public DashboardPage(BehaviorOrchestrator orchestrator)
     {
@@ -37,9 +49,25 @@ public partial class DashboardPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"儀表板頁面初始化失敗：{ex.Message}\n\n{ex.StackTrace}",
-                "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("DashboardPage: 初始化失敗", ex);
+            var dialog = new WarningDialog("初始化錯誤",
+                $"儀表板頁面初始化失敗：{ex.Message}", icon: "❌");
+            WarningDialog.ShowSingleton(dialog);
         }
+    }
+
+    /// <summary>快取常用 Brush 物件，避免每秒呼叫 FindResource。</summary>
+    private void EnsureBrushesCached()
+    {
+        if (_brushesCached) return;
+        _brushStatusWarning = (Brush)FindResource("StatusWarning");
+        _brushStatusIdle = (Brush)FindResource("StatusIdle");
+        _brushStatusInfo = (Brush)FindResource("StatusInfo");
+        _brushStatusError = (Brush)FindResource("StatusError");
+        _brushStatusSuccess = (Brush)FindResource("StatusSuccess");
+        _brushTextSecondary = (Brush)FindResource("TextSecondary");
+        _brushTextTertiary = (Brush)FindResource("TextTertiary");
+        _brushesCached = true;
     }
 
     private void OnStateChanged(object? sender, BehaviorStateChangedEventArgs e)
@@ -58,13 +86,16 @@ public partial class DashboardPage : Page
             UpdateDisplay(null, EventArgs.Empty);
             LoadSchedulePreview();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            LoggerService.Error("DashboardPage: UpdateDisplaySafe 失敗", ex);
+        }
     }
-
-    private bool _lastHasData = false;
 
     private void UpdateDisplay(object? sender, EventArgs e)
     {
+        EnsureBrushesCached();
+
         var now = DateTime.Now;
         CurrentDateText.Text = now.ToString("yyyy年MM月dd日 dddd HH:mm");
 
@@ -73,8 +104,8 @@ public partial class DashboardPage : Page
         if (context == null)
         {
             StateText.Text = "未啟動";
-            StateText.Foreground = (Brush)FindResource("StatusWarning");
-            StateIndicator.Fill = (Brush)FindResource("StatusWarning");
+            StateText.Foreground = _brushStatusWarning!;
+            StateIndicator.Fill = _brushStatusWarning!;
             NextActionText.Text = "請先設定";
             QuotaText.Text = "--";
             CycleIdText.Text = "--";
@@ -82,8 +113,8 @@ public partial class DashboardPage : Page
             WarningTimeText.Text = "--";
             TomorrowClassTimeText.Text = "--";
             ClassificationText.Text = "請配置日曆";
-            ClassificationText.Foreground = (Brush)FindResource("StatusWarning");
-            ClassificationIndicator.Fill = (Brush)FindResource("StatusWarning");
+            ClassificationText.Foreground = _brushStatusWarning!;
+            ClassificationIndicator.Fill = _brushStatusWarning!;
             return;
         }
 
@@ -175,33 +206,33 @@ public partial class DashboardPage : Page
     {
         return state switch
         {
-            BehaviorState.Idle => MakeStateInfo("閒置中", "StatusIdle"),
-            BehaviorState.PreWarning => MakeStateInfo("預警階段", "StatusWarning"),
-            BehaviorState.Warning => MakeStateInfo("警告中", "StatusWarning"),
-            BehaviorState.Delayed => MakeStateInfo("已延後", "StatusInfo"),
-            BehaviorState.AutoDelaying => MakeStateInfo("自動延後中", "StatusInfo"),
-            BehaviorState.ShuttingDown => MakeStateInfo("關機中", "StatusError"),
-            BehaviorState.AIMode => MakeStateInfo("AI 模式運行中", "StatusIdle"),
-            BehaviorState.Disabled => MakeStateInfo("已停用", "TextTertiary"),
-            _ => MakeStateInfo(state.ToString(), "TextSecondary")
+            BehaviorState.Idle => MakeStateInfo("閒置中", _brushStatusIdle),
+            BehaviorState.PreWarning => MakeStateInfo("預警階段", _brushStatusWarning),
+            BehaviorState.Warning => MakeStateInfo("警告中", _brushStatusWarning),
+            BehaviorState.Delayed => MakeStateInfo("已延後", _brushStatusInfo),
+            BehaviorState.AutoDelaying => MakeStateInfo("自動延後中", _brushStatusInfo),
+            BehaviorState.ShuttingDown => MakeStateInfo("關機中", _brushStatusError),
+            BehaviorState.AIMode => MakeStateInfo("AI 模式運行中", _brushStatusIdle),
+            BehaviorState.Disabled => MakeStateInfo("已停用", _brushTextTertiary),
+            _ => MakeStateInfo(state.ToString(), _brushTextSecondary)
         };
     }
 
-    private (string Text, Brush Brush, Color Color) MakeStateInfo(string text, string resourceKey)
+    private (string Text, Brush Brush, Color Color) MakeStateInfo(string text, Brush? brush)
     {
-        var brush = (Brush)FindResource(resourceKey);
-        var color = brush is SolidColorBrush scb ? scb.Color : Colors.Transparent;
-        return (text, brush, color);
+        var b = brush ?? _brushTextSecondary!;
+        var color = b is SolidColorBrush scb ? scb.Color : Colors.Transparent;
+        return (text, b, color);
     }
 
     private (string Text, Brush Brush) GetClassificationDisplayInfo(DayClassification classification)
     {
         return classification switch
         {
-            DayClassification.EarlyClass => ("早課日", (Brush)FindResource("StatusIdle")),
-            DayClassification.NonEarlyClass => ("非早課日", (Brush)FindResource("StatusSuccess")),
-            DayClassification.NoData => ("無日曆數據", (Brush)FindResource("StatusWarning")),
-            _ => (classification.ToString(), (Brush)FindResource("TextTertiary"))
+            DayClassification.EarlyClass => ("早課日", _brushStatusIdle!),
+            DayClassification.NonEarlyClass => ("非早課日", _brushStatusSuccess!),
+            DayClassification.NoData => ("無日曆數據", _brushStatusWarning!),
+            _ => (classification.ToString(), _brushTextTertiary!)
         };
     }
 
@@ -306,8 +337,7 @@ public partial class DashboardPage : Page
         {
             var feedback = new WarningDialog("無法延遲",
                 "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
-            feedback.Show();
-            feedback.Activate();
+            WarningDialog.ShowSingleton(feedback);
         }
     }
 
@@ -326,7 +356,6 @@ public partial class DashboardPage : Page
     private void AIModeButton_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new WarningDialog("AI 通宵模式", "此功能開發中，敬請期待。", icon: "🤖");
-        dialog.Show();
-        dialog.Activate();
+        WarningDialog.ShowSingleton(dialog);
     }
 }

@@ -8,6 +8,13 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <!-- 測試引用 Windows 平台的 Terminus.Core，同樣標記為 Windows 平台 -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>windows</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

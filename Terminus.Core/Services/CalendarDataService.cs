@@ -38,14 +38,15 @@ public class CalendarDataService
         var shouldRefresh = forceRefresh ||
                            (DateTime.UtcNow - _lastScheduleFetch) >= _autoRefreshInterval;
 
-        LoggerService.Info($"CalendarDataService: GetScheduleAsync, shouldRefresh={shouldRefresh}, URL={calendarUrl?.Substring(0, Math.Min(50, calendarUrl?.Length ?? 0)) ?? "null"}...");
+        var safeUrl = calendarUrl ?? string.Empty;
+        LoggerService.Info($"CalendarDataService: GetScheduleAsync, shouldRefresh={shouldRefresh}, URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
 
         if (shouldRefresh)
         {
             try
             {
                 // Try to fetch fresh data
-                var events = await _iCalService.FetchCalendarAsync(calendarUrl);
+                var events = await _iCalService.FetchCalendarAsync(safeUrl);
 
                 LoggerService.Info($"CalendarDataService: 抓取成功, 事件數={events.Count}");
 
@@ -53,7 +54,7 @@ public class CalendarDataService
                 var metadata = new CacheMetadata
                 {
                     FetchedAt = DateTime.UtcNow,
-                    SourceUrl = calendarUrl,
+                    SourceUrl = safeUrl,
                     FetchSuccess = true,
                     EventCount = events.Count
                 };
@@ -70,7 +71,7 @@ public class CalendarDataService
                 _consecutiveScheduleFailures++;
                 LoggerService.Error("CalendarDataService: 抓取失敗", ex);
                 // Fetch failed - try to use cache
-                return await GetScheduleFromCacheOrDefault(calendarUrl, ex.Message);
+                return await GetScheduleFromCacheOrDefault(safeUrl, ex.Message);
             }
         }
         else

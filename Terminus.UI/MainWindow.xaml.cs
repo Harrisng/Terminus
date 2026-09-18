@@ -8,9 +8,9 @@ namespace Terminus.UI;
 
 public partial class MainWindow : Window
 {
-    private readonly BehaviorOrchestrator _orchestrator;
-    private readonly CalendarDataService _calendarService;
-    private readonly ThemeService _themeService;
+    private readonly BehaviorOrchestrator _orchestrator = null!;
+    private readonly CalendarDataService _calendarService = null!;
+    private readonly ThemeService _themeService = null!;
 
     private DashboardPage? _dashboardPage;
     private CalendarPage? _calendarPage;
@@ -33,8 +33,10 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"主視窗初始化失敗：{ex.Message}\n\n{ex.StackTrace}",
-                "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("MainWindow: 初始化失敗", ex);
+            var dialog = new Windows.WarningDialog("初始化錯誤",
+                $"主視窗初始化失敗：{ex.Message}", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 
@@ -71,7 +73,9 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"載入儀表板失敗：{ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("MainWindow: 載入儀表板失敗", ex);
+            var dialog = new Windows.WarningDialog("載入失敗", $"載入儀表板失敗：{ex.Message}", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 
@@ -95,7 +99,9 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"載入月曆失敗：{ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("MainWindow: 載入月曆失敗", ex);
+            var dialog = new Windows.WarningDialog("載入失敗", $"載入月曆失敗：{ex.Message}", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 
@@ -121,7 +127,9 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"載入設定頁面失敗：{ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("MainWindow: 載入設定頁面失敗", ex);
+            var dialog = new Windows.WarningDialog("載入失敗", $"載入設定頁面失敗：{ex.Message}", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 

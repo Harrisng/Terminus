@@ -10,9 +10,18 @@ namespace Terminus.Core.Services;
 /// </summary>
 public class BehaviorOrchestrator
 {
+    // ── 延遲時長常數（避免散落的 magic number） ──
+    /// <summary>延遲選項：30 分鐘</summary>
+    public static readonly TimeSpan DelayOptionShort = TimeSpan.FromMinutes(30);
+    /// <summary>延遲選項：60 分鐘</summary>
+    public static readonly TimeSpan DelayOptionMedium = TimeSpan.FromMinutes(60);
+    /// <summary>延遲選項：90 分鐘</summary>
+    public static readonly TimeSpan DelayOptionLong = TimeSpan.FromMinutes(90);
+
     private readonly CalendarDataService _calendarService;
     private readonly ShutdownService _shutdownService;
     private readonly INotificationService _notificationService;
+    private readonly ICycleStateService _cycleStateService;
     private readonly IClock _clock;
     private readonly object _lock = new();
 
@@ -31,20 +40,21 @@ public class BehaviorOrchestrator
     /// Delay quota for early-class days.
     /// Default is 90 minutes.
     /// </summary>
-    public TimeSpan EarlyClassDelayQuota { get; set; } = TimeSpan.FromMinutes(90);
+    public TimeSpan EarlyClassDelayQuota { get; set; } = DelayOptionLong;
 
     public event EventHandler<BehaviorStateChangedEventArgs>? StateChanged;
-    public event EventHandler<string>? ErrorOccurred;
 
     public BehaviorOrchestrator(
         CalendarDataService calendarService,
         ShutdownService shutdownService,
         INotificationService notificationService,
+        ICycleStateService cycleStateService,
         IClock? clock = null)
     {
         _calendarService = calendarService;
         _shutdownService = shutdownService;
         _notificationService = notificationService;
+        _cycleStateService = cycleStateService;
         _clock = clock ?? SystemClock.Instance;
     }
 
@@ -173,7 +183,7 @@ public class BehaviorOrchestrator
         }
 
         var delayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
-        SaveCycleState("manual", (int)delayAmount.TotalMinutes, delayedTo);
+        _cycleStateService.SaveCycleState(ctx, "manual", (int)delayAmount.TotalMinutes, delayedTo);
 
         await _notificationService.ShowDelayConfirmationAsync(
             delayAmount,
@@ -263,12 +273,13 @@ public class BehaviorOrchestrator
     {
         var now = _clock.GetCurrentInstant();
         var cycle = SleepCycleCalculator.GetCurrentCycle(now);
-        TryRestoreCycleState(cycle);
+        _cycleStateService.TryRestoreCycleState(cycle);
 
-        LoggerService.Info($"Orchestrator: InitializeContextAsync 開始, URL={calendarUrl?.Substring(0, Math.Min(50, calendarUrl?.Length ?? 0)) ?? "null"}...");
+        var safeUrl = calendarUrl ?? string.Empty;
+        LoggerService.Info($"Orchestrator: InitializeContextAsync 開始, URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
 
         // Fetch schedule data
-        var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(calendarUrl);
+        var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(safeUrl);
         var hasData = status != CacheStatus.Default;
 
         LoggerService.Info($"Orchestrator: 日曆數據, 事件數={events.Count}, hasData={hasData}, status={status}");
@@ -314,7 +325,7 @@ public class BehaviorOrchestrator
         // 還原上次存檔的狀態和下次動作時間（重啟不丟失延遲狀態）
         if (context.State != BehaviorState.Disabled)
         {
-            RestoreContextState(context, hkNow);
+            _cycleStateService.RestoreContextState(context, hkNow);
         }
 
         LoggerService.Info($"Orchestrator: 初始化完成, 狀態={context.State}");
@@ -467,7 +478,7 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.AutoDelaying);
             }
             var autoDelayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
-            SaveCycleState("auto", (int)ctx.DelayIncrement.TotalMinutes, autoDelayedTo);
+            _cycleStateService.SaveCycleState(ctx, "auto", (int)ctx.DelayIncrement.TotalMinutes, autoDelayedTo);
         }
 
         // Check if hard shutdown time reached
@@ -629,177 +640,5 @@ public class BehaviorOrchestrator
         {
             return _context;
         }
-    }
-
-    // ── 配額持久化（DPAPI 加密，綁定 Windows 用戶） ──
-
-    private static readonly string _stateDir = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Terminus");
-    private static readonly string _stateFile = Path.Combine(_stateDir, "cycle_state.dat");
-
-    /// <summary>
-    /// 將當前週期狀態用 DPAPI 加密存檔。可附帶一筆延遲歷史記錄。
-    /// DPAPI 金鑰綁定 Windows 用戶帳號，原始碼公開也無法解密。
-    /// </summary>
-    private void SaveCycleState(string? delayType = null, int delayMinutes = 0, string? delayedTo = null)
-    {
-        try
-        {
-            var ctx = _context;
-            if (ctx == null) return;
-            var c = ctx.CurrentCycle;
-
-            var existing = ReadStateFile();
-            var history = (existing != null && existing.CycleId == c.CycleId)
-                ? existing.History : new List<DelayRecord>();
-
-            if (delayType != null)
-            {
-                history.Add(new DelayRecord
-                {
-                    Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                    DurationMinutes = delayMinutes,
-                    DelayedTo = delayedTo ?? "",
-                    Type = delayType
-                });
-            }
-
-            var state = new CycleStateData
-            {
-                CycleId = c.CycleId,
-                QuotaRemainingMinutes = (int)c.QuotaRemaining.TotalMinutes,
-                DelayCount = c.DelayCount,
-                AutoDelayCount = c.AutoDelayCount,
-                LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                History = history,
-                State = ctx.State.ToString(),
-                NextActionTime = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-ddTHH:mm:ss")
-            };
-
-            WriteStateFile(state);
-            LoggerService.Info($"Orchestrator: 週期狀態已存檔, DelayCount={c.DelayCount}, AutoDelayCount={c.AutoDelayCount}");
-        }
-        catch (Exception ex)
-        {
-            LoggerService.Error($"Orchestrator: SaveCycleState 失敗: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// 若加密檔案中存的是同一個週期，恢復配額/延遲次數。
-    /// </summary>
-    private void TryRestoreCycleState(SleepCycle cycle)
-    {
-        try
-        {
-            var state = ReadStateFile();
-            if (state == null || state.CycleId != cycle.CycleId) return;
-
-            cycle.QuotaRemaining = TimeSpan.FromMinutes(state.QuotaRemainingMinutes);
-            cycle.DelayCount = state.DelayCount;
-            cycle.AutoDelayCount = state.AutoDelayCount;
-
-            LoggerService.Info($"Orchestrator: 恢復週期狀態, Quota={cycle.QuotaRemaining.TotalMinutes:F0}min, DelayCount={cycle.DelayCount}, AutoDelayCount={cycle.AutoDelayCount}, History={state.History.Count}筆");
-        }
-        catch (Exception ex)
-        {
-            LoggerService.Error($"Orchestrator: TryRestoreCycleState 失敗: {ex.Message}");
-        }
-    }
-
-    private CycleStateData? ReadStateFile()
-    {
-        if (!File.Exists(_stateFile)) return null;
-
-        try
-        {
-            var bytes = File.ReadAllBytes(_stateFile);
-            if (bytes.Length == 0) return null;
-
-            // DPAPI 解密（綁定當前 Windows 用戶）
-            var json = System.Security.Cryptography.ProtectedData.Unprotect(
-                bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
-            return System.Text.Json.JsonSerializer.Deserialize<CycleStateData>(json);
-        }
-        catch (Exception ex)
-        {
-            // 解密失敗（舊格式或檔案損壞），刪除舊檔案，下次存檔會建立新的
-            LoggerService.Error($"Orchestrator: ReadStateFile 解密失敗，刪除舊檔: {ex.Message}");
-            try { File.Delete(_stateFile); } catch { }
-            return null;
-        }
-    }
-
-    private void WriteStateFile(CycleStateData state)
-    {
-        Directory.CreateDirectory(_stateDir);
-        var json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(state);
-        // DPAPI 加密（綁定當前 Windows 用戶，換帳號/換機器都無法解密）
-        var encrypted = System.Security.Cryptography.ProtectedData.Protect(
-            json, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
-        File.WriteAllBytes(_stateFile, encrypted);
-    }
-
-    /// <summary>
-    /// 從加密檔案還原上次存檔的狀態和下次動作時間。
-    /// </summary>
-    private void RestoreContextState(BehaviorContext context, ZonedDateTime hkNow)
-    {
-        try
-        {
-            var saved = ReadStateFile();
-            if (saved == null || saved.CycleId != context.CurrentCycle.CycleId) return;
-
-            // 還原狀態
-            if (!string.IsNullOrEmpty(saved.State) && Enum.TryParse<BehaviorState>(saved.State, out var savedState))
-            {
-                context.State = savedState;
-            }
-
-            // 還原 NextActionTime
-            if (!string.IsNullOrEmpty(saved.NextActionTime) && DateTime.TryParse(saved.NextActionTime, out var dt))
-            {
-                var instant = Instant.FromDateTimeOffset(new DateTimeOffset(dt, TimeSpan.FromHours(8)));
-                context.NextActionTime = instant.InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
-            }
-
-            // 如果延遲時間已過，回到 Warning
-            if ((context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
-                && context.NextActionTime.HasValue
-                && hkNow.ToInstant() >= context.NextActionTime.Value.ToInstant())
-            {
-                context.State = BehaviorState.Warning;
-                context.NextActionTime = null;
-                LoggerService.Info("Orchestrator: 延遲時間已過, 回到 Warning");
-            }
-
-            LoggerService.Info($"Orchestrator: 還原狀態={context.State}, NextActionTime={context.NextActionTime?.ToDateTimeUnspecified():yyyy-MM-dd HH:mm}");
-        }
-        catch (Exception ex)
-        {
-            LoggerService.Error($"Orchestrator: RestoreContextState 失敗: {ex.Message}");
-        }
-    }
-
-    // ── 資料模型 ──
-
-    private class CycleStateData
-    {
-        public string CycleId { get; set; } = "";
-        public int QuotaRemainingMinutes { get; set; }
-        public int DelayCount { get; set; }
-        public int AutoDelayCount { get; set; }
-        public string LastUpdated { get; set; } = "";
-        public List<DelayRecord> History { get; set; } = new();
-        public string? State { get; set; }            // 當前狀態（重啟還原用）
-        public string? NextActionTime { get; set; }    // 下次動作時間 ISO 格式（重啟還原用）
-    }
-
-    private class DelayRecord
-    {
-        public string Timestamp { get; set; } = "";       // 點擊時間
-        public int DurationMinutes { get; set; }          // 延遲分鐘數
-        public string DelayedTo { get; set; } = "";        // 延後到幾點幾分
-        public string Type { get; set; } = "";             // "manual" or "auto"
     }
 }

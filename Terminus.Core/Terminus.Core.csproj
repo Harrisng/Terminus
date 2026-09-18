@@ -7,6 +7,13 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <!-- Terminus 是 Windows 專用應用程式，整個組件標記為 Windows 平台以消除 CA1416 警告 -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>windows</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Ical.Net" Version="4.2.0" />
     <PackageReference Include="NodaTime" Version="3.1.11" />
