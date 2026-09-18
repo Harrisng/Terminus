@@ -1,21 +1,16 @@
 using Terminus.Core.Services;
 using System.Windows;
+using Terminus.UI.Windows;
 
 namespace Terminus.UI.Services;
 
 /// <summary>
-/// Windows notification service - simplified implementation that works.
-/// Shows notifications via system tray balloons and MessageBox.
+/// Windows notification service.
+/// Warnings use a topmost WarningDialog with action buttons.
+/// Other notifications use MessageBox parented to the MainWindow.
 /// </summary>
 public class WindowsNotificationService : INotificationService
 {
-    private readonly TrayIconService? _trayIconService;
-
-    public WindowsNotificationService()
-    {
-        // TrayIconService will be injected later
-    }
-
     public Task ShowPreWarningAsync(TimeSpan timeUntilWarning, string firstClassInfo)
     {
         ShowNotification("睡眠週期預警",
@@ -26,7 +21,12 @@ public class WindowsNotificationService : INotificationService
 
     public Task ShowWarningAsync(WarningNotificationArgs args)
     {
-        ShowNotification(args.Title, args.Message, MessageBoxImage.Warning);
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            var dialog = new WarningDialog(args);
+            dialog.Show();
+            dialog.Activate();
+        });
         return Task.CompletedTask;
     }
 
@@ -70,8 +70,8 @@ public class WindowsNotificationService : INotificationService
     public Task ShowFetchErrorAsync(int consecutiveFailures, double? cacheAgeHours)
     {
         var cacheInfo = cacheAgeHours.HasValue
-            ? $"使用 {cacheAgeHours.Value:F1} 小時前的緩存"
-            : "無可用緩存";
+            ? $"使用 {cacheAgeHours.Value:F1} 小時前的快取"
+            : "無可用快取";
 
         ShowNotification("⚠ 日曆獲取錯誤",
             $"連續失敗 {consecutiveFailures} 次\n{cacheInfo}",
@@ -88,7 +88,24 @@ public class WindowsNotificationService : INotificationService
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            MessageBox.Show(message, title, MessageBoxButton.OK, icon);
+            var mainWindow = App.MainWindow;
+            if (mainWindow != null)
+            {
+                // Bring MainWindow to front so the MessageBox is visible
+                if (!mainWindow.IsVisible)
+                    mainWindow.Show();
+                if (mainWindow.WindowState == WindowState.Minimized)
+                    mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Topmost = true;
+                mainWindow.Topmost = false;
+                mainWindow.Activate();
+
+                MessageBox.Show(mainWindow, message, title, MessageBoxButton.OK, icon);
+            }
+            else
+            {
+                MessageBox.Show(message, title, MessageBoxButton.OK, icon);
+            }
         });
     }
 }
