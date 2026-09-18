@@ -41,6 +41,8 @@ public partial class SettingsPage : Page
         WashTextBox.Text = _settingsService.GetWashTime().TotalMinutes.ToString();
         BreakfastTextBox.Text = _settingsService.GetBreakfastTime().TotalMinutes.ToString();
         CommuteTextBox.Text = _settingsService.GetCommuteTime().TotalMinutes.ToString();
+        CutoffHourTextBox.Text = _settingsService.GetEarlyClassCutoffHour().ToString();
+        DelayQuotaTextBox.Text = _settingsService.GetEarlyClassDelayQuotaMinutes().ToString();
         StartWithWindowsCheckBox.IsChecked = _settingsService.GetStartWithWindows();
         DarkModeCheckBox.IsChecked = _themeService.CurrentTheme == AppTheme.Dark;
     }
@@ -86,12 +88,26 @@ public partial class SettingsPage : Page
                 return;
             }
 
+            if (!int.TryParse(CutoffHourTextBox.Text, out var cutoffHour) || cutoffHour < 0 || cutoffHour > 23)
+            {
+                MessageBox.Show("早課分界時刻無效（需 0-23）", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(DelayQuotaTextBox.Text, out var delayQuota) || delayQuota < 0)
+            {
+                MessageBox.Show("早課日延後額度無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             _settingsService.SetCalendarUrl(url);
             _settingsService.SetSleepTime(TimeSpan.FromMinutes(sleepMinutes));
             _settingsService.SetPreSleepBuffer(TimeSpan.FromMinutes(preSleepMinutes));
             _settingsService.SetWashTime(TimeSpan.FromMinutes(washMinutes));
             _settingsService.SetBreakfastTime(TimeSpan.FromMinutes(breakfastMinutes));
             _settingsService.SetCommuteTime(TimeSpan.FromMinutes(commuteMinutes));
+            _settingsService.SetEarlyClassCutoffHour(cutoffHour);
+            _settingsService.SetEarlyClassDelayQuotaMinutes(delayQuota);
             _settingsService.SetStartWithWindows(StartWithWindowsCheckBox.IsChecked ?? false);
 
             // Immediately restart orchestrator with new URL
