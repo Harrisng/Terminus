@@ -703,13 +703,23 @@ public class BehaviorOrchestrator
     {
         if (!File.Exists(_stateFile)) return null;
 
-        var bytes = File.ReadAllBytes(_stateFile);
-        if (bytes.Length == 0) return null;
+        try
+        {
+            var bytes = File.ReadAllBytes(_stateFile);
+            if (bytes.Length == 0) return null;
 
-        // DPAPI 解密（綁定當前 Windows 用戶）
-        var json = System.Security.Cryptography.ProtectedData.Unprotect(
-            bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
-        return System.Text.Json.JsonSerializer.Deserialize<CycleStateData>(json);
+            // DPAPI 解密（綁定當前 Windows 用戶）
+            var json = System.Security.Cryptography.ProtectedData.Unprotect(
+                bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
+            return System.Text.Json.JsonSerializer.Deserialize<CycleStateData>(json);
+        }
+        catch (Exception ex)
+        {
+            // 解密失敗（舊格式或檔案損壞），刪除舊檔案，下次存檔會建立新的
+            LoggerService.Error($"Orchestrator: ReadStateFile 解密失敗，刪除舊檔: {ex.Message}");
+            try { File.Delete(_stateFile); } catch { }
+            return null;
+        }
     }
 
     private void WriteStateFile(CycleStateData state)
