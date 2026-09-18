@@ -127,9 +127,9 @@ public class BehaviorOrchestrator
     }
 
     /// <summary>
-    /// User pressed delay button.
+    /// User pressed delay button. Accepts custom duration (default 30 min).
     /// </summary>
-    public async Task<bool> OnDelayRequestedAsync()
+    public async Task<bool> OnDelayRequestedAsync(TimeSpan? duration = null)
     {
         BehaviorContext? ctx;
         lock (_lock)
@@ -140,39 +140,42 @@ public class BehaviorOrchestrator
         if (ctx == null || ctx.State != BehaviorState.Warning)
             return false;
 
+        var delayAmount = duration ?? ctx.DelayIncrement;
         var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
 
         // Check quota for early-class days
         if (!ctx.Timing.IsUnlimitedManualDelay)
         {
-            if (ctx.CurrentCycle.QuotaRemaining < ctx.DelayIncrement)
+            if (ctx.CurrentCycle.QuotaRemaining < delayAmount)
             {
                 await _notificationService.ShowWarningAsync(new WarningNotificationArgs
                 {
                     Title = "配額已用完",
-                    Message = "延遲配額已用完，即將關機。",
+                    Message = $"延遲配額不足（剩餘 {ctx.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘），無法延遲 {delayAmount.TotalMinutes:F0} 分鐘。",
                     QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                     IsUnlimitedDelay = false,
-                    ShowDelayButton = false,
+                    ShowDelayButton = true,
                     ShowShutdownButton = true,
                     ShowAIModeButton = true
                 });
                 return false;
             }
 
-            ctx.CurrentCycle.QuotaRemaining -= ctx.DelayIncrement;
+            ctx.CurrentCycle.QuotaRemaining -= delayAmount;
         }
 
         ctx.CurrentCycle.DelayCount++;
-        ctx.NextActionTime = now.Plus(Duration.FromTimeSpan(ctx.DelayIncrement));
+        ctx.NextActionTime = now.Plus(Duration.FromTimeSpan(delayAmount));
 
         lock (_lock)
         {
             ChangeState(ctx, BehaviorState.Delayed);
         }
 
+        SaveCycleState();
+
         await _notificationService.ShowDelayConfirmationAsync(
-            ctx.DelayIncrement,
+            delayAmount,
             ctx.CurrentCycle.QuotaRemaining,
             ctx.Timing.IsUnlimitedManualDelay);
         return true;
@@ -259,6 +262,7 @@ public class BehaviorOrchestrator
     {
         var now = _clock.GetCurrentInstant();
         var cycle = SleepCycleCalculator.GetCurrentCycle(now);
+        TryRestoreCycleState(cycle);
 
         LoggerService.Info($"Orchestrator: InitializeContextAsync 開始, URL={calendarUrl?.Substring(0, Math.Min(50, calendarUrl?.Length ?? 0)) ?? "null"}...");
 
@@ -455,6 +459,7 @@ public class BehaviorOrchestrator
             {
                 ChangeState(ctx, BehaviorState.AutoDelaying);
             }
+            SaveCycleState();
         }
 
         // Check if hard shutdown time reached
@@ -616,5 +621,54 @@ public class BehaviorOrchestrator
         {
             return _context;
         }
+    }
+
+    // ── 配額持久化（重啟不重置） ──
+
+    private static readonly string _registryPath = @"SOFTWARE\Terminus";
+
+    /// <summary>
+    /// 將當前週期的配額/延遲次數存到 registry，重啟後可恢復。
+    /// </summary>
+    private void SaveCycleState()
+    {
+        try
+        {
+            var ctx = _context;
+            if (ctx == null) return;
+            var c = ctx.CurrentCycle;
+            using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(_registryPath);
+            key.SetValue("CycleId", c.CycleId);
+            key.SetValue("QuotaRemainingMinutes", (int)c.QuotaRemaining.TotalMinutes);
+            key.SetValue("DelayCount", c.DelayCount);
+            key.SetValue("AutoDelayCount", c.AutoDelayCount);
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// 若 registry 中存的是同一個週期，恢復配額/延遲次數。
+    /// </summary>
+    private void TryRestoreCycleState(SleepCycle cycle)
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(_registryPath);
+            if (key == null) return;
+
+            var savedId = key.GetValue("CycleId") as string;
+            if (savedId != cycle.CycleId) return;
+
+            var qMin = key.GetValue("QuotaRemainingMinutes") as int?;
+            var dc = key.GetValue("DelayCount") as int?;
+            var adc = key.GetValue("AutoDelayCount") as int?;
+
+            if (qMin.HasValue) cycle.QuotaRemaining = TimeSpan.FromMinutes(qMin.Value);
+            if (dc.HasValue) cycle.DelayCount = dc.Value;
+            if (adc.HasValue) cycle.AutoDelayCount = adc.Value;
+
+            LoggerService.Info($"Orchestrator: 恢復週期狀態, Quota={cycle.QuotaRemaining.TotalMinutes:F0}min, DelayCount={cycle.DelayCount}, AutoDelayCount={cycle.AutoDelayCount}");
+        }
+        catch { }
     }
 }

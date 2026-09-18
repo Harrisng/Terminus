@@ -24,7 +24,9 @@ public class WindowsNotificationService : INotificationService
             : $"剩餘配額：{FormatTimeSpan(args.QuotaRemaining)}";
         ShowDialog(args.Title, "⚠️", args.Message, quotaText,
             showDelayButton: args.ShowDelayButton,
-            showShutdownButton: args.ShowShutdownButton);
+            showShutdownButton: args.ShowShutdownButton,
+            quotaRemaining: args.QuotaRemaining,
+            isUnlimitedDelay: args.IsUnlimitedDelay);
         return Task.CompletedTask;
     }
 
@@ -76,11 +78,14 @@ public class WindowsNotificationService : INotificationService
     }
 
     private void ShowDialog(string title, string icon, string message,
-        string? quotaText = null, bool showDelayButton = false, bool showShutdownButton = false)
+        string? quotaText = null, bool showDelayButton = false, bool showShutdownButton = false,
+        TimeSpan? quotaRemaining = null, bool isUnlimitedDelay = false)
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            var dialog = new WarningDialog(title, message, quotaText, showDelayButton, showShutdownButton, icon);
+            var dialog = new WarningDialog(title, message, quotaText,
+                showDelayButton, showShutdownButton, icon,
+                quotaRemaining, isUnlimitedDelay);
             dialog.Show();
             dialog.Activate();
         });

@@ -42,25 +42,62 @@
 
             <!-- Action Buttons -->
             <StackPanel x:Name="ButtonPanel">
-                <!-- 延後 30 分鐘 -->
-                <Button x:Name="DelayButton"
-                        Click="DelayButton_Click"
-                        Margin="0,0,0,8"
-                        Height="44"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{DynamicResource AccentPrimary}" CornerRadius="8" BorderThickness="0">
-                                <TextBlock Text="⏰ 延後 30 分鐘" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHover}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                <!-- 延遲選項（依配額顯示） -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="Delay30Button" Grid.Column="0" Margin="0,0,4,0"
+                            Click="DelayButton_Click"
+                            Height="44" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource AccentPrimary}" CornerRadius="8" BorderThickness="0">
+                                    <TextBlock Text="⏰ 30 分鐘" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="Delay60Button" Grid.Column="1" Margin="4,0,4,0"
+                            Click="DelayButton_Click"
+                            Height="44" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource AccentPrimary}" CornerRadius="8" BorderThickness="0">
+                                    <TextBlock Text="⏰ 60 分鐘" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button x:Name="Delay90Button" Grid.Column="2" Margin="4,0,0,0"
+                            Click="DelayButton_Click"
+                            Height="44" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource AccentPrimary}" CornerRadius="8" BorderThickness="0">
+                                    <TextBlock Text="⏰ 90 分鐘" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
 
                 <!-- 立即關機 -->
                 <Button x:Name="ShutdownButton"
