@@ -625,18 +625,15 @@ public class BehaviorOrchestrator
         }
     }
 
-    // ── 配額持久化（加密檔案，重啟不重置） ──
-
-    // 加密金鑰（SHA256 後用於 AES-256）。開發者可從原始碼讀取此金鑰解密。
-    private static readonly byte[] _encKey = System.Security.Cryptography.SHA256.HashData(
-        System.Text.Encoding.UTF8.GetBytes("Terminus_CycleState_v1_Harrisng_2026"));
+    // ── 配額持久化（DPAPI 加密，綁定 Windows 用戶） ──
 
     private static readonly string _stateDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Terminus");
     private static readonly string _stateFile = Path.Combine(_stateDir, "cycle_state.dat");
 
     /// <summary>
-    /// 將當前週期狀態加密存檔。可附帶一筆延遲歷史記錄。
+    /// 將當前週期狀態用 DPAPI 加密存檔。可附帶一筆延遲歷史記錄。
+    /// DPAPI 金鑰綁定 Windows 用戶帳號，原始碼公開也無法解密。
     /// </summary>
     private void SaveCycleState(string? delayType = null, int delayMinutes = 0, string? delayedTo = null)
     {
@@ -646,7 +643,6 @@ public class BehaviorOrchestrator
             if (ctx == null) return;
             var c = ctx.CurrentCycle;
 
-            // 讀取現有歷史（同一週期才保留）
             var existing = ReadStateFile();
             var history = (existing != null && existing.CycleId == c.CycleId)
                 ? existing.History : new List<DelayRecord>();
@@ -708,30 +704,11 @@ public class BehaviorOrchestrator
         if (!File.Exists(_stateFile)) return null;
 
         var bytes = File.ReadAllBytes(_stateFile);
-        if (bytes.Length < 48) return null; // 32 HMAC + 16 IV 最少
+        if (bytes.Length == 0) return null;
 
-        using var hmac = new System.Security.Cryptography.HMACSHA256(_encKey);
-        var expectedHmac = new byte[32];
-        Array.Copy(bytes, 0, expectedHmac, 0, 32);
-        var actualHmac = hmac.ComputeHash(bytes, 32, bytes.Length - 32);
-
-        if (!expectedHmac.SequenceEqual(actualHmac))
-        {
-            LoggerService.Error("Orchestrator: cycle_state.dat HMAC 驗證失敗（檔案可能被竄改）");
-            return null;
-        }
-
-        var iv = new byte[16];
-        Array.Copy(bytes, 32, iv, 0, 16);
-        var cipher = new byte[bytes.Length - 48];
-        Array.Copy(bytes, 48, cipher, 0, cipher.Length);
-
-        using var aes = System.Security.Cryptography.Aes.Create();
-        aes.Key = _encKey;
-        aes.IV = iv;
-        using var dec = aes.CreateDecryptor();
-        var json = dec.TransformFinalBlock(cipher, 0, cipher.Length);
-
+        // DPAPI 解密（綁定當前 Windows 用戶）
+        var json = System.Security.Cryptography.ProtectedData.Unprotect(
+            bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
         return System.Text.Json.JsonSerializer.Deserialize<CycleStateData>(json);
     }
 
@@ -739,26 +716,10 @@ public class BehaviorOrchestrator
     {
         Directory.CreateDirectory(_stateDir);
         var json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(state);
-
-        using var aes = System.Security.Cryptography.Aes.Create();
-        aes.Key = _encKey;
-        aes.GenerateIV();
-        using var enc = aes.CreateEncryptor();
-        var cipher = enc.TransformFinalBlock(json, 0, json.Length);
-
-        // HMAC 涵蓋 IV + 密文
-        using var hmac = new System.Security.Cryptography.HMACSHA256(_encKey);
-        var ivAndCipher = new byte[16 + cipher.Length];
-        Array.Copy(aes.IV, 0, ivAndCipher, 0, 16);
-        Array.Copy(cipher, 0, ivAndCipher, 16, cipher.Length);
-        var hmacBytes = hmac.ComputeHash(ivAndCipher);
-
-        var file = new byte[32 + 16 + cipher.Length];
-        Array.Copy(hmacBytes, 0, file, 0, 32);
-        Array.Copy(aes.IV, 0, file, 32, 16);
-        Array.Copy(cipher, 0, file, 48, cipher.Length);
-
-        File.WriteAllBytes(_stateFile, file);
+        // DPAPI 加密（綁定當前 Windows 用戶，換帳號/換機器都無法解密）
+        var encrypted = System.Security.Cryptography.ProtectedData.Protect(
+            json, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
+        File.WriteAllBytes(_stateFile, encrypted);
     }
 
     // ── 資料模型 ──
