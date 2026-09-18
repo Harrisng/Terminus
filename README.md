@@ -11,8 +11,8 @@ A Windows desktop application that manages your sleep cycle by monitoring your c
 ### 🧠 Core Sleep Management
 - **iCal Calendar Sync** — Fetches your class timetable from a `webcal://` or `https://` ICS URL (Google Calendar, iCloud, etc.), refreshes every 6 hours with offline cache fallback.
 - **Smart Timing Calculator** — Computes warning & hard-shutdown times based on your first class of the day, with configurable buffers (sleep, wash, breakfast, commute, pre-sleep).
-- **Early / Non-Early Classification** — Uses a 12:00 noon boundary to decide whether a day is "early class" (limited delay quota) or "non-early" (unlimited delays).
-- **Delay System** — Snooze the warning in 30-minute increments. Early-class days get a 90-minute quota; non-early days are unlimited.
+- **Early / Non-Early Classification** — Uses a configurable cutoff hour (default 12:00 noon) to decide whether a day is "early class" (limited delay quota) or "non-early" (unlimited delays). **Any timed calendar event counts as a class** — no special course-code format required.
+- **Delay System** — Snooze the warning in 30-minute increments. Early-class days get a configurable quota (default 90 minutes); non-early days are unlimited.
 - **Hard Shutdown** — Executes Windows shutdown at the calculated limit, with retry logic (3× every 5 min, then force).
 - **Reboot Detection** — Detects if the PC was rebooted after a scheduled shutdown and skips re-triggering.
 
@@ -102,7 +102,8 @@ All settings are stored in the Windows Registry at `HKCU\SOFTWARE\Terminus`.
 | `WashMinutes` | 30 | Wash/shower buffer |
 | `BreakfastMinutes` | 45 | Breakfast buffer |
 | `CommuteMinutes` | 105 | Commute to school |
-| `EarlyClassCutoff` | 12:00 | Noon boundary for early classification |
+| `EarlyClassCutoffHour` | 12 | Hour (0-23) separating early vs non-early class days |
+| `EarlyClassDelayQuotaMinutes` | 90 | Delay quota for early-class days (minutes) |
 | `MaxShutdownTime` | 03:00 | Latest hard shutdown time |
 | `Theme` | Dark | `Dark` or `Light` |
 

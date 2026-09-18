@@ -38,7 +38,8 @@ public static class TimingCalculator
         TimeSpan? preSleepBuffer = null,
         TimeSpan? washTime = null,
         TimeSpan? breakfastTime = null,
-        TimeSpan? commuteTime = null)
+        TimeSpan? commuteTime = null,
+        TimeSpan? earlyClassQuota = null)
     {
         var sleep = sleepTime ?? DefaultSleepTime;
         var preSleep = preSleepBuffer ?? DefaultPreSleepBuffer;
@@ -51,7 +52,8 @@ public static class TimingCalculator
 
         if (classification == DayClassification.EarlyClass && firstClassTime.HasValue)
         {
-            return CalculateEarlyClassTiming(firstClassTime.Value, totalBuffer);
+            var quota = earlyClassQuota ?? EarlyClassQuota;
+            return CalculateEarlyClassTiming(firstClassTime.Value, totalBuffer, quota);
         }
         else
         {
@@ -63,9 +65,9 @@ public static class TimingCalculator
     /// <summary>
     /// Calculates timing for early-class days.
     /// Formula: warning = clamp(firstClass - buffer, 21:30, 03:00)
-    /// Hard shutdown = min(warning + 90min, 03:00)
+    /// Hard shutdown = min(warning + quota, 03:00)
     /// </summary>
-    private static ScheduleTiming CalculateEarlyClassTiming(LocalTime firstClassTime, TimeSpan totalBuffer)
+    private static ScheduleTiming CalculateEarlyClassTiming(LocalTime firstClassTime, TimeSpan totalBuffer, TimeSpan quota)
     {
         // Calculate raw warning time
         var firstClassDateTime = LocalDate.FromDateTime(DateTime.Today).At(firstClassTime);
@@ -81,8 +83,8 @@ public static class TimingCalculator
         // Clamp to bounds [21:30, 03:00]
         var warningTime = ClampTime(rawWarningTime, EarlyClassWarningLowerBound, WarningUpperBound);
 
-        // Calculate hard shutdown: min(warning + 90min, 03:00)
-        var hardShutdownTime = AddTimeWithWrap(warningTime, EarlyClassQuota);
+        // Calculate hard shutdown: min(warning + quota, 03:00)
+        var hardShutdownTime = AddTimeWithWrap(warningTime, quota);
         if (hardShutdownTime > WarningUpperBound)
         {
             hardShutdownTime = WarningUpperBound;
@@ -110,7 +112,7 @@ public static class TimingCalculator
             WarningTime = warningTime,
             HardShutdownTime = hardShutdownTime,
             FirstClassTime = firstClassTime,
-            TotalQuota = EarlyClassQuota,
+            TotalQuota = quota,
             IsUnlimitedManualDelay = false,
             MinimumWarningInsuranceApplied = insuranceApplied,
             OriginalWarningTime = insuranceApplied ? originalWarningTime : null
