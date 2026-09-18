@@ -311,6 +311,12 @@ public class BehaviorOrchestrator
             _context = context;
         }
 
+        // 還原上次存檔的狀態和下次動作時間（重啟不丟失延遲狀態）
+        if (context.State != BehaviorState.Disabled)
+        {
+            RestoreContextState(context, hkNow);
+        }
+
         LoggerService.Info($"Orchestrator: 初始化完成, 狀態={context.State}");
     }
 
@@ -665,7 +671,9 @@ public class BehaviorOrchestrator
                 DelayCount = c.DelayCount,
                 AutoDelayCount = c.AutoDelayCount,
                 LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                History = history
+                History = history,
+                State = ctx.State.ToString(),
+                NextActionTime = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-ddTHH:mm:ss")
             };
 
             WriteStateFile(state);
@@ -732,6 +740,47 @@ public class BehaviorOrchestrator
         File.WriteAllBytes(_stateFile, encrypted);
     }
 
+    /// <summary>
+    /// 從加密檔案還原上次存檔的狀態和下次動作時間。
+    /// </summary>
+    private void RestoreContextState(BehaviorContext context, ZonedDateTime hkNow)
+    {
+        try
+        {
+            var saved = ReadStateFile();
+            if (saved == null || saved.CycleId != context.CurrentCycle.CycleId) return;
+
+            // 還原狀態
+            if (!string.IsNullOrEmpty(saved.State) && Enum.TryParse<BehaviorState>(saved.State, out var savedState))
+            {
+                context.State = savedState;
+            }
+
+            // 還原 NextActionTime
+            if (!string.IsNullOrEmpty(saved.NextActionTime) && DateTime.TryParse(saved.NextActionTime, out var dt))
+            {
+                var instant = Instant.FromDateTimeOffset(new DateTimeOffset(dt, TimeSpan.FromHours(8)));
+                context.NextActionTime = instant.InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
+            }
+
+            // 如果延遲時間已過，回到 Warning
+            if ((context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
+                && context.NextActionTime.HasValue
+                && hkNow.ToInstant() >= context.NextActionTime.Value.ToInstant())
+            {
+                context.State = BehaviorState.Warning;
+                context.NextActionTime = null;
+                LoggerService.Info("Orchestrator: 延遲時間已過, 回到 Warning");
+            }
+
+            LoggerService.Info($"Orchestrator: 還原狀態={context.State}, NextActionTime={context.NextActionTime?.ToDateTimeUnspecified():yyyy-MM-dd HH:mm}");
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error($"Orchestrator: RestoreContextState 失敗: {ex.Message}");
+        }
+    }
+
     // ── 資料模型 ──
 
     private class CycleStateData
@@ -742,6 +791,8 @@ public class BehaviorOrchestrator
         public int AutoDelayCount { get; set; }
         public string LastUpdated { get; set; } = "";
         public List<DelayRecord> History { get; set; } = new();
+        public string? State { get; set; }            // 當前狀態（重啟還原用）
+        public string? NextActionTime { get; set; }    // 下次動作時間 ISO 格式（重啟還原用）
     }
 
     private class DelayRecord
