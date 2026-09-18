@@ -45,7 +45,10 @@ public partial class App : Application
                 using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Avalon.Graphics");
                 key?.SetValue("DisableHWAcceleration", 1, Microsoft.Win32.RegistryValueKind.DWord);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Terminus.Core.Services.LoggerService.Warn($"App: 無法設定 DisableHWAcceleration: {ex.Message}");
+            }
 
             // Build dependency injection container
             _host = Host.CreateDefaultBuilder()
@@ -59,6 +62,7 @@ public partial class App : Application
                 services.AddSingleton<CalendarDataService>();
                 services.AddSingleton<ShutdownService>();
                 services.AddSingleton<RebootDetectionService>();
+                services.AddSingleton<ICycleStateService, CycleStateService>();
                 services.AddSingleton<INotificationService, WindowsNotificationService>();
                 services.AddSingleton<BehaviorOrchestrator>();
 
@@ -135,7 +139,7 @@ public partial class App : Application
 
     public static IServiceProvider Services => ((App)Current)._host!.Services;
 
-    public static MainWindow? MainWindow => ((App)Current)._mainWindow;
+    public static new MainWindow? MainWindow => ((App)Current)._mainWindow;
 
     /// <summary>
     /// Applies configurable user settings to the BehaviorOrchestrator.

@@ -11,7 +11,6 @@ public class RebootDetectionService
     private readonly string _registryPath = @"SOFTWARE\Terminus";
     private readonly string _lastShutdownCycleKey = "LastShutdownCycle";
     private readonly string _lastBootTimeKey = "LastBootTime";
-    private DateTime? _lastRecordedBootTime;
 
     /// <summary>
     /// Records that a shutdown was initiated for a specific cycle.
@@ -26,7 +25,7 @@ public class RebootDetectionService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to record shutdown: {ex.Message}");
+            LoggerService.Error("RebootDetectionService: RecordShutdownForCycle 失敗", ex);
         }
     }
 
@@ -63,7 +62,7 @@ public class RebootDetectionService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to detect reboot: {ex.Message}");
+            LoggerService.Error("RebootDetectionService: DetectRebootAfterShutdown 失敗", ex);
             return null;
         }
     }
@@ -84,7 +83,7 @@ public class RebootDetectionService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to clear shutdown record: {ex.Message}");
+            LoggerService.Error("RebootDetectionService: ClearShutdownRecord 失敗", ex);
         }
     }
 

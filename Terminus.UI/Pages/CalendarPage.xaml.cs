@@ -11,7 +11,7 @@ namespace Terminus.UI.Pages;
 
 public partial class CalendarPage : Page
 {
-    private readonly CalendarDataService _calendarService;
+    private readonly CalendarDataService _calendarService = null!;
     private DateTime _currentMonth;
     private List<CalendarEvent>? _events;
     private DateTime? _selectedDate;
@@ -40,8 +40,10 @@ public partial class CalendarPage : Page
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"月曆頁面初始化失敗：{ex.Message}\n\n{ex.StackTrace}",
-                "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("CalendarPage: 初始化失敗", ex);
+            var dialog = new Windows.WarningDialog("初始化錯誤",
+                $"月曆頁面初始化失敗：{ex.Message}", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 

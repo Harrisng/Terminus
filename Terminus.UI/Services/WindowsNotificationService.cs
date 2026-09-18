@@ -85,9 +85,20 @@ public class WindowsNotificationService : INotificationService
         {
             var dialog = new WarningDialog(title, message, quotaText,
                 showDelayButton, showShutdownButton, icon,
-                quotaRemaining, isUnlimitedDelay);
-            dialog.Show();
-            dialog.Activate();
+                quotaRemaining, isUnlimitedDelay,
+                onDelay: async duration =>
+                {
+                    var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
+                    if (orchestrator != null)
+                        await orchestrator.OnDelayRequestedAsync(duration);
+                },
+                onShutdown: async () =>
+                {
+                    var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
+                    if (orchestrator != null)
+                        await orchestrator.OnShutdownNowRequestedAsync();
+                });
+            WarningDialog.ShowSingleton(dialog);
         });
     }
 

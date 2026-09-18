@@ -42,29 +42,28 @@ public class TrayIconService : IDisposable
 
         // Show main window
         var showItem = new MenuItem { Header = "📊 開啟主視窗" };
-        showItem.Click += (s, e) => ShowMainWindow();
+        showItem.Click += (s, e) => BringMainWindowToFront(navigateToSettings: false);
         contextMenu.Items.Add(showItem);
 
         // Settings
         var settingsItem = new MenuItem { Header = "⚙️ 設定" };
-        settingsItem.Click += (s, e) => ShowSettings();
+        settingsItem.Click += (s, e) => BringMainWindowToFront(navigateToSettings: true);
         contextMenu.Items.Add(settingsItem);
 
         contextMenu.Items.Add(new Separator());
 
         // Quick actions
-        var delayItem = new MenuItem { Header = "⏰ 延遲 30 分鐘" };
+        var delayItem = new MenuItem { Header = "⏰ 延後 30 分鐘" };
         delayItem.Click += async (s, e) =>
         {
             var success = await _orchestrator.OnDelayRequestedAsync();
             if (!success)
             {
-                Application.Current.Dispatcher.BeginInvoke(() =>
+                _ = Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     var feedback = new Windows.WarningDialog("無法延遲",
                         "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
-                    feedback.Show();
-                    feedback.Activate();
+                    Windows.WarningDialog.ShowSingleton(feedback);
                 });
             }
         };
@@ -73,7 +72,7 @@ public class TrayIconService : IDisposable
         var shutdownItem = new MenuItem { Header = "⚡ 立即關機" };
         shutdownItem.Click += (s, e) =>
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            _ = Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 var dialog = new Windows.WarningDialog("確認關機", "確定要立即關機嗎？\n此操作無法復原。", icon: "⚡");
                 dialog.SetConfirmMode("立即關機", isDanger: true);
@@ -100,12 +99,12 @@ public class TrayIconService : IDisposable
         _trayIcon.ContextMenu = contextMenu;
 
         // Left click - show main window
-        _trayIcon.TrayLeftMouseUp += (s, e) => ShowMainWindow();
+        _trayIcon.TrayLeftMouseUp += (s, e) => BringMainWindowToFront(navigateToSettings: false);
 
         // Subscribe to state changes
         _orchestrator.StateChanged += (s, e) =>
         {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+            _ = Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 var stateText = e.NewState switch
                 {
@@ -125,12 +124,18 @@ public class TrayIconService : IDisposable
         };
     }
 
-    private void ShowMainWindow()
+    /// <summary>
+    /// 將主視窗帶到前景。navigateToSettings=true 時同時跳轉到設定頁。
+    /// （合併原本幾乎相同的 ShowMainWindow / ShowSettings 兩個方法）
+    /// </summary>
+    private void BringMainWindowToFront(bool navigateToSettings)
     {
         var mainWindow = App.MainWindow;
         if (mainWindow == null)
         {
-            MessageBox.Show("主視窗尚未初始化", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Warn("TrayIconService: 主視窗尚未初始化");
+            var dialog = new Windows.WarningDialog("錯誤", "主視窗尚未初始化", icon: "❌");
+            Windows.WarningDialog.ShowSingleton(dialog);
             return;
         }
 
@@ -144,27 +149,9 @@ public class TrayIconService : IDisposable
         mainWindow.Topmost = false;
         mainWindow.Activate();
         mainWindow.Focus();
-    }
 
-    private void ShowSettings()
-    {
-        var mainWindow = App.MainWindow;
-        if (mainWindow == null)
-        {
-            MessageBox.Show("主視窗尚未初始化", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
-            return;
-        }
-
-        if (!mainWindow.IsVisible)
-            mainWindow.Show();
-        if (mainWindow.WindowState == WindowState.Minimized)
-            mainWindow.WindowState = WindowState.Normal;
-
-        mainWindow.Topmost = true;
-        mainWindow.Topmost = false;
-        mainWindow.Activate();
-        mainWindow.Focus();
-        mainWindow.NavigateToSettings();
+        if (navigateToSettings)
+            mainWindow.NavigateToSettings();
     }
 
     private System.Drawing.Icon LoadApplicationIcon()
@@ -177,7 +164,10 @@ public class TrayIconService : IDisposable
                 return new System.Drawing.Icon(iconPath, 32, 32);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            LoggerService.Warn($"TrayIconService: 無法載入圖示: {ex.Message}");
+        }
 
         return System.Drawing.SystemIcons.Application;
     }

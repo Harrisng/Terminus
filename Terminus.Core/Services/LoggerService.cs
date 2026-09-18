@@ -8,6 +8,9 @@ public static class LoggerService
 
     private static readonly string LogFilePath = Path.Combine(LogDirectory, "terminus.log");
 
+    /// <summary>輪替上限：5 MB。超過後將舊日誌改名為 .bak，並建立新檔。</summary>
+    private const long MaxLogSizeBytes = 5 * 1024 * 1024;
+
     private static readonly object _lock = new();
 
     static LoggerService()
@@ -16,7 +19,7 @@ public static class LoggerService
         {
             Directory.CreateDirectory(LogDirectory);
         }
-        catch { }
+        catch { /* 建立目錄失敗時忽略，Log() 會再嘗試 */ }
     }
 
     public static void Log(string category, string message)
@@ -28,10 +31,27 @@ public static class LoggerService
 
             lock (_lock)
             {
+                // 日誌輪替：超過上限時備份舊檔並建立新檔
+                try
+                {
+                    if (File.Exists(LogFilePath))
+                    {
+                        var fi = new FileInfo(LogFilePath);
+                        if (fi.Length > MaxLogSizeBytes)
+                        {
+                            var bakPath = LogFilePath + ".bak";
+                            if (File.Exists(bakPath))
+                                File.Delete(bakPath);
+                            File.Move(LogFilePath, bakPath);
+                        }
+                    }
+                }
+                catch { /* 輪替失敗不影響寫入 */ }
+
                 File.AppendAllText(LogFilePath, line);
             }
         }
-        catch { }
+        catch { /* 寫入失敗時靜默，避免日誌服務本身拋出例外導致應用程式崩潰 */ }
     }
 
     public static void Info(string message) => Log("INFO", message);

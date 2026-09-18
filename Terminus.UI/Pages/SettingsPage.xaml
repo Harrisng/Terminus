@@ -329,16 +329,23 @@
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <TextBlock Text="診斷工具" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="查看系統日誌，排查日曆載入等問題。"
+                    <TextBlock Text="查看系統日誌與延遲歷史記錄，排查問題。"
                                FontSize="{StaticResource FontSizeSM}"
                                Foreground="{DynamicResource TextTertiary}"
                                Margin="0,0,0,16"/>
-                    <Button x:Name="ViewLogsButton"
-                            Content="查看日誌"
-                            Width="120" Height="36"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Click="ViewLogsButton_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button x:Name="ViewLogsButton"
+                                Content="查看日誌"
+                                Width="120" Height="36"
+                                Margin="0,0,8,0"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Click="ViewLogsButton_Click"/>
+                        <Button x:Name="ViewDelayHistoryButton"
+                                Content="查看延遲歷史"
+                                Width="130" Height="36"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Click="ViewDelayHistoryButton_Click"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
