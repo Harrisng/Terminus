@@ -56,7 +56,8 @@ public partial class WarningDialog : Window
     public WarningDialog(string title, string message, string? quotaText = null,
         bool showDelayButton = false, bool showShutdownButton = false, string? icon = null,
         TimeSpan? quotaRemaining = null, bool isUnlimitedDelay = false,
-        Func<TimeSpan, Task>? onDelay = null, Func<Task>? onShutdown = null)
+        Func<TimeSpan, Task>? onDelay = null, Func<Task>? onShutdown = null,
+        bool forceNonClosable = false)
     {
         InitializeComponent();
         TitleText.Text = title;
@@ -89,8 +90,8 @@ public partial class WarningDialog : Window
         if (!showShutdownButton)
             ShutdownButton.Visibility = Visibility.Collapsed;
 
-        // 警告模式：必須選操作才能關閉，隱藏「關閉」按鈕
-        if (showDelayButton || showShutdownButton)
+        // 警告模式或強制模式：必須選操作才能關閉，隱藏「關閉」按鈕
+        if (showDelayButton || showShutdownButton || forceNonClosable)
         {
             _allowClose = false;
             CloseButton.Visibility = Visibility.Collapsed;

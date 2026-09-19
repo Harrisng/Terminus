@@ -57,8 +57,8 @@ public class WindowsNotificationService : INotificationService
 
     public Task ShowShutdownImminentAsync(TimeSpan timeRemaining)
     {
-        ShowDialog("即將關機", "🚨",
-            $"系統將在 {FormatTimeSpan(timeRemaining)} 後關機");
+        var message = $"已達硬關機時間，系統將在 {FormatTimeSpan(timeRemaining)} 後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。";
+        ShowForceDialog("強制關機倒數", "🚨", message);
         return Task.CompletedTask;
     }
 
@@ -75,6 +75,18 @@ public class WindowsNotificationService : INotificationService
     public Task ClearAllNotificationsAsync()
     {
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// 顯示強制（不可關閉、無操作按鈕）對話框，用於硬關機倒數提醒。
+    /// </summary>
+    private void ShowForceDialog(string title, string icon, string message)
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            var dialog = new WarningDialog(title, message, icon: icon, forceNonClosable: true);
+            WarningDialog.ShowSingleton(dialog);
+        });
     }
 
     private void ShowDialog(string title, string icon, string message,
