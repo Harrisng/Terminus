@@ -432,6 +432,10 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.Warning);
             }
 
+            // 設定 NextActionTime 為目前時間，啟動 2 分鐘無回應自動延遲倒數
+            var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
+            ctx.NextActionTime = now;
+
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
                 Title = "睡眠週期警告",
@@ -503,6 +507,9 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.Warning);
             }
 
+            // 延遲到期回到 Warning，重設 NextActionTime 啟動 2 分鐘自動延遲倒數
+            ctx.NextActionTime = now;
+
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
                 Title = "睡眠週期警告",
@@ -538,6 +545,9 @@ public class BehaviorOrchestrator
             {
                 ChangeState(ctx, BehaviorState.Warning);
             }
+
+            // 自動延遲到期回到 Warning，重設 NextActionTime 啟動 2 分鐘自動延遲倒數
+            ctx.NextActionTime = now;
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
