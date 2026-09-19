@@ -211,6 +211,7 @@ public partial class DashboardPage : Page
             BehaviorState.Warning => MakeStateInfo("警告中", _brushStatusWarning),
             BehaviorState.Delayed => MakeStateInfo("已延後", _brushStatusInfo),
             BehaviorState.AutoDelaying => MakeStateInfo("自動延後中", _brushStatusInfo),
+            BehaviorState.ForceShutdown => MakeStateInfo("強制關機倒數", _brushStatusError),
             BehaviorState.ShuttingDown => MakeStateInfo("關機中", _brushStatusError),
             BehaviorState.AIMode => MakeStateInfo("AI 模式運行中", _brushStatusIdle),
             BehaviorState.Disabled => MakeStateInfo("已停用", _brushTextTertiary),

@@ -113,6 +113,7 @@ public class TrayIconService : IDisposable
                     Core.Models.BehaviorState.Warning => "警告中",
                     Core.Models.BehaviorState.Delayed => "已延後",
                     Core.Models.BehaviorState.AutoDelaying => "自動延後中",
+                    Core.Models.BehaviorState.ForceShutdown => "強制關機倒數",
                     Core.Models.BehaviorState.ShuttingDown => "關機中",
                     Core.Models.BehaviorState.AIMode => "AI 模式",
                     Core.Models.BehaviorState.Disabled => "已停用",

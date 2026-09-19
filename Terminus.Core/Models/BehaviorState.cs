@@ -39,6 +39,12 @@ public enum BehaviorState
     ShuttingDown,
 
     /// <summary>
+    /// Forced shutdown warning: hard shutdown time reached, giving 5 min to save data before actual shutdown.
+    /// Cannot be delayed or dismissed.
+    /// </summary>
+    ForceShutdown,
+
+    /// <summary>
     /// AI overnight mode active
     /// </summary>
     AIMode,
