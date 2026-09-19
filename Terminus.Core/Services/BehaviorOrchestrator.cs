@@ -18,6 +18,9 @@ public class BehaviorOrchestrator
     /// <summary>延遲選項：90 分鐘</summary>
     public static readonly TimeSpan DelayOptionLong = TimeSpan.FromMinutes(90);
 
+    /// <summary>警告無回應寬限期：5 分鐘。超過後自動延遲一次或直接關機。</summary>
+    public static readonly Duration WarningGracePeriod = Duration.FromMinutes(5);
+
     private readonly CalendarDataService _calendarService;
     private readonly ShutdownService _shutdownService;
     private readonly INotificationService _notificationService;
@@ -432,9 +435,11 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.Warning);
             }
 
-            // 設定 NextActionTime 為目前時間，啟動 2 分鐘無回應自動延遲倒數
+            // 設定 NextActionTime 為目前時間，啟動 5 分鐘無回應自動延遲倒數
+            // 新一輪警告開始，重置自動延遲使用記錄
             var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
             ctx.NextActionTime = now;
+            ctx.AutoDelayUsed = false;
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
@@ -451,15 +456,27 @@ public class BehaviorOrchestrator
 
     private async Task HandleWarningStateAsync(BehaviorContext ctx, LocalTime currentTime, ZonedDateTime now)
     {
-        // If user doesn't respond, automatically delay (silent auto-delay)
+        // 無回應寬限期（5 分鐘）
         var warningDuration = now - (ctx.NextActionTime ?? now);
 
-        if (warningDuration > Duration.FromMinutes(2))
+        if (warningDuration > WarningGracePeriod)
         {
-            // User didn't respond - auto delay
+            // 已用過一次自動延遲，仍無回應 → 直接關機
+            if (ctx.AutoDelayUsed)
+            {
+                lock (_lock)
+                {
+                    ChangeState(ctx, BehaviorState.ShuttingDown);
+                }
+
+                await _shutdownService.InitiateShutdownAsync("No response after auto-delay", _cts?.Token ?? default);
+                return;
+            }
+
+            // 首次無回應：自動延遲一次
+            // 早課日配額不足時直接關機，不延遲
             if (!ctx.Timing.IsUnlimitedManualDelay && ctx.CurrentCycle.QuotaRemaining < ctx.DelayIncrement)
             {
-                // Quota exhausted - shutdown now
                 lock (_lock)
                 {
                     ChangeState(ctx, BehaviorState.ShuttingDown);
@@ -469,6 +486,7 @@ public class BehaviorOrchestrator
                 return;
             }
 
+            ctx.AutoDelayUsed = true;
             ctx.CurrentCycle.AutoDelayCount++;
             ctx.NextActionTime = now.Plus(Duration.FromTimeSpan(ctx.DelayIncrement));
 
@@ -483,6 +501,7 @@ public class BehaviorOrchestrator
             }
             var autoDelayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
             _cycleStateService.SaveCycleState(ctx, "auto", (int)ctx.DelayIncrement.TotalMinutes, autoDelayedTo);
+            return;
         }
 
         // Check if hard shutdown time reached
@@ -507,8 +526,9 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.Warning);
             }
 
-            // 延遲到期回到 Warning，重設 NextActionTime 啟動 2 分鐘自動延遲倒數
+            // 手動延遲到期回到 Warning：用戶曾主動操作，重置自動延遲機會
             ctx.NextActionTime = now;
+            ctx.AutoDelayUsed = false;
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
@@ -546,7 +566,8 @@ public class BehaviorOrchestrator
                 ChangeState(ctx, BehaviorState.Warning);
             }
 
-            // 自動延遲到期回到 Warning，重設 NextActionTime 啟動 2 分鐘自動延遲倒數
+            // 自動延遲到期回到 Warning：AutoDelayUsed 保持 true，
+            // 若再無回應（5 分鐘）就直接關機，不再給第二次自動延遲
             ctx.NextActionTime = now;
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs

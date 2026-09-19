@@ -72,5 +72,7 @@ public class BehaviorContext
     public TimeSpan DelayIncrement { get; set; } = TimeSpan.FromMinutes(30);
     public bool IsAIModeActive { get; set; }
     public string? AITaskDescription { get; set; }
+    /// <summary>本輪警告是否已用過一次自動延遲。用過後再無回應就直接關機。</summary>
+    public bool AutoDelayUsed { get; set; }
     public List<CalendarEvent> Events { get; set; } = new();
 }
