@@ -710,4 +710,23 @@ public class BehaviorOrchestrator
             return _context;
         }
     }
+
+    /// <summary>取得目前 HK 時區的 ZonedDateTime（測試與顯示層共用）。</summary>
+    public ZonedDateTime GetCurrentHkNow()
+    {
+        return _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
+    }
+
+    /// <summary>
+    /// 測試專用：直接注入 BehaviorContext，繞過 InitializeContextAsync 與日曆抓取。
+    /// 不會啟動計時器。生產環境請改用 StartAsync。
+    /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    internal void SetContextForTesting(BehaviorContext ctx)
+    {
+        lock (_lock)
+        {
+            _context = ctx;
+        }
+    }
 }
