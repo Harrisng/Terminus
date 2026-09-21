@@ -36,8 +36,11 @@ public partial class LogsWindow : Window
 
     private void ClearButton_Click(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show("確定要清空所有日誌嗎？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result == MessageBoxResult.Yes)
+        var dialog = new WarningDialog("確認清空", "確定要清空所有日誌嗎？\n此操作無法復原。", icon: "🗑️");
+        dialog.SetConfirmMode("清空日誌", isDanger: true);
+        dialog.ShowDialog();
+
+        if (dialog.DialogResult == true)
         {
             LoggerService.Clear();
             LoadLogs();
