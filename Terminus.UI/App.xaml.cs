@@ -159,5 +159,7 @@ public partial class App : Application
     {
         orchestrator.EarlyClassCutoffHour = settings.GetEarlyClassCutoffHour();
         orchestrator.EarlyClassDelayQuota = TimeSpan.FromMinutes(settings.GetEarlyClassDelayQuotaMinutes());
+        orchestrator.WarningGracePeriod = NodaTime.Duration.FromMinutes(settings.GetWarningGraceMinutes());
+        orchestrator.ForceShutdownGracePeriod = NodaTime.Duration.FromMinutes(settings.GetForceShutdownGraceMinutes());
     }
 }

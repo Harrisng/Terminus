@@ -18,11 +18,17 @@ public class BehaviorOrchestrator
     /// <summary>延遲選項：90 分鐘</summary>
     public static readonly TimeSpan DelayOptionLong = TimeSpan.FromMinutes(90);
 
-    /// <summary>警告無回應寬限期：5 分鐘。超過後自動延遲一次或直接關機。</summary>
-    public static readonly Duration WarningGracePeriod = Duration.FromMinutes(5);
+    /// <summary>預設警告無回應寬限期：5 分鐘。可由 <see cref="WarningGracePeriod"/> 覆寫。</summary>
+    public static readonly Duration DefaultWarningGracePeriod = Duration.FromMinutes(5);
 
-    /// <summary>硬關機強制提醒寬限期：5 分鐘。到達硬關機時間後先給用戶 5 分鐘儲存資料再關機。</summary>
-    public static readonly Duration ForceShutdownGracePeriod = Duration.FromMinutes(5);
+    /// <summary>預設硬關機強制提醒寬限期：5 分鐘。可由 <see cref="ForceShutdownGracePeriod"/> 覆寫。</summary>
+    public static readonly Duration DefaultForceShutdownGracePeriod = Duration.FromMinutes(5);
+
+    /// <summary>警告無回應寬限期。超過後自動延遲一次或直接關機。由 App.ApplyOrchestratorSettings 設定。</summary>
+    public Duration WarningGracePeriod { get; set; } = DefaultWarningGracePeriod;
+
+    /// <summary>硬關機強制提醒寬限期。到達硬關機時間後先給用戶多久儲存資料再關機。由 App.ApplyOrchestratorSettings 設定。</summary>
+    public Duration ForceShutdownGracePeriod { get; set; } = DefaultForceShutdownGracePeriod;
 
     private readonly CalendarDataService _calendarService;
     private readonly ShutdownService _shutdownService;
