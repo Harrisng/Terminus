@@ -130,9 +130,25 @@ public class CycleStateService : ICycleStateService
         }
         catch (Exception ex)
         {
-            // 解密失敗（舊格式或檔案損壞），刪除舊檔案，下次存檔會建立新的
-            LoggerService.Error($"CycleStateService: ReadState 解密失敗，刪除舊檔: {ex.Message}");
-            try { File.Delete(StateFile); } catch { /* 忽略刪除失敗 */ }
+            // 解密失敗（舊格式或檔案損壞）。
+            // 不直接刪除：先備份為 .corrupt.bak（若已存在則加時間戳），下次存檔會建立新的。
+            // 這樣若只是暫時性錯誤（檔案鎖定、磁碟暫態），用戶仍可手動復原。
+            LoggerService.Error($"CycleStateService: ReadState 解密失敗，備份舊檔: {ex.Message}");
+            try
+            {
+                var bakPath = StateFile + ".corrupt.bak";
+                if (File.Exists(bakPath))
+                {
+                    bakPath = $"{StateFile}.corrupt.{DateTime.Now:yyyyMMddHHmmss}.bak";
+                }
+                File.Move(StateFile, bakPath);
+                LoggerService.Info($"CycleStateService: 損壞狀態檔已備份至 {bakPath}");
+            }
+            catch (Exception moveEx)
+            {
+                LoggerService.Warn($"CycleStateService: 備份失敗，改為直接刪除: {moveEx.Message}");
+                try { File.Delete(StateFile); } catch { /* 忽略刪除失敗 */ }
+            }
             return null;
         }
     }
