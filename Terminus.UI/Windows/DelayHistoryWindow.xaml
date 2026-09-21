@@ -1,7 +1,7 @@
 <Window x:Class="Terminus.UI.Windows.DelayHistoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Terminus 延遲歷史"
+        Title="{DynamicResource History_Title}"
         Width="680" Height="520"
         MinWidth="480" MinHeight="360"
         WindowStartupLocation="CenterOwner"
@@ -16,7 +16,7 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource BgSidebar}" Padding="16,12" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="延遲歷史記錄" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource History_Title}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center"/>
                 <TextBlock x:Name="CycleIdText" Text="" FontSize="12" Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center" Margin="16,0,0,0"/>
             </StackPanel>
         </Border>
@@ -30,7 +30,7 @@
 
         <!-- Footer -->
         <Border Grid.Row="2" Background="{DynamicResource BgSidebar}" Padding="16,8" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,1,0,0">
-            <TextBlock x:Name="StatusText" Text="就緒" FontSize="11" Foreground="{DynamicResource TextTertiary}" HorizontalAlignment="Left"/>
+            <TextBlock x:Name="StatusText" Text="{DynamicResource Logs_Ready}" FontSize="11" Foreground="{DynamicResource TextTertiary}" HorizontalAlignment="Left"/>
         </Border>
     </Grid>
 </Window>
