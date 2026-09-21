@@ -34,6 +34,8 @@ public class BehaviorOrchestrator
     private BehaviorContext? _context;
     private Timer? _timer;
     private CancellationTokenSource? _cts;
+    /// <summary>最近一次啟動時使用的日曆 URL，跨週期重新初始化時重複使用。</summary>
+    private string? _lastCalendarUrl;
 
     /// <summary>
     /// Hour (0-23) that separates early-class vs non-early-class days.
@@ -77,6 +79,7 @@ public class BehaviorOrchestrator
             _cts = new CancellationTokenSource();
         }
 
+        _lastCalendarUrl = calendarUrl;
         await InitializeContextAsync(calendarUrl);
         StartTimer();
     }
@@ -94,6 +97,7 @@ public class BehaviorOrchestrator
             _context = null;
             _cts = new CancellationTokenSource();
         }
+        _lastCalendarUrl = calendarUrl;
         await InitializeContextAsync(calendarUrl);
         StartTimer();
 
@@ -367,7 +371,7 @@ public class BehaviorOrchestrator
             // But don't interrupt if shutdown is in progress
             if (ctx.State != BehaviorState.ShuttingDown && ctx.State != BehaviorState.AIMode)
             {
-                await InitializeContextAsync(""); // TODO: Store calendar URL
+                await InitializeContextAsync(_lastCalendarUrl ?? string.Empty);
                 return;
             }
         }
