@@ -1,7 +1,9 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Terminus.Core.Services;
 using Terminus.UI.Pages;
+using Terminus.UI.Services;
 using Terminus.UI.Themes;
 
 namespace Terminus.UI;
@@ -34,8 +36,10 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             LoggerService.Error("MainWindow: 初始化失敗", ex);
-            var dialog = new Windows.WarningDialog("初始化錯誤",
-                $"主視窗初始化失敗：{ex.Message}", icon: "❌");
+            var dialog = new Windows.WarningDialog(
+                TryFindResource("Window_InitError") as string ?? "初始化錯誤",
+                string.Format(TryFindResource("Window_InitErrorBody") as string ?? "主視窗初始化失敗：{0}", ex.Message),
+                icon: "❌");
             Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
@@ -50,12 +54,12 @@ public partial class MainWindow : Window
         if (_themeService.CurrentTheme == AppTheme.Dark)
         {
             ThemeIcon.Text = "🌙";
-            ThemeText.Text = "深色模式";
+            ThemeText.SetResourceReference(TextBlock.TextProperty, "Nav_DarkMode");
         }
         else
         {
             ThemeIcon.Text = "☀️";
-            ThemeText.Text = "淺色模式";
+            ThemeText.SetResourceReference(TextBlock.TextProperty, "Nav_LightMode");
         }
     }
 
@@ -68,13 +72,16 @@ public partial class MainWindow : Window
                 _dashboardPage = new DashboardPage(_orchestrator);
             }
             MainFrame.Navigate(_dashboardPage);
-            PageTitle.Text = "儀表板";
+            PageTitle.SetResourceReference(TextBlock.TextProperty, "Nav_Dashboard");
             SetActiveNav(NavDashboard);
         }
         catch (Exception ex)
         {
             LoggerService.Error("MainWindow: 載入儀表板失敗", ex);
-            var dialog = new Windows.WarningDialog("載入失敗", $"載入儀表板失敗：{ex.Message}", icon: "❌");
+            var dialog = new Windows.WarningDialog(
+                TryFindResource("Window_LoadFailed") as string ?? "載入失敗",
+                string.Format(TryFindResource("Window_DashboardLoadFailed") as string ?? "載入儀表板失敗：{0}", ex.Message),
+                icon: "❌");
             Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
@@ -94,13 +101,16 @@ public partial class MainWindow : Window
             }
             _calendarPage.RefreshEvents();
             MainFrame.Navigate(_calendarPage);
-            PageTitle.Text = "月曆";
+            PageTitle.SetResourceReference(TextBlock.TextProperty, "Nav_Calendar");
             SetActiveNav(NavCalendar);
         }
         catch (Exception ex)
         {
             LoggerService.Error("MainWindow: 載入月曆失敗", ex);
-            var dialog = new Windows.WarningDialog("載入失敗", $"載入月曆失敗：{ex.Message}", icon: "❌");
+            var dialog = new Windows.WarningDialog(
+                TryFindResource("Window_LoadFailed") as string ?? "載入失敗",
+                string.Format(TryFindResource("Window_CalendarLoadFailed") as string ?? "載入月曆失敗：{0}", ex.Message),
+                icon: "❌");
             Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
@@ -115,25 +125,29 @@ public partial class MainWindow : Window
                 var cacheService = App.Services.GetService(typeof(CacheService)) as CacheService;
                 if (settingsService != null && cacheService != null)
                 {
-                    _settingsPage = new SettingsPage(settingsService, cacheService, _themeService);
+                    var languageService = App.Services.GetService(typeof(LanguageService)) as LanguageService;
+                    _settingsPage = new SettingsPage(settingsService, cacheService, _themeService, languageService);
                 }
             }
             if (_settingsPage != null)
             {
                 MainFrame.Navigate(_settingsPage);
-                PageTitle.Text = "設定";
+                PageTitle.SetResourceReference(TextBlock.TextProperty, "Nav_Settings");
                 SetActiveNav(NavSettings);
             }
         }
         catch (Exception ex)
         {
             LoggerService.Error("MainWindow: 載入設定頁面失敗", ex);
-            var dialog = new Windows.WarningDialog("載入失敗", $"載入設定頁面失敗：{ex.Message}", icon: "❌");
+            var dialog = new Windows.WarningDialog(
+                TryFindResource("Window_LoadFailed") as string ?? "載入失敗",
+                string.Format(TryFindResource("Window_SettingsLoadFailed") as string ?? "載入設定頁面失敗：{0}", ex.Message),
+                icon: "❌");
             Windows.WarningDialog.ShowSingleton(dialog);
         }
     }
 
-    private void SetActiveNav(System.Windows.Controls.Button activeButton)
+    private void SetActiveNav(Button activeButton)
     {
         var navButtons = new[] { NavDashboard, NavCalendar, NavSettings };
         foreach (var btn in navButtons)

@@ -60,8 +60,9 @@ public partial class DashboardPage : Page
         catch (Exception ex)
         {
             LoggerService.Error("DashboardPage: 初始化失敗", ex);
-            var dialog = new WarningDialog("初始化錯誤",
-                $"儀表板頁面初始化失敗：{ex.Message}", icon: "❌");
+            var title = TryFindResource("Window_InitError") as string ?? "初始化錯誤";
+            var bodyFmt = TryFindResource("Dashboard_InitError") as string ?? "儀表板頁面初始化失敗：{0}";
+            var dialog = new WarningDialog(title, string.Format(bodyFmt, ex.Message), icon: "❌");
             WarningDialog.ShowSingleton(dialog);
         }
     }
@@ -69,7 +70,8 @@ public partial class DashboardPage : Page
     /// <summary>每秒只更新日期時間文字，不重新計算狀態/Brush。</summary>
     private void UpdateClock(object? sender, EventArgs e)
     {
-        CurrentDateText.Text = DateTime.Now.ToString("yyyy年MM月dd日 dddd HH:mm");
+        var fmt = TryFindResource("Dashboard_DateFormat") as string ?? "yyyy年MM月dd日 dddd HH:mm";
+        CurrentDateText.Text = DateTime.Now.ToString(fmt);
     }
 
     /// <summary>快取常用 Brush 物件，避免每秒呼叫 FindResource。</summary>
@@ -118,16 +120,17 @@ public partial class DashboardPage : Page
 
         if (context == null)
         {
-            StateText.Text = "未啟動";
+            StateText.SetResourceReference(TextBlock.TextProperty, "Dashboard_NotStarted");
             StateText.Foreground = _brushStatusWarning!;
             StateIndicator.Fill = _brushStatusWarning!;
-            NextActionText.Text = "請先設定";
+            NextActionText.SetResourceReference(TextBlock.TextProperty, "Dashboard_PleaseSetup");
             QuotaText.Text = "--";
             CycleIdText.Text = "--";
-            DelayCountText.Text = "手動 0 次 · 自動 0 次";
+            var delayFmt0 = TryFindResource("Dashboard_DelayCountFormat") as string ?? "手動 {0} 次 · 自動 {1} 次";
+            DelayCountText.Text = string.Format(delayFmt0, 0, 0);
             WarningTimeText.Text = "--";
             TomorrowClassTimeText.Text = "--";
-            ClassificationText.Text = "請配置日曆";
+            ClassificationText.SetResourceReference(TextBlock.TextProperty, "Dashboard_PleaseConfigCalendar");
             ClassificationText.Foreground = _brushStatusWarning!;
             ClassificationIndicator.Fill = _brushStatusWarning!;
             return;
@@ -183,14 +186,17 @@ public partial class DashboardPage : Page
 
         if (context.Timing.IsUnlimitedManualDelay)
         {
-            QuotaText.Text = "無限制";
+            QuotaText.SetResourceReference(TextBlock.TextProperty, "Dashboard_Unlimited");
         }
         else
         {
-            QuotaText.Text = $"{context.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘";
+            var quotaFmt = TryFindResource("Format_QuotaRemaining") as string ?? "{0:F0} 分鐘";
+            QuotaText.Text = string.Format(quotaFmt, context.CurrentCycle.QuotaRemaining.TotalMinutes);
         }
 
-        DelayCountText.Text = $"手動 {context.CurrentCycle.DelayCount} 次 · 自動 {context.CurrentCycle.AutoDelayCount} 次";
+        var delayFmt = TryFindResource("Dashboard_DelayCountFormat") as string ?? "手動 {0} 次 · 自動 {1} 次";
+        DelayCountText.Text = string.Format(delayFmt,
+            context.CurrentCycle.DelayCount, context.CurrentCycle.AutoDelayCount);
 
         // Format CycleId properly (remove the "T" separator)
         var cycleId = context.CurrentCycle.CycleId;
@@ -221,15 +227,15 @@ public partial class DashboardPage : Page
     {
         return state switch
         {
-            BehaviorState.Idle => MakeStateInfo("閒置中", _brushStatusIdle),
-            BehaviorState.PreWarning => MakeStateInfo("預警階段", _brushStatusWarning),
-            BehaviorState.Warning => MakeStateInfo("警告中", _brushStatusWarning),
-            BehaviorState.Delayed => MakeStateInfo("已延後", _brushStatusInfo),
-            BehaviorState.AutoDelaying => MakeStateInfo("自動延後中", _brushStatusInfo),
-            BehaviorState.ForceShutdown => MakeStateInfo("強制關機倒數", _brushStatusError),
-            BehaviorState.ShuttingDown => MakeStateInfo("關機中", _brushStatusError),
-            BehaviorState.AIMode => MakeStateInfo("AI 模式運行中", _brushStatusIdle),
-            BehaviorState.Disabled => MakeStateInfo("已停用", _brushTextTertiary),
+            BehaviorState.Idle => MakeStateInfo(TryFindResource("State_Idle") as string ?? "閒置中", _brushStatusIdle),
+            BehaviorState.PreWarning => MakeStateInfo(TryFindResource("State_PreWarning") as string ?? "預警階段", _brushStatusWarning),
+            BehaviorState.Warning => MakeStateInfo(TryFindResource("State_Warning") as string ?? "警告中", _brushStatusWarning),
+            BehaviorState.Delayed => MakeStateInfo(TryFindResource("State_Delayed") as string ?? "已延後", _brushStatusInfo),
+            BehaviorState.AutoDelaying => MakeStateInfo(TryFindResource("State_AutoDelaying") as string ?? "自動延後中", _brushStatusInfo),
+            BehaviorState.ForceShutdown => MakeStateInfo(TryFindResource("State_ForceShutdown") as string ?? "強制關機倒數", _brushStatusError),
+            BehaviorState.ShuttingDown => MakeStateInfo(TryFindResource("State_ShuttingDown") as string ?? "關機中", _brushStatusError),
+            BehaviorState.AIMode => MakeStateInfo(TryFindResource("State_AIMode") as string ?? "AI 模式運行中", _brushStatusIdle),
+            BehaviorState.Disabled => MakeStateInfo(TryFindResource("State_Disabled") as string ?? "已停用", _brushTextTertiary),
             _ => MakeStateInfo(state.ToString(), _brushTextSecondary)
         };
     }
@@ -245,9 +251,9 @@ public partial class DashboardPage : Page
     {
         return classification switch
         {
-            DayClassification.EarlyClass => ("早課日", _brushStatusIdle!),
-            DayClassification.NonEarlyClass => ("非早課日", _brushStatusSuccess!),
-            DayClassification.NoData => ("無日曆數據", _brushStatusWarning!),
+            DayClassification.EarlyClass => (TryFindResource("Classification_EarlyClass") as string ?? "早課日", _brushStatusIdle!),
+            DayClassification.NonEarlyClass => (TryFindResource("Classification_NonEarlyClass") as string ?? "非早課日", _brushStatusSuccess!),
+            DayClassification.NoData => (TryFindResource("Classification_NoData") as string ?? "無日曆數據", _brushStatusWarning!),
             _ => (classification.ToString(), _brushTextTertiary!)
         };
     }
@@ -260,13 +266,18 @@ public partial class DashboardPage : Page
         var hasData = context != null && context.Timing.Classification != DayClassification.NoData;
         var events = context?.Events ?? new List<CalendarEvent>();
 
-        var daysOfWeek = new[] { "週日", "週一", "週二", "週三", "週四", "週五", "週六" };
+        var dayKeys = new[]
+        {
+            "Day_Sunday", "Day_Monday", "Day_Tuesday", "Day_Wednesday",
+            "Day_Thursday", "Day_Friday", "Day_Saturday"
+        };
         var today = DateTime.Today;
+        var todayLabel = TryFindResource("Day_Today") as string ?? "今天";
 
         for (int i = 0; i < 7; i++)
         {
             var date = today.AddDays(i);
-            var dayName = i == 0 ? "今天" : daysOfWeek[(int)date.DayOfWeek];
+            var dayName = i == 0 ? todayLabel : (TryFindResource(dayKeys[(int)date.DayOfWeek]) as string ?? date.DayOfWeek.ToString());
             var normalBgKey = i == 0 ? "BgTertiary" : "BgSecondary";
 
             var item = new Border
@@ -312,18 +323,23 @@ public partial class DashboardPage : Page
                 var classification = ScheduleClassifier.ClassifyDay(hkDate, events, true);
                 var firstClass = ScheduleClassifier.GetFirstClassTime(hkDate, events);
 
-                typeText.Text = classification == DayClassification.EarlyClass ? "早課日" : "非早課日";
+                typeText.Text = classification == DayClassification.EarlyClass
+                    ? (TryFindResource("Classification_EarlyClass") as string ?? "早課日")
+                    : (TryFindResource("Classification_NonEarlyClass") as string ?? "非早課日");
                 typeText.SetResourceReference(TextBlock.ForegroundProperty,
                     classification == DayClassification.EarlyClass ? "StatusIdle" : "TextSecondary");
 
                 if (classification == DayClassification.EarlyClass && firstClass.HasValue)
-                    timeText.Text = $"首節 {firstClass.Value.ToString("HH:mm", null)}";
+                {
+                    var firstFmt = TryFindResource("Dashboard_FirstClassPrefix") as string ?? "首節 {0}";
+                    timeText.Text = string.Format(firstFmt, firstClass.Value.ToString("HH:mm", null));
+                }
                 else
                     timeText.Text = context!.Timing.WarningTime.ToString("HH:mm", null);
             }
             else
             {
-                typeText.Text = "待配置";
+                typeText.Text = TryFindResource("Dashboard_PendingConfig") as string ?? "待配置";
                 typeText.SetResourceReference(TextBlock.ForegroundProperty, "TextTertiary");
                 timeText.Text = "--";
             }
@@ -341,8 +357,10 @@ public partial class DashboardPage : Page
 
     private async void DelayButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new WarningDialog("確認延遲", "確定要延遲 30 分鐘嗎？", icon: "⏰");
-        dialog.SetConfirmMode("確認延遲");
+        var title = TryFindResource("Warning_ConfirmDelay") as string ?? "確認延遲";
+        var body = TryFindResource("Warning_ConfirmDelayMsg") as string ?? "確定要延遲 30 分鐘嗎？";
+        var dialog = new WarningDialog(title, body, icon: "⏰");
+        dialog.SetConfirmMode(title);
         dialog.ShowDialog();
 
         if (dialog.DialogResult != true)
@@ -351,16 +369,19 @@ public partial class DashboardPage : Page
         var success = await _orchestrator.OnDelayRequestedAsync();
         if (!success)
         {
-            var feedback = new WarningDialog("無法延遲",
-                "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
+            var failTitle = TryFindResource("Warning_UnableToDelay") as string ?? "無法延遲";
+            var failBody = TryFindResource("Warning_NotInWarningState") as string ?? "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。";
+            var feedback = new WarningDialog(failTitle, failBody, icon: "ℹ️");
             WarningDialog.ShowSingleton(feedback);
         }
     }
 
     private async void ShutdownNowButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new WarningDialog("確認關機", "確定要立即關機嗎？\n此操作無法復原。", icon: "⚡");
-        dialog.SetConfirmMode("立即關機", isDanger: true);
+        var title = TryFindResource("Warning_ConfirmShutdown") as string ?? "確認關機";
+        var body = TryFindResource("Warning_ConfirmShutdownMsg") as string ?? "確定要立即關機嗎？\n此操作無法復原。";
+        var dialog = new WarningDialog(title, body, icon: "⚡");
+        dialog.SetConfirmMode(title, isDanger: true);
         dialog.ShowDialog();
 
         if (dialog.DialogResult == true)
@@ -371,7 +392,9 @@ public partial class DashboardPage : Page
 
     private void AIModeButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new WarningDialog("AI 通宵模式", "此功能開發中，敬請期待。", icon: "🤖");
+        var title = TryFindResource("AIMode_Title") as string ?? "AI 通宵模式";
+        var body = TryFindResource("AIMode_InDevelopment") as string ?? "此功能開發中，敬請期待。";
+        var dialog = new WarningDialog(title, body, icon: "🤖");
         WarningDialog.ShowSingleton(dialog);
     }
 }

@@ -20,7 +20,16 @@
     <sys:String x:Key="Nav_Settings">设置</sys:String>
     <sys:String x:Key="Nav_MainMenu">主菜单</sys:String>
     <sys:String x:Key="Nav_DarkMode">深色模式</sys:String>
+    <sys:String x:Key="Nav_LightMode">浅色模式</sys:String>
     <sys:String x:Key="Nav_MinimizeToTray">最小化到托盘</sys:String>
+
+    <!-- 主窗口 -->
+    <sys:String x:Key="Window_InitError">初始化错误</sys:String>
+    <sys:String x:Key="Window_InitErrorBody">主窗口初始化失败：{0}</sys:String>
+    <sys:String x:Key="Window_LoadFailed">载入失败</sys:String>
+    <sys:String x:Key="Window_DashboardLoadFailed">载入仪表板失败：{0}</sys:String>
+    <sys:String x:Key="Window_CalendarLoadFailed">载入日历失败：{0}</sys:String>
+    <sys:String x:Key="Window_SettingsLoadFailed">载入设置页面失败：{0}</sys:String>
 
     <!-- ════════════ 仪表板 ════════════ -->
     <sys:String x:Key="Dashboard_Title">睡眠周期仪表板</sys:String>
@@ -33,6 +42,8 @@
     <sys:String x:Key="Dashboard_TomorrowClassLabel">明日首课</sys:String>
     <sys:String x:Key="Dashboard_ClassificationLabel">日分类</sys:String>
     <sys:String x:Key="Dashboard_SchedulePreviewLabel">未来 7 天</sys:String>
+    <sys:String x:Key="Dashboard_QuickActions">快速操作</sys:String>
+    <sys:String x:Key="Dashboard_Loading">载入中...</sys:String>
     <sys:String x:Key="Dashboard_NotStarted">未启动</sys:String>
     <sys:String x:Key="Dashboard_PleaseSetup">请先设置</sys:String>
     <sys:String x:Key="Dashboard_PleaseConfigCalendar">请配置日历</sys:String>
@@ -40,6 +51,10 @@
     <sys:String x:Key="Dashboard_ManualCount">手动 {0} 次</sys:String>
     <sys:String x:Key="Dashboard_AutoCount">自动 {0} 次</sys:String>
     <sys:String x:Key="Dashboard_DelayCountFormat">手动 {0} 次 · 自动 {1} 次</sys:String>
+    <sys:String x:Key="Dashboard_PendingConfig">待配置</sys:String>
+    <sys:String x:Key="Dashboard_FirstClassPrefix">首节 {0}</sys:String>
+    <sys:String x:Key="Dashboard_InitError">仪表板页面初始化失败：{0}</sys:String>
+    <sys:String x:Key="Dashboard_DateFormat">yyyy年MM月dd日 dddd HH:mm</sys:String>
 
     <!-- 状态显示 -->
     <sys:String x:Key="State_Idle">闲置中</sys:String>
@@ -115,6 +130,8 @@
     <sys:String x:Key="Warning_AIMode">🤖 AI 通宵模式</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">确认关机</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdownMsg">确定要立即关机吗？\n此操作无法撤销。</sys:String>
+    <sys:String x:Key="Warning_ConfirmDelay">确认延迟</sys:String>
+    <sys:String x:Key="Warning_ConfirmDelayMsg">确定要延迟 30 分钟吗？</sys:String>
     <sys:String x:Key="Warning_UnableToDelay">无法延迟</sys:String>
     <sys:String x:Key="Warning_NotInWarningState">当前不在警告阶段，无法手动延迟。\n请等待警告出现后再操作。</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">配额已用完</sys:String>
@@ -176,6 +193,7 @@
     <sys:String x:Key="AIMode_Start">启动</sys:String>
     <sys:String x:Key="AIMode_Cancel">取消</sys:String>
     <sys:String x:Key="AIMode_ValidationError">请输入任务描述。</sys:String>
+    <sys:String x:Key="AIMode_InDevelopment">此功能开发中，敬请期待。</sys:String>
 
     <!-- ════════════ 错误与启动 ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus 错误</sys:String>
