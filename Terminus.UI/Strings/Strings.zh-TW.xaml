@@ -165,32 +165,46 @@
     <sys:String x:Key="Warning_NotInWarningState">目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">配額已用完</sys:String>
     <sys:String x:Key="Warning_QuotaExceededBody">延遲配額不足（剩餘 {0:F0} 分鐘），無法延遲 {1:F0} 分鐘。</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownTitle">強制關機提醒</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownBody">已達硬關機時間，系統將在 {0} 分鐘後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownTitle">強制關機倒數</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">已達硬關機時間，系統將在 {0} 後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。</sys:String>
+    <sys:String x:Key="Warning_TomorrowEarlyClassFormat">明日早課 {0}</sys:String>
+    <sys:String x:Key="Warning_NoEarlyClass">明日無早課</sys:String>
+    <sys:String x:Key="Warning_MessageEarlyClass">明日早課 {0}。剩餘額度：{1:F0} 分鐘。</sys:String>
+    <sys:String x:Key="Warning_MessageNoEarlyClass">明日無早課，手動延後無限制。</sys:String>
+    <sys:String x:Key="Warning_ShutdownConfirmText">立即關機</sys:String>
 
     <!-- ════════════ 通知 ════════════ -->
     <sys:String x:Key="Notification_PreWarningTitle">睡眠週期預警</sys:String>
-    <sys:String x:Key="Notification_PreWarningBody">距離警告還有 {0} 分鐘。{1}</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">主警告將在 {0} 後出現\n{1}</sys:String>
     <sys:String x:Key="Notification_WarningTitle">睡眠週期警告</sys:String>
     <sys:String x:Key="Notification_DelayedTitle">已延後</sys:String>
-    <sys:String x:Key="Notification_DelayConfirmedBody">已延後 {0} 分鐘。剩餘配額：{1:F0} 分鐘。</sys:String>
+    <sys:String x:Key="Notification_DelayedBody">下次警告：{0} 後</sys:String>
+    <sys:String x:Key="Notification_UnlimitedQuota">延後次數：無限制</sys:String>
+    <sys:String x:Key="Notification_QuotaRemainingFormat">剩餘配額：{0}</sys:String>
     <sys:String x:Key="Notification_AIModeStartedTitle">AI 通宵模式</sys:String>
-    <sys:String x:Key="Notification_AIModeStartedBody">已啟動 AI 通宵模式，任務：{0}</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedTitle">AI 通宵模式完成</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedBody">任務「{0}」已完成（{1}）</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">{0}\n任務完成後系統將自動關機</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedTitle">AI 模式已完成</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">{0}\n{1}</sys:String>
+    <sys:String x:Key="Notification_AIModeSuccess">✓ 已成功完成</sys:String>
+    <sys:String x:Key="Notification_AIModeFailed">✗ 失敗</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentTitle">即將關機</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentBody">系統將在 {0} 分鐘後關機</sys:String>
     <sys:String x:Key="Notification_FetchErrorTitle">日曆獲取錯誤</sys:String>
-    <sys:String x:Key="Notification_FetchErrorBody">連續 {0} 次失敗。快取年齡：{1}</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">連續失敗 {0} 次\n{1}</sys:String>
+    <sys:String x:Key="Notification_CacheAgeFormat">使用 {0:F1} 小時前的快取</sys:String>
+    <sys:String x:Key="Notification_NoCache">無可用快取</sys:String>
 
     <!-- ════════════ 托盤選單 ════════════ -->
     <sys:String x:Key="Tray_Tooltip">Terminus - 睡眠週期管理</sys:String>
+    <sys:String x:Key="Tray_TooltipWithState">Terminus - {0}</sys:String>
     <sys:String x:Key="Tray_StatusLabel">狀態：{0}</sys:String>
+    <sys:String x:Key="Tray_StatusLabelInitial">狀態：閒置中</sys:String>
     <sys:String x:Key="Tray_ShowMainWindow">📊 開啟主視窗</sys:String>
     <sys:String x:Key="Tray_Settings">⚙️ 設定</sys:String>
     <sys:String x:Key="Tray_QuickDelay">⏰ 延遲 30 分鐘</sys:String>
     <sys:String x:Key="Tray_ShutdownNow">⚡ 立即關機</sys:String>
     <sys:String x:Key="Tray_Exit">❌ 結束程式</sys:String>
+    <sys:String x:Key="Tray_MainWindowNotInit">主視窗尚未初始化</sys:String>
 
     <!-- ════════════ 日誌視窗 ════════════ -->
     <sys:String x:Key="Logs_Title">日誌</sys:String>
@@ -242,6 +256,9 @@
 
     <!-- ════════════ 時間格式 ════════════ -->
     <sys:String x:Key="Format_HoursMinutes">{0} 小時 {1} 分鐘</sys:String>
+    <sys:String x:Key="Format_DayHour">{0} 天 {1} 小時</sys:String>
+    <sys:String x:Key="Format_MinuteOnly">{0} 分鐘</sys:String>
+    <sys:String x:Key="Format_Second">{0} 秒</sys:String>
     <sys:String x:Key="Format_QuotaRemaining">{0:F0} 分鐘</sys:String>
 
 </ResourceDictionary>

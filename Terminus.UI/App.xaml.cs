@@ -24,15 +24,19 @@ public partial class App : Application
             Terminus.Core.Services.LoggerService.Error("App: DispatcherUnhandledException", args.Exception);
             try
             {
-                var dialog = new Terminus.UI.Windows.WarningDialog("發生錯誤",
-                    $"發生錯誤：{args.Exception.Message}\n\n{args.Exception.StackTrace}", icon: "❌");
+                var title = TryFindResource("Error_Occurred") as string ?? "發生錯誤";
+                var bodyFmt = TryFindResource("Error_OccurredBody") as string ?? "發生錯誤：{0}\n\n{1}";
+                var body = string.Format(bodyFmt, args.Exception.Message, args.Exception.StackTrace);
+                var dialog = new Terminus.UI.Windows.WarningDialog(title, body, icon: "❌");
                 Terminus.UI.Windows.WarningDialog.ShowSingleton(dialog);
             }
             catch
             {
                 // 若對話框本身初始化失敗，回到 MessageBox 兜底
-                MessageBox.Show($"發生錯誤：{args.Exception.Message}\n\n{args.Exception.StackTrace}",
-                    "Terminus 錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+                var fallbackTitle = TryFindResource("Error_AppTitle") as string ?? "Terminus 錯誤";
+                var fallbackFmt = TryFindResource("Error_OccurredBody") as string ?? "發生錯誤：{0}\n\n{1}";
+                var fallbackBody = string.Format(fallbackFmt, args.Exception.Message, args.Exception.StackTrace);
+                MessageBox.Show(fallbackBody, fallbackTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             args.Handled = true;
         };
@@ -135,10 +139,10 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"啟動錯誤: {ex.Message}\n\n{ex.StackTrace}",
-                "Terminus 啟動失敗",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+            var failTitle = TryFindResource("Error_StartupFailed") as string ?? "Terminus 啟動失敗";
+            var failFmt = TryFindResource("Error_StartupFailedBody") as string ?? "啟動錯誤: {0}\n\n{1}";
+            var failBody = string.Format(failFmt, ex.Message, ex.StackTrace);
+            MessageBox.Show(failBody, failTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
     }
