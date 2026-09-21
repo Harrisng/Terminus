@@ -43,7 +43,7 @@ public class ShutdownService
     /// Initiates system shutdown with retry logic and cancel detection.
     /// Has safety guards to prevent accidental shutdown during daytime.
     /// </summary>
-    public async Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default)
+    public virtual async Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default)
     {
         // Safety check 1: Startup grace period
         var now = SystemClock.Instance.GetCurrentInstant();
