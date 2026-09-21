@@ -20,7 +20,16 @@
     <sys:String x:Key="Nav_Settings">Settings</sys:String>
     <sys:String x:Key="Nav_MainMenu">Main menu</sys:String>
     <sys:String x:Key="Nav_DarkMode">Dark mode</sys:String>
+    <sys:String x:Key="Nav_LightMode">Light mode</sys:String>
     <sys:String x:Key="Nav_MinimizeToTray">Minimize to tray</sys:String>
+
+    <!-- Main window -->
+    <sys:String x:Key="Window_InitError">Init error</sys:String>
+    <sys:String x:Key="Window_InitErrorBody">Main window initialization failed: {0}</sys:String>
+    <sys:String x:Key="Window_LoadFailed">Load failed</sys:String>
+    <sys:String x:Key="Window_DashboardLoadFailed">Failed to load dashboard: {0}</sys:String>
+    <sys:String x:Key="Window_CalendarLoadFailed">Failed to load calendar: {0}</sys:String>
+    <sys:String x:Key="Window_SettingsLoadFailed">Failed to load settings: {0}</sys:String>
 
     <!-- ════════════ Dashboard ════════════ -->
     <sys:String x:Key="Dashboard_Title">Sleep Cycle Dashboard</sys:String>
@@ -33,6 +42,8 @@
     <sys:String x:Key="Dashboard_TomorrowClassLabel">First class tomorrow</sys:String>
     <sys:String x:Key="Dashboard_ClassificationLabel">Day type</sys:String>
     <sys:String x:Key="Dashboard_SchedulePreviewLabel">Next 7 days</sys:String>
+    <sys:String x:Key="Dashboard_QuickActions">Quick actions</sys:String>
+    <sys:String x:Key="Dashboard_Loading">Loading...</sys:String>
     <sys:String x:Key="Dashboard_NotStarted">Not started</sys:String>
     <sys:String x:Key="Dashboard_PleaseSetup">Please set up</sys:String>
     <sys:String x:Key="Dashboard_PleaseConfigCalendar">Configure calendar</sys:String>
@@ -40,6 +51,10 @@
     <sys:String x:Key="Dashboard_ManualCount">Manual: {0}</sys:String>
     <sys:String x:Key="Dashboard_AutoCount">Auto: {0}</sys:String>
     <sys:String x:Key="Dashboard_DelayCountFormat">Manual {0} · Auto {1}</sys:String>
+    <sys:String x:Key="Dashboard_PendingConfig">Pending config</sys:String>
+    <sys:String x:Key="Dashboard_FirstClassPrefix">First {0}</sys:String>
+    <sys:String x:Key="Dashboard_InitError">Dashboard initialization failed: {0}</sys:String>
+    <sys:String x:Key="Dashboard_DateFormat">dddd, MMMM dd, yyyy HH:mm</sys:String>
 
     <!-- State display -->
     <sys:String x:Key="State_Idle">Idle</sys:String>
@@ -115,6 +130,8 @@
     <sys:String x:Key="Warning_AIMode">🤖 AI overnight mode</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">Confirm shutdown</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdownMsg">Are you sure you want to shut down now?\nThis cannot be undone.</sys:String>
+    <sys:String x:Key="Warning_ConfirmDelay">Confirm delay</sys:String>
+    <sys:String x:Key="Warning_ConfirmDelayMsg">Delay by 30 minutes?</sys:String>
     <sys:String x:Key="Warning_UnableToDelay">Cannot delay</sys:String>
     <sys:String x:Key="Warning_NotInWarningState">Not in warning state, cannot delay manually.\nPlease wait for a warning to appear.</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">Quota exhausted</sys:String>
@@ -176,6 +193,7 @@
     <sys:String x:Key="AIMode_Start">Start</sys:String>
     <sys:String x:Key="AIMode_Cancel">Cancel</sys:String>
     <sys:String x:Key="AIMode_ValidationError">Please enter a task description.</sys:String>
+    <sys:String x:Key="AIMode_InDevelopment">This feature is under development. Stay tuned.</sys:String>
 
     <!-- ════════════ Errors and startup ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus Error</sys:String>

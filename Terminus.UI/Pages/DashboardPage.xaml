@@ -12,7 +12,7 @@
 
             <!-- Header -->
             <StackPanel Margin="0,0,0,16">
-                <TextBlock Text="儀表板" Style="{StaticResource PageTitleStyle}"/>
+                <TextBlock Text="{DynamicResource Nav_Dashboard}" Style="{StaticResource PageTitleStyle}"/>
                 <TextBlock x:Name="CurrentDateText" Text="--" Style="{StaticResource PageSubtitleStyle}"/>
             </StackPanel>
 
@@ -31,7 +31,7 @@
                                 <DropShadowEffect Color="#7c6df2" Opacity="0.6" BlurRadius="10" ShadowDepth="0"/>
                             </Ellipse.Effect>
                         </Ellipse>
-                        <TextBlock x:Name="StateText" Text="閒置中"
+                        <TextBlock x:Name="StateText" Text="{DynamicResource State_Idle}"
                                    FontSize="{StaticResource FontSize4XL}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource StatusIdle}"
@@ -41,7 +41,7 @@
 
                     <!-- Right: Next Action Time -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="下次動作時間"
+                        <TextBlock Text="{DynamicResource Dashboard_NextActionLabel}"
                                    Style="{StaticResource CardLabelStyle}"
                                    HorizontalAlignment="Right"
                                    Margin="0,0,0,4"/>
@@ -60,10 +60,10 @@
                 <!-- Quota Card -->
                 <Border Style="{StaticResource CardStyle}" Margin="0,0,8,0">
                     <StackPanel>
-                        <TextBlock Text="剩餘延遲額度"
+                        <TextBlock Text="{DynamicResource Dashboard_QuotaLabel}"
                                    Style="{StaticResource CardLabelStyle}"
                                    Margin="0,0,0,8"/>
-                        <TextBlock x:Name="QuotaText" Text="無限制"
+                        <TextBlock x:Name="QuotaText" Text="{DynamicResource Dashboard_Unlimited}"
                                    Style="{StaticResource MetricValueStyle}"
                                    Foreground="{DynamicResource StatusSuccess}"/>
                     </StackPanel>
@@ -72,7 +72,7 @@
                 <!-- Today's Cycle Card -->
                 <Border Style="{StaticResource CardStyle}" Margin="8,0,8,0">
                     <StackPanel>
-                        <TextBlock Text="今日睡眠週期"
+                        <TextBlock Text="{DynamicResource Dashboard_CycleIdLabel}"
                                    Style="{StaticResource CardLabelStyle}"
                                    Margin="0,0,0,8"/>
                         <TextBlock x:Name="CycleIdText" Text="--"
@@ -80,7 +80,7 @@
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimary}"
                                    Margin="0,0,0,4"/>
-                        <TextBlock x:Name="DelayCountText" Text="手動 0 次 · 自動 0 次"
+                        <TextBlock x:Name="DelayCountText" Text="--"
                                    FontSize="{StaticResource FontSizeSM}"
                                    Foreground="{DynamicResource TextSecondary}"/>
                     </StackPanel>
@@ -89,10 +89,10 @@
                 <!-- Next Warning Card -->
                 <Border Style="{StaticResource CardStyle}" Margin="8,0,0,0">
                     <StackPanel>
-                        <TextBlock Text="下次預警時間"
+                        <TextBlock Text="{DynamicResource Dashboard_WarningTimeLabel}"
                                    Style="{StaticResource CardLabelStyle}"
                                    Margin="0,0,0,8"/>
-                        <TextBlock x:Name="WarningTimeText" Text="00:30"
+                        <TextBlock x:Name="WarningTimeText" Text="--"
                                    Style="{StaticResource MetricValueStyle}"
                                    Foreground="{DynamicResource StatusWarning}"/>
                     </StackPanel>
@@ -109,7 +109,7 @@
 
                     <!-- Left: First Class Time -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="明日第一節課"
+                        <TextBlock Text="{DynamicResource Dashboard_TomorrowClassLabel}"
                                    Style="{StaticResource CardLabelStyle}"
                                    Margin="0,0,0,8"/>
                         <TextBlock x:Name="TomorrowClassTimeText" Text="--"
@@ -119,7 +119,7 @@
                     <!-- Right: Classification with color indicator -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
                         <Ellipse x:Name="ClassificationIndicator" Width="10" Height="10" Fill="{DynamicResource AccentPrimary}" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="ClassificationText" Text="非早課日"
+                        <TextBlock x:Name="ClassificationText" Text="{DynamicResource Classification_NonEarlyClass}"
                                    FontSize="{StaticResource FontSizeLG}"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentPrimary}"
@@ -130,22 +130,22 @@
             </Border>
 
             <!-- Quick Actions -->
-            <TextBlock Text="快速操作" Style="{StaticResource SectionTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Dashboard_QuickActions}" Style="{StaticResource SectionTitleStyle}"/>
 
             <WrapPanel Orientation="Horizontal">
-                <Button x:Name="DelayButton" Content="⏰ 延遲 30 分鐘"
+                <Button x:Name="DelayButton" Content="{DynamicResource Warning_Delay30}"
                         Width="180" Height="50"
                         Margin="0,0,12,12"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Click="DelayButton_Click"/>
 
-                <Button x:Name="ShutdownNowButton" Content="⚡ 立即關機"
+                <Button x:Name="ShutdownNowButton" Content="{DynamicResource Warning_ShutdownNow}"
                         Width="180" Height="50"
                         Margin="0,0,12,12"
                         Style="{StaticResource DangerButtonStyle}"
                         Click="ShutdownNowButton_Click"/>
 
-                <Button x:Name="AIModeButton" Content="🤖 AI 通宵模式"
+                <Button x:Name="AIModeButton" Content="{DynamicResource Warning_AIMode}"
                         Width="180" Height="50"
                         Margin="0,0,12,12"
                         Style="{StaticResource PrimaryButtonStyle}"
@@ -153,12 +153,12 @@
             </WrapPanel>
 
             <!-- Next Schedule Preview -->
-            <TextBlock Text="未來 7 天預覽" Style="{StaticResource SectionTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Dashboard_SchedulePreviewLabel}" Style="{StaticResource SectionTitleStyle}"/>
 
             <Border Style="{StaticResource CardStyle}" Margin="0">
                 <StackPanel x:Name="SchedulePanel">
                     <!-- Schedule items will be added programmatically -->
-                    <TextBlock Text="載入中..."
+                    <TextBlock Text="{DynamicResource Dashboard_Loading}"
                                FontSize="{StaticResource FontSizeBase}"
                                Foreground="{DynamicResource TextSecondary}"
                                HorizontalAlignment="Center"/>

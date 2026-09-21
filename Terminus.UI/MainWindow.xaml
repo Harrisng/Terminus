@@ -1,7 +1,7 @@
 <Window x:Class="Terminus.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Terminus - 睡眠週期管理"
+        Title="{DynamicResource Nav_AppSubtitle}"
         Width="1000" Height="650"
         MinWidth="800" MinHeight="550"
         WindowStartupLocation="CenterScreen"
@@ -25,7 +25,7 @@
                     <Border Width="24" Height="24" CornerRadius="6" Background="{DynamicResource AccentGradient}">
                         <TextBlock Text="🌙" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="Terminus"
+                    <TextBlock Text="{DynamicResource Nav_AppName}"
                                FontSize="{StaticResource FontSizeBase}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimary}"
@@ -37,7 +37,7 @@
             <!-- Title Bar -->
             <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource BgHeader}" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,0,1">
                 <TextBlock x:Name="PageTitle"
-                           Text="儀表板"
+                           Text="{DynamicResource Nav_Dashboard}"
                            FontSize="{StaticResource FontSizeBase}"
                            FontWeight="Medium"
                            Foreground="{DynamicResource TextPrimary}"
@@ -49,7 +49,7 @@
             <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource BgSidebar}" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,1,0">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="0,12,0,0">
-                        <TextBlock Text="主選單"
+                        <TextBlock Text="{DynamicResource Nav_MainMenu}"
                                    FontSize="{StaticResource FontSizeXS}"
                                    Foreground="{DynamicResource TextMuted}"
                                    FontWeight="SemiBold"
@@ -60,7 +60,7 @@
                                 Click="NavDashboard_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="📊" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="儀表板" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Nav_Dashboard}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -69,7 +69,7 @@
                                 Click="NavCalendar_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="📅" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="月曆" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Nav_Calendar}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -78,7 +78,7 @@
                                 Click="NavSettings_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="⚙️" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="設定" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Nav_Settings}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -91,7 +91,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock x:Name="ThemeIcon" Text="🌙" FontSize="14"
                                            VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="ThemeText" Text="深色模式" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ThemeText" Text="{DynamicResource Nav_DarkMode}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -101,7 +101,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="📥" FontSize="14"
                                            VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBlock Text="最小化到托盤" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Nav_MinimizeToTray}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

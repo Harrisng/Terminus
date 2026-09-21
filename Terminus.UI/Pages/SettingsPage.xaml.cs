@@ -12,15 +12,17 @@ public partial class SettingsPage : Page
     private readonly SettingsService _settingsService = null!;
     private readonly CacheService _cacheService = null!;
     private readonly ThemeService _themeService = null!;
+    private readonly LanguageService? _languageService;
     private bool _isInitialized = false;
 
-    public SettingsPage(SettingsService settingsService, CacheService cacheService, ThemeService themeService)
+    public SettingsPage(SettingsService settingsService, CacheService cacheService, ThemeService themeService, LanguageService? languageService = null)
     {
         try
         {
             _settingsService = settingsService;
             _cacheService = cacheService;
             _themeService = themeService;
+            _languageService = languageService;
 
             InitializeComponent();
 
