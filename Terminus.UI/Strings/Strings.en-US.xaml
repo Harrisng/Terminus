@@ -10,6 +10,7 @@
     <sys:String x:Key="Common_Save">Save</sys:String>
     <sys:String x:Key="Common_Close">Close</sys:String>
     <sys:String x:Key="Common_Error">Error</sys:String>
+    <sys:String x:Key="Common_Success">Success</sys:String>
     <sys:String x:Key="Common_None">--</sys:String>
 
     <!-- ════════════ Navigation ════════════ -->
@@ -95,6 +96,7 @@
     <sys:String x:Key="Settings_CalendarCardDesc">Enter ICS calendar URL</sys:String>
     <sys:String x:Key="Settings_CalendarUrlLabel">Calendar URL</sys:String>
     <sys:String x:Key="Settings_CalendarUrlPlaceholder">https://example.com/calendar.ics</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlHint">Get the webcal:// or https:// address from your calendar</sys:String>
     <sys:String x:Key="Settings_SleepCardTitle">Sleep</sys:String>
     <sys:String x:Key="Settings_SleepCardDesc">Sleep duration and buffers</sys:String>
     <sys:String x:Key="Settings_SleepTimeLabel">Sleep duration</sys:String>
@@ -105,7 +107,34 @@
     <sys:String x:Key="Settings_EarlyClassCardTitle">Early class</sys:String>
     <sys:String x:Key="Settings_EarlyClassCardDesc">Rules for early-class days</sys:String>
     <sys:String x:Key="Settings_EarlyClassCutoffLabel">Early class cutoff hour</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCutoffHint">Classes starting before this hour count as early class (0-23)</sys:String>
     <sys:String x:Key="Settings_EarlyClassQuotaLabel">Early-class delay quota</sys:String>
+    <sys:String x:Key="Settings_EarlyClassQuotaHint">Total minutes an early-class day can be delayed; shutdown when exhausted</sys:String>
+    <sys:String x:Key="Settings_GeneralCardTitle">General</sys:String>
+    <sys:String x:Key="Settings_StartWithWindowsHint">Launch Terminus automatically on startup</sys:String>
+    <sys:String x:Key="Settings_DarkModeHint">Toggle light/dark theme</sys:String>
+    <sys:String x:Key="Settings_CacheCardTitle">Cache</sys:String>
+    <sys:String x:Key="Settings_CacheCardDesc">Clear all cached calendar data; it will be refetched on next launch.</sys:String>
+    <sys:String x:Key="Settings_ClearCache">Clear cache</sys:String>
+    <sys:String x:Key="Settings_ConfirmClearCache">Confirm clear</sys:String>
+    <sys:String x:Key="Settings_ClearCacheConfirm">Clear all cached calendar data?</sys:String>
+    <sys:String x:Key="Settings_CacheClearedSuccess">Cache cleared successfully.</sys:String>
+    <sys:String x:Key="Settings_DiagnosticsCardTitle">Diagnostics</sys:String>
+    <sys:String x:Key="Settings_DiagnosticsCardDesc">View system logs and delay history for troubleshooting.</sys:String>
+    <sys:String x:Key="Settings_HourUnit">hr</sys:String>
+    <sys:String x:Key="Settings_InitError">Settings page initialization failed: {0}</sys:String>
+    <sys:String x:Key="Settings_SettingsSavedSuccess">Settings saved. Calendar data loaded immediately.</sys:String>
+    <sys:String x:Key="Settings_ValidationError">Validation error</sys:String>
+    <sys:String x:Key="Settings_Validation_EmptyUrl">Please enter a calendar URL</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidSleep">Invalid sleep duration</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidPreSleep">Invalid pre-sleep buffer</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidWash">Invalid wash time</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidBreakfast">Invalid breakfast time</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidCommute">Invalid commute time</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidCutoff">Invalid early-class cutoff hour (must be 0-23)</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidQuota">Invalid early-class delay quota</sys:String>
+    <sys:String x:Key="Settings_LogsOpenFail">Failed to open logs window: {0}</sys:String>
+    <sys:String x:Key="Settings_HistoryOpenFail">Failed to open delay history window: {0}</sys:String>
     <sys:String x:Key="Settings_WarningCardTitle">Warning and grace</sys:String>
     <sys:String x:Key="Settings_WarningCardDesc">No-response grace and forced shutdown reminder</sys:String>
     <sys:String x:Key="Settings_WarningGraceLabel">Warning no-response grace</sys:String>

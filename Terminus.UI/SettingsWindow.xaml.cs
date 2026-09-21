@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using Terminus.Core.Services;
 using Terminus.UI.Services;
+using Terminus.UI.Windows;
 
 namespace Terminus.UI;
 
@@ -39,38 +40,38 @@ public partial class SettingsWindow : Window
             var url = CalendarUrlTextBox.Text.Trim();
             if (string.IsNullOrEmpty(url))
             {
-                MessageBox.Show("請輸入日曆 URL", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_EmptyUrl");
                 return;
             }
 
             // Validate time values
             if (!int.TryParse(SleepTimeTextBox.Text, out var sleepMinutes) || sleepMinutes <= 0)
             {
-                MessageBox.Show("睡眠時間無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_InvalidSleep");
                 return;
             }
 
             if (!int.TryParse(PreSleepTextBox.Text, out var preSleepMinutes) || preSleepMinutes < 0)
             {
-                MessageBox.Show("睡前準備時間無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_InvalidPreSleep");
                 return;
             }
 
             if (!int.TryParse(WashTextBox.Text, out var washMinutes) || washMinutes <= 0)
             {
-                MessageBox.Show("梳洗時間無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_InvalidWash");
                 return;
             }
 
             if (!int.TryParse(BreakfastTextBox.Text, out var breakfastMinutes) || breakfastMinutes <= 0)
             {
-                MessageBox.Show("早餐時間無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_InvalidBreakfast");
                 return;
             }
 
             if (!int.TryParse(CommuteTextBox.Text, out var commuteMinutes) || commuteMinutes <= 0)
             {
-                MessageBox.Show("通勤時間無效", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowWarning("Settings_ValidationError", "Settings_Validation_InvalidCommute");
                 return;
             }
 
@@ -83,14 +84,28 @@ public partial class SettingsWindow : Window
             _settingsService.SetCommuteTime(TimeSpan.FromMinutes(commuteMinutes));
             _settingsService.SetStartWithWindows(StartWithWindowsCheckBox.IsChecked ?? false);
 
-            MessageBox.Show("設置保存成功。請重啟 Terminus 以使更改生效。",
-                "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            var successTitle = TryFindResource("Common_Success") as string ?? "成功";
+            var successBody = TryFindResource("Settings_SettingsSavedSuccess") as string ?? "設定已儲存，日曆數據已即時載入。";
+            var successDialog = new WarningDialog(successTitle, successBody, icon: "✅");
+            WarningDialog.ShowSingleton(successDialog);
+
+            // Restart orchestrator immediately so first-run user sees data
+            var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
+            if (orchestrator != null)
+            {
+                App.ApplyOrchestratorSettings(orchestrator, _settingsService);
+                await orchestrator.RestartAsync(url);
+            }
 
             Close();
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"保存設置失敗：{ex.Message}", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            LoggerService.Error("SettingsWindow: 儲存設定失敗", ex);
+            var title = TryFindResource("Common_Error") as string ?? "錯誤";
+            var bodyFmt = TryFindResource("Settings_SaveFailed") as string ?? "儲存設定失敗：{0}";
+            var dialog = new WarningDialog(title, string.Format(bodyFmt, ex.Message), icon: "❌");
+            WarningDialog.ShowSingleton(dialog);
         }
     }
 
@@ -110,15 +125,12 @@ public partial class SettingsWindow : Window
             DragMove();
     }
 
-    private void ClearCacheButton_Click(object sender, RoutedEventArgs e)
+    /// <summary>顯示警告對話框（取代 MessageBox）。傳入資源 key。</summary>
+    private void ShowWarning(string titleKey, string messageKey)
     {
-        var result = MessageBox.Show("確定要清除所有緩存的日曆數據嗎？",
-            "確認", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-        if (result == MessageBoxResult.Yes)
-        {
-            _cacheService.ClearAll();
-            MessageBox.Show("緩存已清除成功。", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+        var title = TryFindResource(titleKey) as string ?? titleKey;
+        var message = TryFindResource(messageKey) as string ?? messageKey;
+        var dialog = new WarningDialog(title, message, icon: "⚠️");
+        WarningDialog.ShowSingleton(dialog);
     }
 }

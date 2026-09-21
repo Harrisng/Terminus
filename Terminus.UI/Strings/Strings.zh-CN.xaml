@@ -10,6 +10,7 @@
     <sys:String x:Key="Common_Save">保存</sys:String>
     <sys:String x:Key="Common_Close">关闭</sys:String>
     <sys:String x:Key="Common_Error">错误</sys:String>
+    <sys:String x:Key="Common_Success">成功</sys:String>
     <sys:String x:Key="Common_None">--</sys:String>
 
     <!-- ════════════ 导航 ════════════ -->
@@ -95,6 +96,7 @@
     <sys:String x:Key="Settings_CalendarCardDesc">输入 ICS 日历网址</sys:String>
     <sys:String x:Key="Settings_CalendarUrlLabel">日历网址</sys:String>
     <sys:String x:Key="Settings_CalendarUrlPlaceholder">https://example.com/calendar.ics</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlHint">从你的日历获取 webcal:// 或 https:// 地址</sys:String>
     <sys:String x:Key="Settings_SleepCardTitle">睡眠设置</sys:String>
     <sys:String x:Key="Settings_SleepCardDesc">设置睡眠时长与缓冲</sys:String>
     <sys:String x:Key="Settings_SleepTimeLabel">睡眠时长</sys:String>
@@ -105,7 +107,34 @@
     <sys:String x:Key="Settings_EarlyClassCardTitle">早课判定</sys:String>
     <sys:String x:Key="Settings_EarlyClassCardDesc">判断早课日的规则</sys:String>
     <sys:String x:Key="Settings_EarlyClassCutoffLabel">早课分界时刻</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCutoffHint">在此时刻之前开始的课算早课（0-23）</sys:String>
     <sys:String x:Key="Settings_EarlyClassQuotaLabel">早课日延迟额度</sys:String>
+    <sys:String x:Key="Settings_EarlyClassQuotaHint">早课日可延迟的总分钟数，用完即关机</sys:String>
+    <sys:String x:Key="Settings_GeneralCardTitle">常规设置</sys:String>
+    <sys:String x:Key="Settings_StartWithWindowsHint">开机时自动启动 Terminus</sys:String>
+    <sys:String x:Key="Settings_DarkModeHint">切换浅色／深色主题</sys:String>
+    <sys:String x:Key="Settings_CacheCardTitle">缓存管理</sys:String>
+    <sys:String x:Key="Settings_CacheCardDesc">清除所有缓存的日历数据，下次启动时将重新抓取。</sys:String>
+    <sys:String x:Key="Settings_ClearCache">清除缓存</sys:String>
+    <sys:String x:Key="Settings_ConfirmClearCache">确认清除</sys:String>
+    <sys:String x:Key="Settings_ClearCacheConfirm">确定要清除所有缓存的日历数据吗？</sys:String>
+    <sys:String x:Key="Settings_CacheClearedSuccess">缓存已清除成功。</sys:String>
+    <sys:String x:Key="Settings_DiagnosticsCardTitle">诊断工具</sys:String>
+    <sys:String x:Key="Settings_DiagnosticsCardDesc">查看系统日志与延迟历史记录，排查问题。</sys:String>
+    <sys:String x:Key="Settings_HourUnit">时</sys:String>
+    <sys:String x:Key="Settings_InitError">设置页面初始化失败：{0}</sys:String>
+    <sys:String x:Key="Settings_SettingsSavedSuccess">设置已保存，日历数据已即时载入。</sys:String>
+    <sys:String x:Key="Settings_ValidationError">验证错误</sys:String>
+    <sys:String x:Key="Settings_Validation_EmptyUrl">请输入日历 URL</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidSleep">睡眠时间无效</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidPreSleep">睡前准备时间无效</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidWash">洗漱时间无效</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidBreakfast">早餐时间无效</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidCommute">通勤时间无效</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidCutoff">早课分界时刻无效（需 0-23）</sys:String>
+    <sys:String x:Key="Settings_Validation_InvalidQuota">早课日延迟额度无效</sys:String>
+    <sys:String x:Key="Settings_LogsOpenFail">无法打开日志窗口：{0}</sys:String>
+    <sys:String x:Key="Settings_HistoryOpenFail">无法打开延迟历史窗口：{0}</sys:String>
     <sys:String x:Key="Settings_WarningCardTitle">警告与宽限</sys:String>
     <sys:String x:Key="Settings_WarningCardDesc">无回应宽限期与强制关机提醒</sys:String>
     <sys:String x:Key="Settings_WarningGraceLabel">警告无回应宽限期</sys:String>

@@ -1,7 +1,7 @@
 <Window x:Class="Terminus.UI.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Terminus - 設置"
+        Title="{DynamicResource SettingsWindow_Title}"
         Width="600" Height="650"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
@@ -26,7 +26,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0"
-                           Text="Terminus"
+                           Text="{DynamicResource Nav_AppName}"
                            FontSize="{StaticResource FontSizeBase}"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextPrimary}"
@@ -43,22 +43,22 @@
                 <StackPanel>
 
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="設定" Style="{StaticResource PageTitleStyle}"/>
-                        <TextBlock Text="自訂你的睡眠週期參數" Style="{StaticResource PageSubtitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings_Title}" Style="{StaticResource PageTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource SettingsWindow_FirstRunHint}" Style="{StaticResource PageSubtitleStyle}"/>
                     </StackPanel>
 
                     <!-- Calendar URL Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="日曆設置" Style="{StaticResource CardTitleStyle}"/>
-                            <TextBlock Text="日曆 URL (webcal:// 或 https://)"
+                            <TextBlock Text="{DynamicResource Settings_CalendarCardTitle}" Style="{StaticResource CardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_CalendarUrlLabel}"
                                        Style="{StaticResource CardLabelStyle}"
                                        Margin="0,0,0,8"/>
                             <TextBox x:Name="CalendarUrlTextBox"
                                      Height="38"
                                      VerticalContentAlignment="Center"
                                      Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="從你的日曆獲取 webcal:// 或 https:// 地址"
+                            <TextBlock Text="{DynamicResource Settings_CalendarUrlHint}"
                                        FontSize="{StaticResource FontSizeXS}"
                                        Foreground="{DynamicResource TextTertiary}"
                                        Margin="4,8,0,0"/>
@@ -68,8 +68,8 @@
                     <!-- Time Buffer Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="時間緩衝設置" Style="{StaticResource CardTitleStyle}"/>
-                            <TextBlock Text="總計默認：9 小時 15 分鐘"
+                            <TextBlock Text="{DynamicResource Settings_SleepCardTitle}" Style="{StaticResource CardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_SleepCardDesc}"
                                        FontSize="{StaticResource FontSizeSM}"
                                        Foreground="{DynamicResource TextTertiary}"
                                        Margin="0,0,0,16"/>
@@ -87,7 +87,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="睡眠時間："
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings_SleepTimeLabel}"
                                            FontSize="{StaticResource FontSizeBase}"
                                            Foreground="{DynamicResource TextPrimary}"
                                            VerticalAlignment="Center" Margin="0,8"/>
@@ -97,14 +97,14 @@
                                              HorizontalContentAlignment="Center"
                                              VerticalContentAlignment="Center"
                                              Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text=" 分鐘 (360 = 6小時)"
+                                    <TextBlock Text="{DynamicResource Common_Minutes}"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondary}"
                                                FontSize="{StaticResource FontSizeSM}"
                                                Margin="10,0"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="睡前準備："
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings_PreSleepLabel}"
                                            FontSize="{StaticResource FontSizeBase}"
                                            Foreground="{DynamicResource TextPrimary}"
                                            VerticalAlignment="Center" Margin="0,8"/>
@@ -114,14 +114,14 @@
                                              HorizontalContentAlignment="Center"
                                              VerticalContentAlignment="Center"
                                              Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text=" 分鐘"
+                                    <TextBlock Text="{DynamicResource Common_Minutes}"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondary}"
                                                FontSize="{StaticResource FontSizeSM}"
                                                Margin="10,0"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="梳洗時間："
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings_WashTimeLabel}"
                                            FontSize="{StaticResource FontSizeBase}"
                                            Foreground="{DynamicResource TextPrimary}"
                                            VerticalAlignment="Center" Margin="0,8"/>
@@ -131,14 +131,14 @@
                                              HorizontalContentAlignment="Center"
                                              VerticalContentAlignment="Center"
                                              Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text=" 分鐘"
+                                    <TextBlock Text="{DynamicResource Common_Minutes}"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondary}"
                                                FontSize="{StaticResource FontSizeSM}"
                                                Margin="10,0"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="早餐時間："
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Settings_BreakfastTimeLabel}"
                                            FontSize="{StaticResource FontSizeBase}"
                                            Foreground="{DynamicResource TextPrimary}"
                                            VerticalAlignment="Center" Margin="0,8"/>
@@ -148,14 +148,14 @@
                                              HorizontalContentAlignment="Center"
                                              VerticalContentAlignment="Center"
                                              Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text=" 分鐘"
+                                    <TextBlock Text="{DynamicResource Common_Minutes}"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondary}"
                                                FontSize="{StaticResource FontSizeSM}"
                                                Margin="10,0"/>
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="通勤時間："
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Settings_CommuteTimeLabel}"
                                            FontSize="{StaticResource FontSizeBase}"
                                            Foreground="{DynamicResource TextPrimary}"
                                            VerticalAlignment="Center" Margin="0,8"/>
@@ -165,7 +165,7 @@
                                              HorizontalContentAlignment="Center"
                                              VerticalContentAlignment="Center"
                                              Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text=" 分鐘 (105 = 1小時45分)"
+                                    <TextBlock Text="{DynamicResource Common_Minutes}"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondary}"
                                                FontSize="{StaticResource FontSizeSM}"
@@ -178,21 +178,22 @@
                     <!-- Startup Settings Card -->
                     <Border Style="{StaticResource CardStyle}" Margin="0">
                         <StackPanel>
-                            <TextBlock Text="啟動設置" Style="{StaticResource CardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_StartupCardTitle}" Style="{StaticResource CardTitleStyle}"/>
                             <CheckBox x:Name="StartWithWindowsCheckBox"
-                                      Content="隨 Windows 啟動"
+                                      Content="{DynamicResource Settings_StartWithWindows}"
                                       IsChecked="True"
+                                      Margin="0,8,0,0"
                                       Style="{StaticResource DefaultCheckBoxStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Action Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                        <Button x:Name="SaveButton" Content="儲存"
+                        <Button x:Name="SaveButton" Content="{DynamicResource Common_Save}"
                                 Width="120" Height="42"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="0,0,10,0" Click="SaveButton_Click"/>
-                        <Button x:Name="CancelButton" Content="取消"
+                        <Button x:Name="CancelButton" Content="{DynamicResource Common_Cancel}"
                                 Width="120" Height="42"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Click="CancelButton_Click"/>
