@@ -22,8 +22,18 @@ public partial class App : Application
         DispatcherUnhandledException += (s, args) =>
         {
             Terminus.Core.Services.LoggerService.Error("App: DispatcherUnhandledException", args.Exception);
-            MessageBox.Show($"發生錯誤：{args.Exception.Message}\n\n{args.Exception.StackTrace}",
-                "Terminus 錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            try
+            {
+                var dialog = new Terminus.UI.Windows.WarningDialog("發生錯誤",
+                    $"發生錯誤：{args.Exception.Message}\n\n{args.Exception.StackTrace}", icon: "❌");
+                Terminus.UI.Windows.WarningDialog.ShowSingleton(dialog);
+            }
+            catch
+            {
+                // 若對話框本身初始化失敗，回到 MessageBox 兜底
+                MessageBox.Show($"發生錯誤：{args.Exception.Message}\n\n{args.Exception.StackTrace}",
+                    "Terminus 錯誤", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             args.Handled = true;
         };
         AppDomain.CurrentDomain.UnhandledException += (s, args) =>

@@ -17,7 +17,8 @@ public partial class AIModeDialog : Window
 
         if (string.IsNullOrEmpty(description))
         {
-            MessageBox.Show("請輸入任務描述。", "驗證錯誤", MessageBoxButton.OK, MessageBoxImage.Warning);
+            var dialog = new Windows.WarningDialog("輸入不完整", "請輸入任務描述。", icon: "⚠️");
+            Windows.WarningDialog.ShowSingleton(dialog);
             return;
         }
 
