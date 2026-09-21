@@ -14,7 +14,8 @@ namespace Terminus.UI.Pages;
 public partial class DashboardPage : Page
 {
     private readonly BehaviorOrchestrator _orchestrator = null!;
-    private readonly DispatcherTimer _timer = null!;
+    private readonly DispatcherTimer _clockTimer = null!;  // 每秒更新時鐘文字
+    private readonly DispatcherTimer _stateTimer = null!; // 每 10 秒重算狀態/進度
 
     // ── Brush 快取（避免每秒 FindResource） ──
     private Brush? _brushStatusWarning;
@@ -37,12 +38,21 @@ public partial class DashboardPage : Page
 
             _orchestrator.StateChanged += OnStateChanged;
 
-            _timer = new DispatcherTimer
+            // 時鐘 Timer：每秒只更新日期時間文字，工作量極小
+            _clockTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
             };
-            _timer.Tick += UpdateDisplay;
-            _timer.Start();
+            _clockTimer.Tick += UpdateClock;
+            _clockTimer.Start();
+
+            // 狀態 Timer：每 10 秒重新整理狀態顯示與預覽
+            _stateTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(10)
+            };
+            _stateTimer.Tick += UpdateDisplay;
+            _stateTimer.Start();
 
             UpdateDisplay(null, EventArgs.Empty);
             LoadSchedulePreview();
@@ -54,6 +64,12 @@ public partial class DashboardPage : Page
                 $"儀表板頁面初始化失敗：{ex.Message}", icon: "❌");
             WarningDialog.ShowSingleton(dialog);
         }
+    }
+
+    /// <summary>每秒只更新日期時間文字，不重新計算狀態/Brush。</summary>
+    private void UpdateClock(object? sender, EventArgs e)
+    {
+        CurrentDateText.Text = DateTime.Now.ToString("yyyy年MM月dd日 dddd HH:mm");
     }
 
     /// <summary>快取常用 Brush 物件，避免每秒呼叫 FindResource。</summary>
@@ -97,7 +113,6 @@ public partial class DashboardPage : Page
         EnsureBrushesCached();
 
         var now = DateTime.Now;
-        CurrentDateText.Text = now.ToString("yyyy年MM月dd日 dddd HH:mm");
 
         var context = _orchestrator.GetCurrentContext();
 
