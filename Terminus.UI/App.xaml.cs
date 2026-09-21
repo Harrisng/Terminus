@@ -74,6 +74,11 @@ public partial class App : Application
                 services.AddSingleton<RebootDetectionService>();
                 services.AddSingleton<ICycleStateService, CycleStateService>();
                 services.AddSingleton<INotificationService, WindowsNotificationService>();
+
+                // Language: LanguageService 必須在 BehaviorOrchestrator 之前初始化
+                services.AddSingleton<LanguageService>();
+                services.AddSingleton<ILocalizationService>(sp => sp.GetRequiredService<LanguageService>());
+
                 services.AddSingleton<BehaviorOrchestrator>();
 
                 // UI services
@@ -87,7 +92,11 @@ public partial class App : Application
 
             await _host.StartAsync();
 
-            // Initialize theme service first
+            // Initialize language first (before any UI shows)
+            var languageService = _host.Services.GetRequiredService<LanguageService>();
+            languageService.Initialize();
+
+            // Initialize theme service
             var themeService = _host.Services.GetRequiredService<ThemeService>();
 
             // Create main window (but don't show yet for existing users)

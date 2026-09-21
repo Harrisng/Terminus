@@ -57,6 +57,20 @@ public class SettingsService
         }
     }
 
+    /// <summary>寫入字串值。</summary>
+    private void WriteString(string name, string value)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(RegistryPath);
+            key?.SetValue(name, value);
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Warn($"SettingsService: 寫入 {name}={value} 失敗: {ex.Message}");
+        }
+    }
+
     // ── 用戶設定 ──
 
     /// <summary>CalendarUrl 加密儲存的 registry value 名稱。</summary>
@@ -202,6 +216,12 @@ public class SettingsService
             return false;
         }
     }
+
+    /// <summary>取得 UI 語言代碼（如 zh-TW / en-US / zh-CN）。未設定時回傳空字串，呼叫端應改用 LanguageService.DetectSystemLanguage()。</summary>
+    public string GetLanguage() => ReadString("Language", string.Empty);
+
+    /// <summary>儲存 UI 語言代碼。</summary>
+    public void SetLanguage(string code) => WriteString("Language", code);
 
     public void SetStartWithWindows(bool enabled)
     {

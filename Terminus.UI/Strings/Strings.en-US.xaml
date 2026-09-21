@@ -1,0 +1,192 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ════════════ Common ════════════ -->
+    <sys:String x:Key="Common_Minutes">minutes</sys:String>
+    <sys:String x:Key="Common_Hours">hours</sys:String>
+    <sys:String x:Key="Common_Confirm">Confirm</sys:String>
+    <sys:String x:Key="Common_Cancel">Cancel</sys:String>
+    <sys:String x:Key="Common_Save">Save</sys:String>
+    <sys:String x:Key="Common_Close">Close</sys:String>
+    <sys:String x:Key="Common_Error">Error</sys:String>
+    <sys:String x:Key="Common_None">--</sys:String>
+
+    <!-- ════════════ Navigation ════════════ -->
+    <sys:String x:Key="Nav_AppName">Terminus</sys:String>
+    <sys:String x:Key="Nav_AppSubtitle">Sleep Cycle Manager</sys:String>
+    <sys:String x:Key="Nav_Dashboard">Dashboard</sys:String>
+    <sys:String x:Key="Nav_Calendar">Calendar</sys:String>
+    <sys:String x:Key="Nav_Settings">Settings</sys:String>
+    <sys:String x:Key="Nav_MainMenu">Main menu</sys:String>
+    <sys:String x:Key="Nav_DarkMode">Dark mode</sys:String>
+    <sys:String x:Key="Nav_MinimizeToTray">Minimize to tray</sys:String>
+
+    <!-- ════════════ Dashboard ════════════ -->
+    <sys:String x:Key="Dashboard_Title">Sleep Cycle Dashboard</sys:String>
+    <sys:String x:Key="Dashboard_StateLabel">Current state</sys:String>
+    <sys:String x:Key="Dashboard_NextActionLabel">Next action</sys:String>
+    <sys:String x:Key="Dashboard_QuotaLabel">Quota remaining</sys:String>
+    <sys:String x:Key="Dashboard_CycleIdLabel">Cycle ID</sys:String>
+    <sys:String x:Key="Dashboard_DelayCountLabel">Delay count</sys:String>
+    <sys:String x:Key="Dashboard_WarningTimeLabel">Next warning</sys:String>
+    <sys:String x:Key="Dashboard_TomorrowClassLabel">First class tomorrow</sys:String>
+    <sys:String x:Key="Dashboard_ClassificationLabel">Day type</sys:String>
+    <sys:String x:Key="Dashboard_SchedulePreviewLabel">Next 7 days</sys:String>
+    <sys:String x:Key="Dashboard_NotStarted">Not started</sys:String>
+    <sys:String x:Key="Dashboard_PleaseSetup">Please set up</sys:String>
+    <sys:String x:Key="Dashboard_PleaseConfigCalendar">Configure calendar</sys:String>
+    <sys:String x:Key="Dashboard_Unlimited">Unlimited</sys:String>
+    <sys:String x:Key="Dashboard_ManualCount">Manual: {0}</sys:String>
+    <sys:String x:Key="Dashboard_AutoCount">Auto: {0}</sys:String>
+    <sys:String x:Key="Dashboard_DelayCountFormat">Manual {0} · Auto {1}</sys:String>
+
+    <!-- State display -->
+    <sys:String x:Key="State_Idle">Idle</sys:String>
+    <sys:String x:Key="State_PreWarning">Pre-warning</sys:String>
+    <sys:String x:Key="State_Warning">Warning</sys:String>
+    <sys:String x:Key="State_Delayed">Delayed</sys:String>
+    <sys:String x:Key="State_AutoDelaying">Auto-delaying</sys:String>
+    <sys:String x:Key="State_ShuttingDown">Shutting down</sys:String>
+    <sys:String x:Key="State_AIMode">AI mode running</sys:String>
+    <sys:String x:Key="State_Disabled">Disabled</sys:String>
+    <sys:String x:Key="State_ForceShutdown">Forcing shutdown</sys:String>
+
+    <!-- Day classification -->
+    <sys:String x:Key="Classification_EarlyClass">Early class</sys:String>
+    <sys:String x:Key="Classification_NonEarlyClass">No early class</sys:String>
+    <sys:String x:Key="Classification_NoData">No calendar data</sys:String>
+
+    <!-- Week preview -->
+    <sys:String x:Key="Day_Sunday">Sun</sys:String>
+    <sys:String x:Key="Day_Monday">Mon</sys:String>
+    <sys:String x:Key="Day_Tuesday">Tue</sys:String>
+    <sys:String x:Key="Day_Wednesday">Wed</sys:String>
+    <sys:String x:Key="Day_Thursday">Thu</sys:String>
+    <sys:String x:Key="Day_Friday">Fri</sys:String>
+    <sys:String x:Key="Day_Saturday">Sat</sys:String>
+    <sys:String x:Key="Day_Today">Today</sys:String>
+    <sys:String x:Key="Day_NoClass">No class</sys:String>
+
+    <!-- ════════════ Settings ════════════ -->
+    <sys:String x:Key="Settings_Title">Settings</sys:String>
+    <sys:String x:Key="Settings_Subtitle">Configure Terminus behavior</sys:String>
+    <sys:String x:Key="Settings_LanguageCardTitle">Language</sys:String>
+    <sys:String x:Key="Settings_LanguageCardDesc">Interface language, changes immediately</sys:String>
+    <sys:String x:Key="Settings_Language_zhTW">繁體中文</sys:String>
+    <sys:String x:Key="Settings_Language_enUS">English</sys:String>
+    <sys:String x:Key="Settings_Language_zhCN">简体中文</sys:String>
+    <sys:String x:Key="Settings_CalendarCardTitle">Calendar source</sys:String>
+    <sys:String x:Key="Settings_CalendarCardDesc">Enter ICS calendar URL</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlLabel">Calendar URL</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlPlaceholder">https://example.com/calendar.ics</sys:String>
+    <sys:String x:Key="Settings_SleepCardTitle">Sleep</sys:String>
+    <sys:String x:Key="Settings_SleepCardDesc">Sleep duration and buffers</sys:String>
+    <sys:String x:Key="Settings_SleepTimeLabel">Sleep duration</sys:String>
+    <sys:String x:Key="Settings_PreSleepLabel">Pre-sleep buffer</sys:String>
+    <sys:String x:Key="Settings_WashTimeLabel">Wash time</sys:String>
+    <sys:String x:Key="Settings_BreakfastTimeLabel">Breakfast time</sys:String>
+    <sys:String x:Key="Settings_CommuteTimeLabel">Commute time</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCardTitle">Early class</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCardDesc">Rules for early-class days</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCutoffLabel">Early class cutoff hour</sys:String>
+    <sys:String x:Key="Settings_EarlyClassQuotaLabel">Early-class delay quota</sys:String>
+    <sys:String x:Key="Settings_WarningCardTitle">Warning and grace</sys:String>
+    <sys:String x:Key="Settings_WarningCardDesc">No-response grace and forced shutdown reminder</sys:String>
+    <sys:String x:Key="Settings_WarningGraceLabel">Warning no-response grace</sys:String>
+    <sys:String x:Key="Settings_ForceShutdownGraceLabel">Forced shutdown reminder</sys:String>
+    <sys:String x:Key="Settings_StartupCardTitle">Startup</sys:String>
+    <sys:String x:Key="Settings_StartupCardDesc">Auto-start with Windows</sys:String>
+    <sys:String x:Key="Settings_StartWithWindows">Start with Windows</sys:String>
+    <sys:String x:Key="Settings_HistoryCardTitle">Delay history</sys:String>
+    <sys:String x:Key="Settings_HistoryCardDesc">View encrypted delay records</sys:String>
+    <sys:String x:Key="Settings_ViewHistory">View delay history</sys:String>
+    <sys:String x:Key="Settings_ViewLogs">View logs</sys:String>
+    <sys:String x:Key="Settings_Saved">Settings saved</sys:String>
+    <sys:String x:Key="Settings_SaveFailed">Save failed</sys:String>
+    <sys:String x:Key="Settings_HoursFormat">{0} hours</sys:String>
+    <sys:String x:Key="Settings_MinutesFormat">{0} minutes</sys:String>
+
+    <!-- ════════════ Warning dialog ════════════ -->
+    <sys:String x:Key="Warning_Delay30">⏰ Delay 30 min</sys:String>
+    <sys:String x:Key="Warning_Delay60">⏰ Delay 60 min</sys:String>
+    <sys:String x:Key="Warning_Delay90">⏰ Delay 90 min</sys:String>
+    <sys:String x:Key="Warning_ShutdownNow">⚡ Shut down now</sys:String>
+    <sys:String x:Key="Warning_AIMode">🤖 AI overnight mode</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdown">Confirm shutdown</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdownMsg">Are you sure you want to shut down now?\nThis cannot be undone.</sys:String>
+    <sys:String x:Key="Warning_UnableToDelay">Cannot delay</sys:String>
+    <sys:String x:Key="Warning_NotInWarningState">Not in warning state, cannot delay manually.\nPlease wait for a warning to appear.</sys:String>
+    <sys:String x:Key="Warning_QuotaExceededTitle">Quota exhausted</sys:String>
+    <sys:String x:Key="Warning_QuotaExceededBody">Delay quota insufficient ({0:F0} min remaining), cannot delay {1:F0} min.</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownTitle">Forced shutdown reminder</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">Hard shutdown time reached. System will shut down in {0} minutes.\nPlease save all unsaved data. This shutdown cannot be delayed.</sys:String>
+
+    <!-- ════════════ Notifications ════════════ -->
+    <sys:String x:Key="Notification_PreWarningTitle">Sleep cycle pre-warning</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">{0} minutes until warning. {1}</sys:String>
+    <sys:String x:Key="Notification_WarningTitle">Sleep cycle warning</sys:String>
+    <sys:String x:Key="Notification_DelayedTitle">Delayed</sys:String>
+    <sys:String x:Key="Notification_DelayConfirmedBody">Delayed {0} minutes. Quota remaining: {1:F0} min.</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedTitle">AI overnight mode</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">AI overnight mode started. Task: {0}</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedTitle">AI overnight mode complete</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">Task "{0}" completed ({1})</sys:String>
+    <sys:String x:Key="Notification_ShutdownImminentTitle">Shutdown imminent</sys:String>
+    <sys:String x:Key="Notification_ShutdownImminentBody">System will shut down in {0} minutes</sys:String>
+    <sys:String x:Key="Notification_FetchErrorTitle">Calendar fetch error</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">{0} consecutive failures. Cache age: {1}</sys:String>
+
+    <!-- ════════════ Tray menu ════════════ -->
+    <sys:String x:Key="Tray_Tooltip">Terminus - Sleep Cycle Manager</sys:String>
+    <sys:String x:Key="Tray_StatusLabel">Status: {0}</sys:String>
+    <sys:String x:Key="Tray_ShowMainWindow">📊 Open main window</sys:String>
+    <sys:String x:Key="Tray_Settings">⚙️ Settings</sys:String>
+    <sys:String x:Key="Tray_QuickDelay">⏰ Delay 30 min</sys:String>
+    <sys:String x:Key="Tray_ShutdownNow">⚡ Shut down now</sys:String>
+    <sys:String x:Key="Tray_Exit">❌ Exit</sys:String>
+
+    <!-- ════════════ Logs window ════════════ -->
+    <sys:String x:Key="Logs_Title">Logs</sys:String>
+    <sys:String x:Key="Logs_Refresh">Refresh</sys:String>
+    <sys:String x:Key="Logs_Clear">Clear</sys:String>
+    <sys:String x:Key="Logs_Copy">Copy</sys:String>
+    <sys:String x:Key="Logs_Empty">(No logs)</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmTitle">Confirm clear</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmBody">Clear all logs?\nThis cannot be undone.</sys:String>
+
+    <!-- ════════════ Delay history window ════════════ -->
+    <sys:String x:Key="History_Title">Delay history</sys:String>
+    <sys:String x:Key="History_TimeCol">Time</sys:String>
+    <sys:String x:Key="History_DurationCol">Duration</sys:String>
+    <sys:String x:Key="History_DelayedToCol">Delayed to</sys:String>
+    <sys:String x:Key="History_TypeCol">Type</sys:String>
+    <sys:String x:Key="History_Manual">Manual</sys:String>
+    <sys:String x:Key="History_Auto">Auto</sys:String>
+    <sys:String x:Key="History_Empty">No delay records</sys:String>
+
+    <!-- ════════════ Settings window ════════════ -->
+    <sys:String x:Key="SettingsWindow_Title">Terminus Settings</sys:String>
+    <sys:String x:Key="SettingsWindow_FirstRunHint">First use, please set the calendar URL</sys:String>
+
+    <!-- ════════════ AI mode dialog ════════════ -->
+    <sys:String x:Key="AIMode_Title">AI overnight mode</sys:String>
+    <sys:String x:Key="AIMode_DescriptionLabel">Task description</sys:String>
+    <sys:String x:Key="AIMode_Placeholder">e.g. Organize today's notes, write a report</sys:String>
+    <sys:String x:Key="AIMode_Start">Start</sys:String>
+    <sys:String x:Key="AIMode_Cancel">Cancel</sys:String>
+    <sys:String x:Key="AIMode_ValidationError">Please enter a task description.</sys:String>
+
+    <!-- ════════════ Errors and startup ════════════ -->
+    <sys:String x:Key="Error_AppTitle">Terminus Error</sys:String>
+    <sys:String x:Key="Error_Occurred">An error occurred</sys:String>
+    <sys:String x:Key="Error_OccurredBody">Error: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_StartupFailed">Terminus startup failed</sys:String>
+    <sys:String x:Key="Error_StartupFailedBody">Startup error: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_DashboardInitFailed">Dashboard initialization failed: {0}</sys:String>
+
+    <!-- ════════════ Time formats ════════════ -->
+    <sys:String x:Key="Format_HoursMinutes">{0} hours {1} minutes</sys:String>
+    <sys:String x:Key="Format_QuotaRemaining">{0:F0} min</sys:String>
+
+</ResourceDictionary>

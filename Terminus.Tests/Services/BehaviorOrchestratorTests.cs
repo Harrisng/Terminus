@@ -31,7 +31,7 @@ public class BehaviorOrchestratorTests
     private BehaviorOrchestrator CreateOrchestrator()
     {
         var calSvc = new CalendarDataService(new StubICalService(), new CacheService());
-        var orch = new BehaviorOrchestrator(calSvc, _shutdown, _notifications, _cycleState, _clock);
+        var orch = new BehaviorOrchestrator(calSvc, _shutdown, _notifications, _cycleState, new NullLocalizationService(), _clock);
         return orch;
     }
 
