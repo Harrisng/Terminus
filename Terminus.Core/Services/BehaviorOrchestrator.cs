@@ -34,6 +34,7 @@ public class BehaviorOrchestrator
     private readonly ShutdownService _shutdownService;
     private readonly INotificationService _notificationService;
     private readonly ICycleStateService _cycleStateService;
+    private readonly ILocalizationService _localization;
     private readonly IClock _clock;
     private readonly object _lock = new();
 
@@ -63,12 +64,14 @@ public class BehaviorOrchestrator
         ShutdownService shutdownService,
         INotificationService notificationService,
         ICycleStateService cycleStateService,
+        ILocalizationService localization,
         IClock? clock = null)
     {
         _calendarService = calendarService;
         _shutdownService = shutdownService;
         _notificationService = notificationService;
         _cycleStateService = cycleStateService;
+        _localization = localization;
         _clock = clock ?? SystemClock.Instance;
     }
 

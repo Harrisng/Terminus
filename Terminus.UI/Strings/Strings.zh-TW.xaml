@@ -1,0 +1,192 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ════════════ 共用 ════════════ -->
+    <sys:String x:Key="Common_Minutes">分鐘</sys:String>
+    <sys:String x:Key="Common_Hours">小時</sys:String>
+    <sys:String x:Key="Common_Confirm">確認</sys:String>
+    <sys:String x:Key="Common_Cancel">取消</sys:String>
+    <sys:String x:Key="Common_Save">儲存</sys:String>
+    <sys:String x:Key="Common_Close">關閉</sys:String>
+    <sys:String x:Key="Common_Error">錯誤</sys:String>
+    <sys:String x:Key="Common_None">--</sys:String>
+
+    <!-- ════════════ 導覽列 ════════════ -->
+    <sys:String x:Key="Nav_AppName">Terminus</sys:String>
+    <sys:String x:Key="Nav_AppSubtitle">睡眠週期管理</sys:String>
+    <sys:String x:Key="Nav_Dashboard">儀表板</sys:String>
+    <sys:String x:Key="Nav_Calendar">月曆</sys:String>
+    <sys:String x:Key="Nav_Settings">設定</sys:String>
+    <sys:String x:Key="Nav_MainMenu">主選單</sys:String>
+    <sys:String x:Key="Nav_DarkMode">深色模式</sys:String>
+    <sys:String x:Key="Nav_MinimizeToTray">最小化到托盤</sys:String>
+
+    <!-- ════════════ 儀表板 ════════════ -->
+    <sys:String x:Key="Dashboard_Title">睡眠週期儀表板</sys:String>
+    <sys:String x:Key="Dashboard_StateLabel">目前狀態</sys:String>
+    <sys:String x:Key="Dashboard_NextActionLabel">下次動作</sys:String>
+    <sys:String x:Key="Dashboard_QuotaLabel">剩餘配額</sys:String>
+    <sys:String x:Key="Dashboard_CycleIdLabel">週期編號</sys:String>
+    <sys:String x:Key="Dashboard_DelayCountLabel">延遲次數</sys:String>
+    <sys:String x:Key="Dashboard_WarningTimeLabel">下次預警</sys:String>
+    <sys:String x:Key="Dashboard_TomorrowClassLabel">明日首課</sys:String>
+    <sys:String x:Key="Dashboard_ClassificationLabel">日分類</sys:String>
+    <sys:String x:Key="Dashboard_SchedulePreviewLabel">未來 7 天</sys:String>
+    <sys:String x:Key="Dashboard_NotStarted">未啟動</sys:String>
+    <sys:String x:Key="Dashboard_PleaseSetup">請先設定</sys:String>
+    <sys:String x:Key="Dashboard_PleaseConfigCalendar">請配置日曆</sys:String>
+    <sys:String x:Key="Dashboard_Unlimited">無限制</sys:String>
+    <sys:String x:Key="Dashboard_ManualCount">手動 {0} 次</sys:String>
+    <sys:String x:Key="Dashboard_AutoCount">自動 {0} 次</sys:String>
+    <sys:String x:Key="Dashboard_DelayCountFormat">手動 {0} 次 · 自動 {1} 次</sys:String>
+
+    <!-- 狀態顯示 -->
+    <sys:String x:Key="State_Idle">閒置中</sys:String>
+    <sys:String x:Key="State_PreWarning">預警階段</sys:String>
+    <sys:String x:Key="State_Warning">警告中</sys:String>
+    <sys:String x:Key="State_Delayed">已延後</sys:String>
+    <sys:String x:Key="State_AutoDelaying">自動延後中</sys:String>
+    <sys:String x:Key="State_ShuttingDown">關機中</sys:String>
+    <sys:String x:Key="State_AIMode">AI 模式運行中</sys:String>
+    <sys:String x:Key="State_Disabled">已停用</sys:String>
+    <sys:String x:Key="State_ForceShutdown">強制關機中</sys:String>
+
+    <!-- 日分類 -->
+    <sys:String x:Key="Classification_EarlyClass">早課日</sys:String>
+    <sys:String x:Key="Classification_NonEarlyClass">非早課日</sys:String>
+    <sys:String x:Key="Classification_NoData">無日曆數據</sys:String>
+
+    <!-- 週預覽 -->
+    <sys:String x:Key="Day_Sunday">週日</sys:String>
+    <sys:String x:Key="Day_Monday">週一</sys:String>
+    <sys:String x:Key="Day_Tuesday">週二</sys:String>
+    <sys:String x:Key="Day_Wednesday">週三</sys:String>
+    <sys:String x:Key="Day_Thursday">週四</sys:String>
+    <sys:String x:Key="Day_Friday">週五</sys:String>
+    <sys:String x:Key="Day_Saturday">週六</sys:String>
+    <sys:String x:Key="Day_Today">今天</sys:String>
+    <sys:String x:Key="Day_NoClass">無課</sys:String>
+
+    <!-- ════════════ 設定頁 ════════════ -->
+    <sys:String x:Key="Settings_Title">設定</sys:String>
+    <sys:String x:Key="Settings_Subtitle">配置 Terminus 行為</sys:String>
+    <sys:String x:Key="Settings_LanguageCardTitle">語言</sys:String>
+    <sys:String x:Key="Settings_LanguageCardDesc">介面顯示語言，變更後即時生效</sys:String>
+    <sys:String x:Key="Settings_Language_zhTW">繁體中文</sys:String>
+    <sys:String x:Key="Settings_Language_enUS">English</sys:String>
+    <sys:String x:Key="Settings_Language_zhCN">简体中文</sys:String>
+    <sys:String x:Key="Settings_CalendarCardTitle">日曆來源</sys:String>
+    <sys:String x:Key="Settings_CalendarCardDesc">輸入 ICS 日曆網址</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlLabel">日曆網址</sys:String>
+    <sys:String x:Key="Settings_CalendarUrlPlaceholder">https://example.com/calendar.ics</sys:String>
+    <sys:String x:Key="Settings_SleepCardTitle">睡眠設定</sys:String>
+    <sys:String x:Key="Settings_SleepCardDesc">設定睡眠時長與緩衝</sys:String>
+    <sys:String x:Key="Settings_SleepTimeLabel">睡眠時長</sys:String>
+    <sys:String x:Key="Settings_PreSleepLabel">前置緩衝</sys:String>
+    <sys:String x:Key="Settings_WashTimeLabel">洗漱時間</sys:String>
+    <sys:String x:Key="Settings_BreakfastTimeLabel">早餐時間</sys:String>
+    <sys:String x:Key="Settings_CommuteTimeLabel">通勤時間</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCardTitle">早課判定</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCardDesc">判斷早課日的規則</sys:String>
+    <sys:String x:Key="Settings_EarlyClassCutoffLabel">早課分界時刻</sys:String>
+    <sys:String x:Key="Settings_EarlyClassQuotaLabel">早課日延後額度</sys:String>
+    <sys:String x:Key="Settings_WarningCardTitle">警告與寬限</sys:String>
+    <sys:String x:Key="Settings_WarningCardDesc">無回應寬限期與強制關機提醒</sys:String>
+    <sys:String x:Key="Settings_WarningGraceLabel">警告無回應寬限期</sys:String>
+    <sys:String x:Key="Settings_ForceShutdownGraceLabel">強制關機提醒</sys:String>
+    <sys:String x:Key="Settings_StartupCardTitle">開機啟動</sys:String>
+    <sys:String x:Key="Settings_StartupCardDesc">Windows 開機時自動啟動</sys:String>
+    <sys:String x:Key="Settings_StartWithWindows">開機自動啟動</sys:String>
+    <sys:String x:Key="Settings_HistoryCardTitle">延遲歷史</sys:String>
+    <sys:String x:Key="Settings_HistoryCardDesc">查看加密儲存的延遲記錄</sys:String>
+    <sys:String x:Key="Settings_ViewHistory">查看延遲歷史</sys:String>
+    <sys:String x:Key="Settings_ViewLogs">查看日誌</sys:String>
+    <sys:String x:Key="Settings_Saved">設定已儲存</sys:String>
+    <sys:String x:Key="Settings_SaveFailed">儲存失敗</sys:String>
+    <sys:String x:Key="Settings_HoursFormat">{0} 小時</sys:String>
+    <sys:String x:Key="Settings_MinutesFormat">{0} 分鐘</sys:String>
+
+    <!-- ════════════ 警告對話框 ════════════ -->
+    <sys:String x:Key="Warning_Delay30">⏰ 延後 30 分鐘</sys:String>
+    <sys:String x:Key="Warning_Delay60">⏰ 延後 60 分鐘</sys:String>
+    <sys:String x:Key="Warning_Delay90">⏰ 延後 90 分鐘</sys:String>
+    <sys:String x:Key="Warning_ShutdownNow">⚡ 立即關機</sys:String>
+    <sys:String x:Key="Warning_AIMode">🤖 AI 通宵模式</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdown">確認關機</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdownMsg">確定要立即關機嗎？\n此操作無法復原。</sys:String>
+    <sys:String x:Key="Warning_UnableToDelay">無法延遲</sys:String>
+    <sys:String x:Key="Warning_NotInWarningState">目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。</sys:String>
+    <sys:String x:Key="Warning_QuotaExceededTitle">配額已用完</sys:String>
+    <sys:String x:Key="Warning_QuotaExceededBody">延遲配額不足（剩餘 {0:F0} 分鐘），無法延遲 {1:F0} 分鐘。</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownTitle">強制關機提醒</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">已達硬關機時間，系統將在 {0} 分鐘後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。</sys:String>
+
+    <!-- ════════════ 通知 ════════════ -->
+    <sys:String x:Key="Notification_PreWarningTitle">睡眠週期預警</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">距離警告還有 {0} 分鐘。{1}</sys:String>
+    <sys:String x:Key="Notification_WarningTitle">睡眠週期警告</sys:String>
+    <sys:String x:Key="Notification_DelayedTitle">已延後</sys:String>
+    <sys:String x:Key="Notification_DelayConfirmedBody">已延後 {0} 分鐘。剩餘配額：{1:F0} 分鐘。</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedTitle">AI 通宵模式</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">已啟動 AI 通宵模式，任務：{0}</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedTitle">AI 通宵模式完成</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">任務「{0}」已完成（{1}）</sys:String>
+    <sys:String x:Key="Notification_ShutdownImminentTitle">即將關機</sys:String>
+    <sys:String x:Key="Notification_ShutdownImminentBody">系統將在 {0} 分鐘後關機</sys:String>
+    <sys:String x:Key="Notification_FetchErrorTitle">日曆獲取錯誤</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">連續 {0} 次失敗。快取年齡：{1}</sys:String>
+
+    <!-- ════════════ 托盤選單 ════════════ -->
+    <sys:String x:Key="Tray_Tooltip">Terminus - 睡眠週期管理</sys:String>
+    <sys:String x:Key="Tray_StatusLabel">狀態：{0}</sys:String>
+    <sys:String x:Key="Tray_ShowMainWindow">📊 開啟主視窗</sys:String>
+    <sys:String x:Key="Tray_Settings">⚙️ 設定</sys:String>
+    <sys:String x:Key="Tray_QuickDelay">⏰ 延遲 30 分鐘</sys:String>
+    <sys:String x:Key="Tray_ShutdownNow">⚡ 立即關機</sys:String>
+    <sys:String x:Key="Tray_Exit">❌ 結束程式</sys:String>
+
+    <!-- ════════════ 日誌視窗 ════════════ -->
+    <sys:String x:Key="Logs_Title">日誌</sys:String>
+    <sys:String x:Key="Logs_Refresh">重新整理</sys:String>
+    <sys:String x:Key="Logs_Clear">清空</sys:String>
+    <sys:String x:Key="Logs_Copy">複製</sys:String>
+    <sys:String x:Key="Logs_Empty">（無日誌記錄）</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmTitle">確認清空</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmBody">確定要清空所有日誌嗎？\n此操作無法復原。</sys:String>
+
+    <!-- ════════════ 延遲歷史視窗 ════════════ -->
+    <sys:String x:Key="History_Title">延遲歷史</sys:String>
+    <sys:String x:Key="History_TimeCol">時間</sys:String>
+    <sys:String x:Key="History_DurationCol">時長</sys:String>
+    <sys:String x:Key="History_DelayedToCol">延後至</sys:String>
+    <sys:String x:Key="History_TypeCol">類型</sys:String>
+    <sys:String x:Key="History_Manual">手動</sys:String>
+    <sys:String x:Key="History_Auto">自動</sys:String>
+    <sys:String x:Key="History_Empty">無延遲記錄</sys:String>
+
+    <!-- ════════════ 設定視窗 ════════════ -->
+    <sys:String x:Key="SettingsWindow_Title">Terminus 設定</sys:String>
+    <sys:String x:Key="SettingsWindow_FirstRunHint">首次使用，請設定日曆網址</sys:String>
+
+    <!-- ════════════ AI 模式對話框 ════════════ -->
+    <sys:String x:Key="AIMode_Title">AI 通宵模式</sys:String>
+    <sys:String x:Key="AIMode_DescriptionLabel">任務描述</sys:String>
+    <sys:String x:Key="AIMode_Placeholder">例如：整理今日筆記、撰寫報告</sys:String>
+    <sys:String x:Key="AIMode_Start">啟動</sys:String>
+    <sys:String x:Key="AIMode_Cancel">取消</sys:String>
+    <sys:String x:Key="AIMode_ValidationError">請輸入任務描述。</sys:String>
+
+    <!-- ════════════ 錯誤與啟動 ════════════ -->
+    <sys:String x:Key="Error_AppTitle">Terminus 錯誤</sys:String>
+    <sys:String x:Key="Error_Occurred">發生錯誤</sys:String>
+    <sys:String x:Key="Error_OccurredBody">發生錯誤：{0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_StartupFailed">Terminus 啟動失敗</sys:String>
+    <sys:String x:Key="Error_StartupFailedBody">啟動錯誤: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_DashboardInitFailed">儀表板頁面初始化失敗：{0}</sys:String>
+
+    <!-- ════════════ 時間格式 ════════════ -->
+    <sys:String x:Key="Format_HoursMinutes">{0} 小時 {1} 分鐘</sys:String>
+    <sys:String x:Key="Format_QuotaRemaining">{0:F0} 分鐘</sys:String>
+
+</ResourceDictionary>
