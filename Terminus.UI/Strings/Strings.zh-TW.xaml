@@ -194,6 +194,8 @@
 
     <!-- ════════════ 日誌視窗 ════════════ -->
     <sys:String x:Key="Logs_Title">日誌</sys:String>
+    <sys:String x:Key="Logs_Ready">就緒</sys:String>
+    <sys:String x:Key="Logs_LineCountFormat">已載入 {0} 行日誌</sys:String>
     <sys:String x:Key="Logs_Refresh">重新整理</sys:String>
     <sys:String x:Key="Logs_Clear">清空</sys:String>
     <sys:String x:Key="Logs_Copy">複製</sys:String>
@@ -210,6 +212,12 @@
     <sys:String x:Key="History_Manual">手動</sys:String>
     <sys:String x:Key="History_Auto">自動</sys:String>
     <sys:String x:Key="History_Empty">無延遲記錄</sys:String>
+    <sys:String x:Key="History_NoDataBody">尚無延遲歷史記錄。\n記錄會在每次延遲操作時自動加密存檔。</sys:String>
+    <sys:String x:Key="History_EmptyCycleBody">本週期尚無延遲記錄。</sys:String>
+    <sys:String x:Key="History_CycleIdFormat">週期：{0}</sys:String>
+    <sys:String x:Key="History_StatusFormat">更新時間：{0} · 手動 {1} 次 · 自動 {2} 次</sys:String>
+    <sys:String x:Key="History_DelayedToFormat">→ {0}</sys:String>
+    <sys:String x:Key="History_LoadFailedFormat">載入失敗：{0}</sys:String>
 
     <!-- ════════════ 設定視窗 ════════════ -->
     <sys:String x:Key="SettingsWindow_Title">Terminus 設定</sys:String>

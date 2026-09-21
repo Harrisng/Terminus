@@ -194,6 +194,8 @@
 
     <!-- ════════════ Logs window ════════════ -->
     <sys:String x:Key="Logs_Title">Logs</sys:String>
+    <sys:String x:Key="Logs_Ready">Ready</sys:String>
+    <sys:String x:Key="Logs_LineCountFormat">Loaded {0} log lines</sys:String>
     <sys:String x:Key="Logs_Refresh">Refresh</sys:String>
     <sys:String x:Key="Logs_Clear">Clear</sys:String>
     <sys:String x:Key="Logs_Copy">Copy</sys:String>
@@ -210,6 +212,12 @@
     <sys:String x:Key="History_Manual">Manual</sys:String>
     <sys:String x:Key="History_Auto">Auto</sys:String>
     <sys:String x:Key="History_Empty">No delay records</sys:String>
+    <sys:String x:Key="History_NoDataBody">No delay history yet.\nRecords are encrypted and saved on each delay operation.</sys:String>
+    <sys:String x:Key="History_EmptyCycleBody">No delay records in this cycle.</sys:String>
+    <sys:String x:Key="History_CycleIdFormat">Cycle: {0}</sys:String>
+    <sys:String x:Key="History_StatusFormat">Updated: {0} · Manual {1} · Auto {2}</sys:String>
+    <sys:String x:Key="History_DelayedToFormat">→ {0}</sys:String>
+    <sys:String x:Key="History_LoadFailedFormat">Load failed: {0}</sys:String>
 
     <!-- ════════════ Settings window ════════════ -->
     <sys:String x:Key="SettingsWindow_Title">Terminus Settings</sys:String>

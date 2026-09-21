@@ -17,10 +17,12 @@ public partial class LogsWindow : Window
         var logs = LoggerService.ReadRecentLogs(1000);
         LogTextBox.Text = logs;
 
-        if (!string.IsNullOrEmpty(logs) && logs != "（無日誌記錄）" && logs != "（日誌為空）")
+        var emptyText = TryFindResource("Logs_Empty") as string ?? "（無日誌記錄）";
+        if (!string.IsNullOrEmpty(logs) && logs != emptyText && logs != "（日誌為空）")
         {
             var lineCount = logs.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length;
-            StatusText.Text = $"已載入 {lineCount} 行日誌";
+            var fmt = TryFindResource("Logs_LineCountFormat") as string ?? "已載入 {0} 行日誌";
+            StatusText.Text = string.Format(fmt, lineCount);
             LogTextBox.ScrollToEnd();
         }
         else
@@ -36,8 +38,11 @@ public partial class LogsWindow : Window
 
     private void ClearButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new WarningDialog("確認清空", "確定要清空所有日誌嗎？\n此操作無法復原。", icon: "🗑️");
-        dialog.SetConfirmMode("清空日誌", isDanger: true);
+        var title = TryFindResource("Logs_ClearConfirmTitle") as string ?? "確認清空";
+        var body = TryFindResource("Logs_ClearConfirmBody") as string ?? "確定要清空所有日誌嗎？\n此操作無法復原。";
+        var dialog = new WarningDialog(title, body, icon: "🗑️");
+        var btnText = TryFindResource("Logs_Clear") as string ?? "清空日誌";
+        dialog.SetConfirmMode(btnText, isDanger: true);
         dialog.ShowDialog();
 
         if (dialog.DialogResult == true)

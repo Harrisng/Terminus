@@ -21,10 +21,11 @@ public partial class DelayHistoryWindow : Window
 
             if (state == null)
             {
-                StatusText.Text = "無延遲記錄";
+                StatusText.Text = TryFindResource("History_Empty") as string ?? "無延遲記錄";
+                var noDataBody = TryFindResource("History_NoDataBody") as string ?? "尚無延遲歷史記錄。\n記錄會在每次延遲操作時自動加密存檔。";
                 var noData = new TextBlock
                 {
-                    Text = "尚無延遲歷史記錄。\n記錄會在每次延遲操作時自動加密存檔。",
+                    Text = noDataBody,
                     FontSize = 13,
                     Margin = new Thickness(16, 16, 16, 16),
                     TextWrapping = TextWrapping.Wrap
@@ -34,14 +35,17 @@ public partial class DelayHistoryWindow : Window
                 return;
             }
 
-            CycleIdText.Text = $"週期：{state.CycleId}";
-            StatusText.Text = $"更新時間：{state.LastUpdated} · 手動 {state.DelayCount} 次 · 自動 {state.AutoDelayCount} 次";
+            var cycleFmt = TryFindResource("History_CycleIdFormat") as string ?? "週期：{0}";
+            CycleIdText.Text = string.Format(cycleFmt, state.CycleId);
+            var statusFmt = TryFindResource("History_StatusFormat") as string ?? "更新時間：{0} · 手動 {1} 次 · 自動 {2} 次";
+            StatusText.Text = string.Format(statusFmt, state.LastUpdated, state.DelayCount, state.AutoDelayCount);
 
             if (state.History.Count == 0)
             {
+                var emptyBody = TryFindResource("History_EmptyCycleBody") as string ?? "本週期尚無延遲記錄。";
                 var noHistory = new TextBlock
                 {
-                    Text = "本週期尚無延遲記錄。",
+                    Text = emptyBody,
                     FontSize = 13,
                     Margin = new Thickness(16, 16, 16, 16)
                 };
@@ -49,6 +53,11 @@ public partial class DelayHistoryWindow : Window
                 HistoryPanel.Children.Add(noHistory);
                 return;
             }
+
+            var manualLabel = TryFindResource("History_Manual") as string ?? "手動";
+            var autoLabel = TryFindResource("History_Auto") as string ?? "自動";
+            var arrowFmt = TryFindResource("History_DelayedToFormat") as string ?? "→ {0}";
+            var minutesFmt = TryFindResource("Format_QuotaRemaining") as string ?? "{0:F0} 分鐘";
 
             // 顯示每一筆延遲記錄（從新到舊）
             foreach (var record in state.History.AsEnumerable().Reverse())
@@ -82,7 +91,7 @@ public partial class DelayHistoryWindow : Window
                 // 類型標籤
                 var typeText = new TextBlock
                 {
-                    Text = record.Type == "manual" ? "手動" : "自動",
+                    Text = record.Type == "manual" ? manualLabel : autoLabel,
                     FontSize = 11,
                     VerticalAlignment = VerticalAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -95,7 +104,7 @@ public partial class DelayHistoryWindow : Window
                 // 延遲分鐘數
                 var durText = new TextBlock
                 {
-                    Text = $"{record.DurationMinutes} 分鐘",
+                    Text = string.Format(minutesFmt, record.DurationMinutes),
                     FontSize = 12,
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(12, 0, 0, 0)
@@ -106,7 +115,7 @@ public partial class DelayHistoryWindow : Window
                 // 延後到
                 var toText = new TextBlock
                 {
-                    Text = $"→ {record.DelayedTo}",
+                    Text = string.Format(arrowFmt, record.DelayedTo),
                     FontSize = 12,
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(12, 0, 0, 0)
@@ -125,7 +134,8 @@ public partial class DelayHistoryWindow : Window
         catch (Exception ex)
         {
             LoggerService.Error("DelayHistoryWindow: 載入歷史失敗", ex);
-            StatusText.Text = $"載入失敗：{ex.Message}";
+            var fmt = TryFindResource("History_LoadFailedFormat") as string ?? "載入失敗：{0}";
+            StatusText.Text = string.Format(fmt, ex.Message);
         }
     }
 }
