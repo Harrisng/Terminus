@@ -59,21 +59,88 @@ public class SettingsService
 
     // ── 用戶設定 ──
 
-    public string GetCalendarUrl() => ReadString("CalendarUrl", string.Empty);
+    /// <summary>CalendarUrl 加密儲存的 registry value 名稱。</summary>
+    private const string CalendarUrlEncryptedName = "CalendarUrlEncrypted";
+    /// <summary>舊的明文 CalendarUrl 名稱，用於遷移後刪除。</summary>
+    private const string CalendarUrlLegacyName = "CalendarUrl";
 
-    public void SetCalendarUrl(string url)
+    /// <summary>
+    /// 從 registry 讀取日曆 URL。優先使用 DPAPI 加密版本；若不存在但舊明文還在，自動遷移為加密版並刪除明文。
+    /// </summary>
+    public string GetCalendarUrl()
     {
-        // SetCalendarUrl 歷史上會擲回，維持此行為讓 UI 層能攔截並提示用戶
         try
         {
+            // 先嘗試讀加密版
+            using (var key = Registry.CurrentUser.OpenSubKey(RegistryPath))
+            {
+                var encrypted = key?.GetValue(CalendarUrlEncryptedName) as string;
+                if (!string.IsNullOrEmpty(encrypted))
+                {
+                    return DecryptString(encrypted);
+                }
+            }
+
+            // 沒有加密版，看看有沒有舊明文
+            var legacy = ReadString(CalendarUrlLegacyName, string.Empty);
+            if (!string.IsNullOrEmpty(legacy))
+            {
+                // 遷移：加密儲存後刪除明文
+                LoggerService.Info("SettingsService: 遷移明文 CalendarUrl 至加密儲存");
+                SetCalendarUrl(legacy);
+                try
+                {
+                    using var delKey = Registry.CurrentUser.CreateSubKey(RegistryPath);
+                    delKey?.DeleteValue(CalendarUrlLegacyName, throwOnMissingValue: false);
+                }
+                catch (Exception ex)
+                {
+                    LoggerService.Warn($"SettingsService: 刪除舊明文 CalendarUrl 失敗: {ex.Message}");
+                }
+                return legacy;
+            }
+
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error($"SettingsService: 讀取 CalendarUrl 失敗: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    /// <summary>將日曆 URL 以 DPAPI 加密後寫入 registry。金鑰綁定當前 Windows 用戶。</summary>
+    public void SetCalendarUrl(string url)
+    {
+        try
+        {
+            var encrypted = EncryptString(url);
             using var key = Registry.CurrentUser.CreateSubKey(RegistryPath);
-            key?.SetValue("CalendarUrl", url);
+            key?.SetValue(CalendarUrlEncryptedName, encrypted);
+            // 若還有舊明文，一併刪除
+            key?.DeleteValue(CalendarUrlLegacyName, throwOnMissingValue: false);
         }
         catch (Exception ex)
         {
             LoggerService.Error($"SettingsService: 寫入 CalendarUrl 失敗: {ex.Message}");
             throw new InvalidOperationException($"Failed to save calendar URL: {ex.Message}", ex);
         }
+    }
+
+    /// <summary>DPAPI 加密字串為 Base64（綁定 CurrentUser）。</summary>
+    private static string EncryptString(string plain)
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes(plain);
+        var encrypted = System.Security.Cryptography.ProtectedData.Protect(bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
+        return Convert.ToBase64String(encrypted);
+    }
+
+    /// <summary>從 Base64 解密 DPAPI 字串。</summary>
+    private static string DecryptString(string cipherBase64)
+    {
+        var bytes = Convert.FromBase64String(cipherBase64);
+        var plain = System.Security.Cryptography.ProtectedData.Unprotect(bytes, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
+        return System.Text.Encoding.UTF8.GetString(plain);
     }
 
     public TimeSpan GetSleepTime() => TimeSpan.FromMinutes(ReadInt("SleepTimeMinutes", 360));
