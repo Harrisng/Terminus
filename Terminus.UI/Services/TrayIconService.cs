@@ -12,10 +12,12 @@ public class TrayIconService : IDisposable
 {
     private TaskbarIcon? _trayIcon;
     private readonly BehaviorOrchestrator _orchestrator;
+    private readonly ILocalizationService _localization;
 
-    public TrayIconService(BehaviorOrchestrator orchestrator)
+    public TrayIconService(BehaviorOrchestrator orchestrator, ILocalizationService localization)
     {
         _orchestrator = orchestrator;
+        _localization = localization;
     }
 
     public void Initialize()
@@ -23,7 +25,7 @@ public class TrayIconService : IDisposable
         _trayIcon = new TaskbarIcon
         {
             Icon = LoadApplicationIcon(),
-            ToolTipText = "Terminus - 睡眠週期管理",
+            ToolTipText = _localization.Get("Tray_Tooltip"),
             Visibility = Visibility.Visible
         };
 
@@ -33,7 +35,7 @@ public class TrayIconService : IDisposable
         // Status item
         var statusItem = new MenuItem
         {
-            Header = "狀態：閒置中",
+            Header = _localization.Get("Tray_StatusLabelInitial"),
             IsEnabled = false,
             FontWeight = FontWeights.SemiBold
         };
@@ -41,19 +43,19 @@ public class TrayIconService : IDisposable
         contextMenu.Items.Add(new Separator());
 
         // Show main window
-        var showItem = new MenuItem { Header = "📊 開啟主視窗" };
+        var showItem = new MenuItem { Header = _localization.Get("Tray_ShowMainWindow") };
         showItem.Click += (s, e) => BringMainWindowToFront(navigateToSettings: false);
         contextMenu.Items.Add(showItem);
 
         // Settings
-        var settingsItem = new MenuItem { Header = "⚙️ 設定" };
+        var settingsItem = new MenuItem { Header = _localization.Get("Tray_Settings") };
         settingsItem.Click += (s, e) => BringMainWindowToFront(navigateToSettings: true);
         contextMenu.Items.Add(settingsItem);
 
         contextMenu.Items.Add(new Separator());
 
         // Quick actions
-        var delayItem = new MenuItem { Header = "⏰ 延後 30 分鐘" };
+        var delayItem = new MenuItem { Header = _localization.Get("Tray_QuickDelay") };
         delayItem.Click += async (s, e) =>
         {
             var success = await _orchestrator.OnDelayRequestedAsync();
@@ -61,21 +63,24 @@ public class TrayIconService : IDisposable
             {
                 _ = Application.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    var feedback = new Windows.WarningDialog("無法延遲",
-                        "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。", icon: "ℹ️");
+                    var feedback = new Windows.WarningDialog(
+                        _localization.Get("Warning_UnableToDelay"),
+                        _localization.Get("Warning_NotInWarningState"), icon: "ℹ️");
                     Windows.WarningDialog.ShowSingleton(feedback);
                 });
             }
         };
         contextMenu.Items.Add(delayItem);
 
-        var shutdownItem = new MenuItem { Header = "⚡ 立即關機" };
+        var shutdownItem = new MenuItem { Header = _localization.Get("Tray_ShutdownNow") };
         shutdownItem.Click += (s, e) =>
         {
             _ = Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                var dialog = new Windows.WarningDialog("確認關機", "確定要立即關機嗎？\n此操作無法復原。", icon: "⚡");
-                dialog.SetConfirmMode("立即關機", isDanger: true);
+                var dialog = new Windows.WarningDialog(
+                    _localization.Get("Warning_ConfirmShutdown"),
+                    _localization.Get("Warning_ConfirmShutdownMsg"), icon: "⚡");
+                dialog.SetConfirmMode(_localization.Get("Warning_ShutdownConfirmText"), isDanger: true);
                 dialog.ShowDialog();
                 if (dialog.DialogResult == true)
                 {
@@ -88,7 +93,7 @@ public class TrayIconService : IDisposable
         contextMenu.Items.Add(new Separator());
 
         // Exit
-        var exitItem = new MenuItem { Header = "❌ 結束程式" };
+        var exitItem = new MenuItem { Header = _localization.Get("Tray_Exit") };
         exitItem.Click += async (s, e) =>
         {
             await _orchestrator.StopAsync();
@@ -108,19 +113,19 @@ public class TrayIconService : IDisposable
             {
                 var stateText = e.NewState switch
                 {
-                    Core.Models.BehaviorState.Idle => "閒置中",
-                    Core.Models.BehaviorState.PreWarning => "預警階段",
-                    Core.Models.BehaviorState.Warning => "警告中",
-                    Core.Models.BehaviorState.Delayed => "已延後",
-                    Core.Models.BehaviorState.AutoDelaying => "自動延後中",
-                    Core.Models.BehaviorState.ForceShutdown => "強制關機倒數",
-                    Core.Models.BehaviorState.ShuttingDown => "關機中",
-                    Core.Models.BehaviorState.AIMode => "AI 模式",
-                    Core.Models.BehaviorState.Disabled => "已停用",
+                    Core.Models.BehaviorState.Idle => _localization.Get("State_Idle"),
+                    Core.Models.BehaviorState.PreWarning => _localization.Get("State_PreWarning"),
+                    Core.Models.BehaviorState.Warning => _localization.Get("State_Warning"),
+                    Core.Models.BehaviorState.Delayed => _localization.Get("State_Delayed"),
+                    Core.Models.BehaviorState.AutoDelaying => _localization.Get("State_AutoDelaying"),
+                    Core.Models.BehaviorState.ForceShutdown => _localization.Get("State_ForceShutdown"),
+                    Core.Models.BehaviorState.ShuttingDown => _localization.Get("State_ShuttingDown"),
+                    Core.Models.BehaviorState.AIMode => _localization.Get("State_AIMode"),
+                    Core.Models.BehaviorState.Disabled => _localization.Get("State_Disabled"),
                     _ => e.NewState.ToString()
                 };
-                statusItem.Header = $"狀態：{stateText}";
-                _trayIcon.ToolTipText = $"Terminus - {stateText}";
+                statusItem.Header = _localization.Get("Tray_StatusLabel", stateText);
+                _trayIcon.ToolTipText = _localization.Get("Tray_TooltipWithState", stateText);
             });
         };
     }
@@ -135,7 +140,9 @@ public class TrayIconService : IDisposable
         if (mainWindow == null)
         {
             LoggerService.Warn("TrayIconService: 主視窗尚未初始化");
-            var dialog = new Windows.WarningDialog("錯誤", "主視窗尚未初始化", icon: "❌");
+            var dialog = new Windows.WarningDialog(
+                _localization.Get("Common_Error"),
+                _localization.Get("Tray_MainWindowNotInit"), icon: "❌");
             Windows.WarningDialog.ShowSingleton(dialog);
             return;
         }

@@ -96,7 +96,7 @@ public class BehaviorOrchestratorTests
         ctx.State.Should().Be(BehaviorState.Warning);   // 狀態不變
         ctx.CurrentCycle.QuotaRemaining.TotalMinutes.Should().Be(15);
         ctx.CurrentCycle.DelayCount.Should().Be(0);
-        _notifications.LastWarningTitle.Should().Be("配額已用完");
+        _notifications.LastWarningTitle.Should().Be("[Warning_QuotaExceededTitle]");
     }
 
     [Fact]

@@ -165,32 +165,46 @@
     <sys:String x:Key="Warning_NotInWarningState">Not in warning state, cannot delay manually.\nPlease wait for a warning to appear.</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">Quota exhausted</sys:String>
     <sys:String x:Key="Warning_QuotaExceededBody">Delay quota insufficient ({0:F0} min remaining), cannot delay {1:F0} min.</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownTitle">Forced shutdown reminder</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownBody">Hard shutdown time reached. System will shut down in {0} minutes.\nPlease save all unsaved data. This shutdown cannot be delayed.</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownTitle">Forced shutdown countdown</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">Hard shutdown time reached. System will shut down in {0}.\nPlease save all unsaved data. This shutdown cannot be delayed.</sys:String>
+    <sys:String x:Key="Warning_TomorrowEarlyClassFormat">Tomorrow early class {0}</sys:String>
+    <sys:String x:Key="Warning_NoEarlyClass">No early class tomorrow</sys:String>
+    <sys:String x:Key="Warning_MessageEarlyClass">Tomorrow early class {0}. Quota remaining: {1:F0} min.</sys:String>
+    <sys:String x:Key="Warning_MessageNoEarlyClass">No early class tomorrow. Manual delay unlimited.</sys:String>
+    <sys:String x:Key="Warning_ShutdownConfirmText">Shut down now</sys:String>
 
     <!-- ════════════ Notifications ════════════ -->
     <sys:String x:Key="Notification_PreWarningTitle">Sleep cycle pre-warning</sys:String>
-    <sys:String x:Key="Notification_PreWarningBody">{0} minutes until warning. {1}</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">Main warning will appear in {0}\n{1}</sys:String>
     <sys:String x:Key="Notification_WarningTitle">Sleep cycle warning</sys:String>
     <sys:String x:Key="Notification_DelayedTitle">Delayed</sys:String>
-    <sys:String x:Key="Notification_DelayConfirmedBody">Delayed {0} minutes. Quota remaining: {1:F0} min.</sys:String>
+    <sys:String x:Key="Notification_DelayedBody">Next warning in {0}</sys:String>
+    <sys:String x:Key="Notification_UnlimitedQuota">Delay count: unlimited</sys:String>
+    <sys:String x:Key="Notification_QuotaRemainingFormat">Quota remaining: {0}</sys:String>
     <sys:String x:Key="Notification_AIModeStartedTitle">AI overnight mode</sys:String>
-    <sys:String x:Key="Notification_AIModeStartedBody">AI overnight mode started. Task: {0}</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedTitle">AI overnight mode complete</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedBody">Task "{0}" completed ({1})</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">{0}\nSystem will shut down automatically when the task completes</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedTitle">AI mode completed</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">{0}\n{1}</sys:String>
+    <sys:String x:Key="Notification_AIModeSuccess">✓ Completed successfully</sys:String>
+    <sys:String x:Key="Notification_AIModeFailed">✗ Failed</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentTitle">Shutdown imminent</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentBody">System will shut down in {0} minutes</sys:String>
     <sys:String x:Key="Notification_FetchErrorTitle">Calendar fetch error</sys:String>
-    <sys:String x:Key="Notification_FetchErrorBody">{0} consecutive failures. Cache age: {1}</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">{0} consecutive failures\n{1}</sys:String>
+    <sys:String x:Key="Notification_CacheAgeFormat">Using cache from {0:F1} hours ago</sys:String>
+    <sys:String x:Key="Notification_NoCache">No cache available</sys:String>
 
     <!-- ════════════ Tray menu ════════════ -->
     <sys:String x:Key="Tray_Tooltip">Terminus - Sleep Cycle Manager</sys:String>
+    <sys:String x:Key="Tray_TooltipWithState">Terminus - {0}</sys:String>
     <sys:String x:Key="Tray_StatusLabel">Status: {0}</sys:String>
+    <sys:String x:Key="Tray_StatusLabelInitial">Status: Idle</sys:String>
     <sys:String x:Key="Tray_ShowMainWindow">📊 Open main window</sys:String>
     <sys:String x:Key="Tray_Settings">⚙️ Settings</sys:String>
     <sys:String x:Key="Tray_QuickDelay">⏰ Delay 30 min</sys:String>
     <sys:String x:Key="Tray_ShutdownNow">⚡ Shut down now</sys:String>
     <sys:String x:Key="Tray_Exit">❌ Exit</sys:String>
+    <sys:String x:Key="Tray_MainWindowNotInit">Main window not initialized</sys:String>
 
     <!-- ════════════ Logs window ════════════ -->
     <sys:String x:Key="Logs_Title">Logs</sys:String>
@@ -242,6 +256,9 @@
 
     <!-- ════════════ Time formats ════════════ -->
     <sys:String x:Key="Format_HoursMinutes">{0} hours {1} minutes</sys:String>
+    <sys:String x:Key="Format_DayHour">{0} days {1} hours</sys:String>
+    <sys:String x:Key="Format_MinuteOnly">{0} minutes</sys:String>
+    <sys:String x:Key="Format_Second">{0} seconds</sys:String>
     <sys:String x:Key="Format_QuotaRemaining">{0:F0} min</sys:String>
 
 </ResourceDictionary>

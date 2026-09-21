@@ -179,8 +179,9 @@ public class BehaviorOrchestrator
             {
                 await _notificationService.ShowWarningAsync(new WarningNotificationArgs
                 {
-                    Title = "配額已用完",
-                    Message = $"延遲配額不足（剩餘 {ctx.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘），無法延遲 {delayAmount.TotalMinutes:F0} 分鐘。",
+                    Title = _localization.Get("Warning_QuotaExceededTitle"),
+                    Message = _localization.Get("Warning_QuotaExceededBody",
+                        ctx.CurrentCycle.QuotaRemaining.TotalMinutes, delayAmount.TotalMinutes),
                     QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                     IsUnlimitedDelay = false,
                     ShowDelayButton = true,
@@ -438,8 +439,8 @@ public class BehaviorOrchestrator
 
             var timeUntil = CalculateTimeUntil(currentTime, ctx.Timing.WarningTime);
             var firstClassInfo = ctx.Timing.FirstClassTime.HasValue
-                ? $"明日早課 {ctx.Timing.FirstClassTime.Value.ToString("HH:mm", null)}"
-                : "明日無早課";
+                ? _localization.Get("Warning_TomorrowEarlyClassFormat", ctx.Timing.FirstClassTime.Value.ToString("HH:mm", null))
+                : _localization.Get("Warning_NoEarlyClass");
 
             await _notificationService.ShowPreWarningAsync(timeUntil, firstClassInfo);
         }
@@ -463,7 +464,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "睡眠週期警告",
+                Title = _localization.Get("Notification_WarningTitle"),
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -578,7 +579,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "睡眠週期警告",
+                Title = _localization.Get("Notification_WarningTitle"),
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -613,7 +614,7 @@ public class BehaviorOrchestrator
 
             await _notificationService.ShowWarningAsync(new WarningNotificationArgs
             {
-                Title = "睡眠週期警告",
+                Title = _localization.Get("Notification_WarningTitle"),
                 Message = GetWarningMessage(ctx),
                 QuotaRemaining = ctx.CurrentCycle.QuotaRemaining,
                 IsUnlimitedDelay = ctx.Timing.IsUnlimitedManualDelay,
@@ -697,12 +698,13 @@ public class BehaviorOrchestrator
     {
         if (ctx.Timing.Classification == DayClassification.EarlyClass)
         {
-            return $"明日早課 {ctx.Timing.FirstClassTime?.ToString("HH:mm", null) ?? "未知"}。" +
-                   $"剩餘額度：{ctx.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘。";
+            return _localization.Get("Warning_MessageEarlyClass",
+                ctx.Timing.FirstClassTime?.ToString("HH:mm", null) ?? "?",
+                ctx.CurrentCycle.QuotaRemaining.TotalMinutes);
         }
         else
         {
-            return "明日無早課，手動延後無限制。";
+            return _localization.Get("Warning_MessageNoEarlyClass");
         }
     }
 

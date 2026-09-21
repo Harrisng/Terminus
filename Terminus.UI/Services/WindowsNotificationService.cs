@@ -9,19 +9,26 @@ namespace Terminus.UI.Services;
 /// </summary>
 public class WindowsNotificationService : INotificationService
 {
+    private readonly ILocalizationService _localization;
+
+    public WindowsNotificationService(ILocalizationService localization)
+    {
+        _localization = localization;
+    }
+
     public Task ShowPreWarningAsync(TimeSpan timeUntilWarning, string firstClassInfo)
     {
         var timeStr = FormatTimeSpan(timeUntilWarning);
-        ShowDialog("睡眠週期預警", "ℹ️",
-            $"主警告將在 {timeStr} 後出現\n{firstClassInfo}");
+        ShowDialog(_localization.Get("Notification_PreWarningTitle"), "ℹ️",
+            _localization.Get("Notification_PreWarningBody", timeStr, firstClassInfo));
         return Task.CompletedTask;
     }
 
     public Task ShowWarningAsync(WarningNotificationArgs args)
     {
         var quotaText = args.IsUnlimitedDelay
-            ? "延後次數：無限制"
-            : $"剩餘配額：{FormatTimeSpan(args.QuotaRemaining)}";
+            ? _localization.Get("Notification_UnlimitedQuota")
+            : _localization.Get("Notification_QuotaRemainingFormat", FormatTimeSpan(args.QuotaRemaining));
         ShowDialog(args.Title, "⚠️", args.Message, quotaText,
             showDelayButton: args.ShowDelayButton,
             showShutdownButton: args.ShowShutdownButton,
@@ -33,42 +40,44 @@ public class WindowsNotificationService : INotificationService
     public Task ShowDelayConfirmationAsync(TimeSpan delayedUntil, TimeSpan quotaRemaining, bool isUnlimited)
     {
         var quotaText = isUnlimited
-            ? "延後次數：無限制"
-            : $"剩餘配額：{FormatTimeSpan(quotaRemaining)}";
-        ShowDialog("已延後", "✅",
-            $"下次警告：{FormatTimeSpan(delayedUntil)} 後", quotaText);
+            ? _localization.Get("Notification_UnlimitedQuota")
+            : _localization.Get("Notification_QuotaRemainingFormat", FormatTimeSpan(quotaRemaining));
+        ShowDialog(_localization.Get("Notification_DelayedTitle"), "✅",
+            _localization.Get("Notification_DelayedBody", FormatTimeSpan(delayedUntil)), quotaText);
         return Task.CompletedTask;
     }
 
     public Task ShowAIModeStartedAsync(string taskDescription)
     {
-        ShowDialog("AI 通宵模式", "🤖",
-            $"{taskDescription}\n任務完成後系統將自動關機");
+        ShowDialog(_localization.Get("Notification_AIModeStartedTitle"), "🤖",
+            _localization.Get("Notification_AIModeStartedBody", taskDescription));
         return Task.CompletedTask;
     }
 
     public Task ShowAIModeCompletedAsync(string taskDescription, bool success)
     {
-        var status = success ? "✓ 已成功完成" : "✗ 失敗";
-        ShowDialog("AI 模式已完成", success ? "✅" : "⚠️",
-            $"{taskDescription}\n{status}");
+        var status = success
+            ? _localization.Get("Notification_AIModeSuccess")
+            : _localization.Get("Notification_AIModeFailed");
+        ShowDialog(_localization.Get("Notification_AIModeCompletedTitle"), success ? "✅" : "⚠️",
+            _localization.Get("Notification_AIModeCompletedBody", taskDescription, status));
         return Task.CompletedTask;
     }
 
     public Task ShowShutdownImminentAsync(TimeSpan timeRemaining)
     {
-        var message = $"已達硬關機時間，系統將在 {FormatTimeSpan(timeRemaining)} 後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。";
-        ShowForceDialog("強制關機倒數", "🚨", message);
+        var message = _localization.Get("Warning_ForceShutdownBody", FormatTimeSpan(timeRemaining));
+        ShowForceDialog(_localization.Get("Warning_ForceShutdownTitle"), "🚨", message);
         return Task.CompletedTask;
     }
 
     public Task ShowFetchErrorAsync(int consecutiveFailures, double? cacheAgeHours)
     {
         var cacheInfo = cacheAgeHours.HasValue
-            ? $"使用 {cacheAgeHours.Value:F1} 小時前的快取"
-            : "無可用快取";
-        ShowDialog("日曆獲取錯誤", "⚠️",
-            $"連續失敗 {consecutiveFailures} 次\n{cacheInfo}");
+            ? _localization.Get("Notification_CacheAgeFormat", cacheAgeHours.Value)
+            : _localization.Get("Notification_NoCache");
+        ShowDialog(_localization.Get("Notification_FetchErrorTitle"), "⚠️",
+            _localization.Get("Notification_FetchErrorBody", consecutiveFailures, cacheInfo));
         return Task.CompletedTask;
     }
 
@@ -115,16 +124,16 @@ public class WindowsNotificationService : INotificationService
     }
 
     /// <summary>
-    /// Formats a TimeSpan as "X 小時 Y 分鐘" or "Y 分鐘" or "Z 秒".
+    /// Formats a TimeSpan as localized "X 小時 Y 分鐘" / "Y 分鐘" / "Z 秒".
     /// </summary>
-    private static string FormatTimeSpan(TimeSpan ts)
+    private string FormatTimeSpan(TimeSpan ts)
     {
         if (ts.TotalDays >= 1)
-            return $"{(int)ts.TotalDays} 天 {ts.Hours} 小時";
+            return _localization.Get("Format_DayHour", (int)ts.TotalDays, ts.Hours);
         if (ts.TotalHours >= 1)
-            return $"{(int)ts.TotalHours} 小時 {ts.Minutes} 分鐘";
+            return _localization.Get("Format_HoursMinutes", (int)ts.TotalHours, ts.Minutes);
         if (ts.TotalMinutes >= 1)
-            return $"{(int)ts.TotalMinutes} 分鐘";
-        return $"{(int)ts.TotalSeconds} 秒";
+            return _localization.Get("Format_MinuteOnly", (int)ts.TotalMinutes);
+        return _localization.Get("Format_Second", (int)ts.TotalSeconds);
     }
 }
