@@ -239,12 +239,19 @@
 
     <!-- ════════════ AI 模式对话框 ════════════ -->
     <sys:String x:Key="AIMode_Title">AI 通宵模式</sys:String>
-    <sys:String x:Key="AIMode_DescriptionLabel">任务描述</sys:String>
-    <sys:String x:Key="AIMode_Placeholder">例如：整理今日笔记、撰写报告</sys:String>
+    <sys:String x:Key="AIMode_CommandLabel">命令行</sys:String>
+    <sys:String x:Key="AIMode_CommandHint">输入要执行的指令，例如：python train.py 或 python -m torch.distributed.launch train.py</sys:String>
+    <sys:String x:Key="AIMode_WorkDirLabel">工作目录（可选）</sys:String>
+    <sys:String x:Key="AIMode_DescriptionLabel">任务描述（可选，用于通知显示）</sys:String>
+    <sys:String x:Key="AIMode_StartHint">系统将在进程结束后自动关机。若进程异常退出则不会关机，请查看日志。</sys:String>
     <sys:String x:Key="AIMode_Start">启动</sys:String>
     <sys:String x:Key="AIMode_Cancel">取消</sys:String>
-    <sys:String x:Key="AIMode_ValidationError">请输入任务描述。</sys:String>
-    <sys:String x:Key="AIMode_InDevelopment">此功能开发中，敬请期待。</sys:String>
+    <sys:String x:Key="AIMode_InputIncomplete">输入不完整</sys:String>
+    <sys:String x:Key="AIMode_CommandRequired">请输入要执行的命令行。</sys:String>
+    <sys:String x:Key="AIMode_ValidationError">请输入要执行的命令行。</sys:String>
+    <sys:String x:Key="AIMode_NotAvailable">AI 模式目前无法启动。</sys:String>
+    <sys:String x:Key="AIMode_StartFailed">AI 模式启动失败</sys:String>
+    <sys:String x:Key="AIMode_StartFailedBody">无法启动 AI 模式：{0}</sys:String>
 
     <!-- ════════════ 错误与启动 ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus 错误</sys:String>

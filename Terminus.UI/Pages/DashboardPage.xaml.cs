@@ -390,11 +390,42 @@ public partial class DashboardPage : Page
         }
     }
 
-    private void AIModeButton_Click(object sender, RoutedEventArgs e)
+    private async void AIModeButton_Click(object sender, RoutedEventArgs e)
     {
-        var title = TryFindResource("AIMode_Title") as string ?? "AI 通宵模式";
-        var body = TryFindResource("AIMode_InDevelopment") as string ?? "此功能開發中，敬請期待。";
-        var dialog = new WarningDialog(title, body, icon: "🤖");
-        WarningDialog.ShowSingleton(dialog);
+        var dialog = new AIModeDialog
+        {
+            Owner = Window.GetWindow(this)
+        };
+        dialog.ShowDialog();
+
+        if (dialog.DialogResult != true)
+            return;
+
+        var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
+        if (orchestrator == null)
+        {
+            var title = TryFindResource("Common_Error") as string ?? "錯誤";
+            var body = TryFindResource("AIMode_NotAvailable") as string ?? "AI 模式目前無法啟動。";
+            var err = new WarningDialog(title, body, icon: "❌");
+            WarningDialog.ShowSingleton(err);
+            return;
+        }
+
+        try
+        {
+            await orchestrator.OnAIModeRequestedAsync(
+                dialog.CommandLine,
+                dialog.WorkingDirectory,
+                dialog.Description);
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error("DashboardPage: 啟動 AI 模式失敗", ex);
+            var title = TryFindResource("AIMode_StartFailed") as string ?? "AI 模式啟動失敗";
+            var fmt = TryFindResource("AIMode_StartFailedBody") as string ?? "無法啟動 AI 模式：{0}";
+            var body = string.Format(fmt, ex.Message);
+            var err = new WarningDialog(title, body, icon: "❌");
+            WarningDialog.ShowSingleton(err);
+        }
     }
 }

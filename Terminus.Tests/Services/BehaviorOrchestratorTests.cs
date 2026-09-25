@@ -151,7 +151,7 @@ public class BehaviorOrchestratorTests
         var orch = CreateOrchestrator();
         var ctx = CreateEarlyClassContext(orch, BehaviorState.Warning);
 
-        await orch.OnAIModeRequestedAsync("整理筆記");
+        await orch.OnAIModeRequestedAsync("ping -n 10 127.0.0.1", "", "整理筆記");
 
         ctx.State.Should().Be(BehaviorState.AIMode);
         ctx.IsAIModeActive.Should().BeTrue();

@@ -239,12 +239,19 @@
 
     <!-- ════════════ AI mode dialog ════════════ -->
     <sys:String x:Key="AIMode_Title">AI overnight mode</sys:String>
-    <sys:String x:Key="AIMode_DescriptionLabel">Task description</sys:String>
-    <sys:String x:Key="AIMode_Placeholder">e.g. Organize today's notes, write a report</sys:String>
+    <sys:String x:Key="AIMode_CommandLabel">Command line</sys:String>
+    <sys:String x:Key="AIMode_CommandHint">Enter the command to run, e.g. python train.py or python -m torch.distributed.launch train.py</sys:String>
+    <sys:String x:Key="AIMode_WorkDirLabel">Working directory (optional)</sys:String>
+    <sys:String x:Key="AIMode_DescriptionLabel">Task description (optional, shown in notifications)</sys:String>
+    <sys:String x:Key="AIMode_StartHint">System will shut down automatically after the process exits. If the process exits with a non-zero code, shutdown is aborted — check the log.</sys:String>
     <sys:String x:Key="AIMode_Start">Start</sys:String>
     <sys:String x:Key="AIMode_Cancel">Cancel</sys:String>
-    <sys:String x:Key="AIMode_ValidationError">Please enter a task description.</sys:String>
-    <sys:String x:Key="AIMode_InDevelopment">This feature is under development. Stay tuned.</sys:String>
+    <sys:String x:Key="AIMode_InputIncomplete">Input incomplete</sys:String>
+    <sys:String x:Key="AIMode_CommandRequired">Please enter the command line to execute.</sys:String>
+    <sys:String x:Key="AIMode_ValidationError">Please enter the command line to execute.</sys:String>
+    <sys:String x:Key="AIMode_NotAvailable">AI mode cannot be started right now.</sys:String>
+    <sys:String x:Key="AIMode_StartFailed">AI mode start failed</sys:String>
+    <sys:String x:Key="AIMode_StartFailedBody">Unable to start AI mode: {0}</sys:String>
 
     <!-- ════════════ Errors and startup ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus Error</sys:String>
