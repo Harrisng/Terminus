@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text;
 using NodaTime;
 using Terminus.Core.Logic;
 using Terminus.Core.Models;
@@ -235,9 +237,11 @@ public class BehaviorOrchestrator
     }
 
     /// <summary>
-    /// User pressed AI overnight mode button.
+    /// User pressed AI overnight mode button. Starts the external process and
+    /// transitions to AIMode state. When the process exits, OnAIModeCompletedAsync
+    /// is invoked automatically (success = exit code 0).
     /// </summary>
-    public async Task OnAIModeRequestedAsync(string taskDescription)
+    public async Task OnAIModeRequestedAsync(string commandLine, string workingDirectory, string description)
     {
         BehaviorContext? ctx;
         lock (_lock)
@@ -249,18 +253,131 @@ public class BehaviorOrchestrator
             return;
 
         ctx.IsAIModeActive = true;
-        ctx.AITaskDescription = taskDescription;
+        ctx.AITaskDescription = description;
 
         lock (_lock)
         {
             ChangeState(ctx, BehaviorState.AIMode);
         }
 
-        await _notificationService.ShowAIModeStartedAsync(taskDescription);
+        await _notificationService.ShowAIModeStartedAsync(description);
+
+        // Fire-and-forget process monitoring; completion callback handles state transition
+        _ = MonitorAIProcessAsync(commandLine, workingDirectory, description);
     }
 
     /// <summary>
-    /// AI mode completed callback.
+    /// Monitor the external process. On exit, invokes OnAIModeCompletedAsync.
+    /// On failure to start, immediately completes with success=false (no shutdown).
+    /// </summary>
+    private async Task MonitorAIProcessAsync(string commandLine, string workingDirectory, string description)
+    {
+        try
+        {
+            var (fileName, args) = ParseCommandLine(commandLine);
+            var psi = new ProcessStartInfo
+            {
+                FileName = fileName,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                CreateNoWindow = false
+            };
+            if (!string.IsNullOrWhiteSpace(workingDirectory) && Directory.Exists(workingDirectory))
+                psi.WorkingDirectory = workingDirectory;
+            foreach (var arg in SplitArguments(args))
+                psi.ArgumentList.Add(arg);
+
+            using var proc = Process.Start(psi);
+            if (proc == null)
+            {
+                LoggerService.Error($"AIMode: 無法啟動進程: {commandLine}");
+                await OnAIModeCompletedAsync(false);
+                return;
+            }
+
+            // Read stderr for diagnostic on failure
+            var stderrBuilder = new StringBuilder();
+            proc.ErrorDataReceived += (s, e) =>
+            {
+                if (e.Data != null)
+                    stderrBuilder.AppendLine(e.Data);
+            };
+            proc.BeginErrorReadLine();
+
+            await proc.WaitForExitAsync();
+
+            var success = proc.ExitCode == 0;
+            if (!success)
+                LoggerService.Warn($"AIMode: 進程退出碼 {proc.ExitCode} ({description})\nStderr:\n{stderrBuilder}");
+
+            await OnAIModeCompletedAsync(success);
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error($"AIMode: 啟動進程失敗 ({commandLine})", ex);
+            await OnAIModeCompletedAsync(false);
+        }
+    }
+
+    /// <summary>
+    /// Split a command line into (fileName, arguments). Handles quoted first token.
+    /// </summary>
+    private static (string fileName, string args) ParseCommandLine(string commandLine)
+    {
+        var trimmed = commandLine.Trim();
+        if (trimmed.Length == 0)
+            return (string.Empty, string.Empty);
+
+        if (trimmed[0] == '"' || trimmed[0] == '\'')
+        {
+            var quote = trimmed[0];
+            var end = trimmed.IndexOf(quote, 1);
+            if (end > 0)
+                return (trimmed.Substring(1, end - 1), trimmed.Substring(end + 1).TrimStart());
+        }
+
+        var spaceIdx = trimmed.IndexOf(' ');
+        if (spaceIdx < 0)
+            return (trimmed, string.Empty);
+        return (trimmed.Substring(0, spaceIdx), trimmed.Substring(spaceIdx + 1).TrimStart());
+    }
+
+    /// <summary>
+    /// Split arguments string respecting double-quotes (Windows-style).
+    /// Returns only the arguments portion (fileName already excluded).
+    /// </summary>
+    private static IEnumerable<string> SplitArguments(string args)
+    {
+        if (string.IsNullOrWhiteSpace(args))
+            yield break;
+
+        var sb = new StringBuilder();
+        var inQuote = false;
+        foreach (var ch in args)
+        {
+            if (ch == '"')
+            {
+                inQuote = !inQuote;
+                continue;
+            }
+            if (char.IsWhiteSpace(ch) && !inQuote)
+            {
+                if (sb.Length > 0)
+                {
+                    yield return sb.ToString();
+                    sb.Clear();
+                }
+                continue;
+            }
+            sb.Append(ch);
+        }
+        if (sb.Length > 0)
+            yield return sb.ToString();
+    }
+
+    /// <summary>
+    /// AI mode completed callback. success=true → proceed to shutdown.
+    /// success=false → return to Idle (let user inspect error).
     /// </summary>
     public async Task OnAIModeCompletedAsync(bool success)
     {
@@ -280,13 +397,24 @@ public class BehaviorOrchestrator
         ctx.IsAIModeActive = false;
         ctx.AITaskDescription = null;
 
-        // Proceed to shutdown
-        lock (_lock)
+        if (success)
         {
-            ChangeState(ctx, BehaviorState.ShuttingDown);
-        }
+            // Proceed to shutdown
+            lock (_lock)
+            {
+                ChangeState(ctx, BehaviorState.ShuttingDown);
+            }
 
-        await _shutdownService.InitiateShutdownAsync("AI mode completed", _cts?.Token ?? default);
+            await _shutdownService.InitiateShutdownAsync("AI mode completed", _cts?.Token ?? default);
+        }
+        else
+        {
+            // Failed: return to Idle so user can inspect the error
+            lock (_lock)
+            {
+                ChangeState(ctx, BehaviorState.Idle);
+            }
+        }
     }
 
     private async Task InitializeContextAsync(string calendarUrl)
