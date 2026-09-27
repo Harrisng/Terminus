@@ -43,7 +43,8 @@ public class CycleStateService : ICycleStateService
                 LastUpdated = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 History = history,
                 State = context.State.ToString(),
-                NextActionTime = context.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-ddTHH:mm:ss")
+                NextActionTime = context.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-ddTHH:mm:ss"),
+                AutoDelayUsed = context.AutoDelayUsed
             };
 
             WriteState(state);
@@ -96,17 +97,20 @@ public class CycleStateService : ICycleStateService
                 context.NextActionTime = instant.InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
             }
 
+            // 還原 AutoDelayUsed，防止重啟後重複觸發自動延遲
+            context.AutoDelayUsed = saved.AutoDelayUsed;
+
             // 如果延遲時間已過，回到 Warning
             if ((context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
                 && context.NextActionTime.HasValue
                 && hkNow.ToInstant() >= context.NextActionTime.Value.ToInstant())
             {
                 context.State = BehaviorState.Warning;
-                context.NextActionTime = null;
+                context.NextActionTime = hkNow;
                 LoggerService.Info("CycleStateService: 延遲時間已過, 回到 Warning");
             }
 
-            LoggerService.Info($"CycleStateService: 還原狀態={context.State}, NextActionTime={context.NextActionTime?.ToDateTimeUnspecified():yyyy-MM-dd HH:mm}");
+            LoggerService.Info($"CycleStateService: 還原狀態={context.State}, NextActionTime={context.NextActionTime?.ToDateTimeUnspecified():yyyy-MM-dd HH:mm}, AutoDelayUsed={context.AutoDelayUsed}");
         }
         catch (Exception ex)
         {

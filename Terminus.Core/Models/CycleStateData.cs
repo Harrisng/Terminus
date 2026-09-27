@@ -15,6 +15,8 @@ public class CycleStateData
     public string? State { get; set; }
     /// <summary>下次動作時間 ISO 格式（重啟還原用）</summary>
     public string? NextActionTime { get; set; }
+    /// <summary>是否已用過自動延遲（重啟還原用，防止重啟後重複自動延遲）</summary>
+    public bool AutoDelayUsed { get; set; }
 }
 
 /// <summary>
