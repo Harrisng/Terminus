@@ -13,8 +13,8 @@ public static class LoggerService
     /// <summary>輪替上限：5 MB。超過後將舊日誌改名為 .bak，並建立新檔。</summary>
     private const long MaxLogSizeBytes = 5 * 1024 * 1024;
 
-    /// <summary>每次寫入後強制 flush 的間隔（寫入次數）。降低磁碟 I/O 卻保持當機可恢復。</summary>
-    private const int FlushEveryWrites = 10;
+    /// <summary>每次寫入後強制 flush，確保日誌即時落盤，便於當機除錯。</summary>
+    private const int FlushEveryWrites = 1;
 
     private static readonly object _lock = new();
     private static StreamWriter? _writer;
