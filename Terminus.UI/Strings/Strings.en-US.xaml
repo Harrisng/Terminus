@@ -158,15 +158,15 @@
     <sys:String x:Key="Warning_ShutdownNow">⚡ Shut down now</sys:String>
     <sys:String x:Key="Warning_AIMode">🤖 AI overnight mode</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">Confirm shutdown</sys:String>
-    <sys:String x:Key="Warning_ConfirmShutdownMsg">Are you sure you want to shut down now?\nThis cannot be undone.</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdownMsg">Are you sure you want to shut down now?&#10;This cannot be undone.</sys:String>
     <sys:String x:Key="Warning_ConfirmDelay">Confirm delay</sys:String>
     <sys:String x:Key="Warning_ConfirmDelayMsg">Delay by 30 minutes?</sys:String>
     <sys:String x:Key="Warning_UnableToDelay">Cannot delay</sys:String>
-    <sys:String x:Key="Warning_NotInWarningState">Not in warning state, cannot delay manually.\nPlease wait for a warning to appear.</sys:String>
+    <sys:String x:Key="Warning_NotInWarningState">Not in warning state, cannot delay manually.&#10;Please wait for a warning to appear.</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">Quota exhausted</sys:String>
     <sys:String x:Key="Warning_QuotaExceededBody">Delay quota insufficient ({0:F0} min remaining), cannot delay {1:F0} min.</sys:String>
     <sys:String x:Key="Warning_ForceShutdownTitle">Forced shutdown countdown</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownBody">Hard shutdown time reached. System will shut down in {0}.\nPlease save all unsaved data. This shutdown cannot be delayed.</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">Hard shutdown time reached. System will shut down in {0}.&#10;Please save all unsaved data. This shutdown cannot be delayed.</sys:String>
     <sys:String x:Key="Warning_TomorrowEarlyClassFormat">Tomorrow early class {0}</sys:String>
     <sys:String x:Key="Warning_NoEarlyClass">No early class tomorrow</sys:String>
     <sys:String x:Key="Warning_MessageEarlyClass">Tomorrow early class {0}. Quota remaining: {1:F0} min.</sys:String>
@@ -175,22 +175,22 @@
 
     <!-- ════════════ Notifications ════════════ -->
     <sys:String x:Key="Notification_PreWarningTitle">Sleep cycle pre-warning</sys:String>
-    <sys:String x:Key="Notification_PreWarningBody">Main warning will appear in {0}\n{1}</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">Main warning will appear in {0}&#10;{1}</sys:String>
     <sys:String x:Key="Notification_WarningTitle">Sleep cycle warning</sys:String>
     <sys:String x:Key="Notification_DelayedTitle">Delayed</sys:String>
     <sys:String x:Key="Notification_DelayedBody">Next warning in {0}</sys:String>
     <sys:String x:Key="Notification_UnlimitedQuota">Delay count: unlimited</sys:String>
     <sys:String x:Key="Notification_QuotaRemainingFormat">Quota remaining: {0}</sys:String>
     <sys:String x:Key="Notification_AIModeStartedTitle">AI overnight mode</sys:String>
-    <sys:String x:Key="Notification_AIModeStartedBody">{0}\nSystem will shut down automatically when the task completes</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">{0}&#10;System will shut down automatically when the task completes</sys:String>
     <sys:String x:Key="Notification_AIModeCompletedTitle">AI mode completed</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedBody">{0}\n{1}</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">{0}&#10;{1}</sys:String>
     <sys:String x:Key="Notification_AIModeSuccess">✓ Completed successfully</sys:String>
     <sys:String x:Key="Notification_AIModeFailed">✗ Failed</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentTitle">Shutdown imminent</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentBody">System will shut down in {0} minutes</sys:String>
     <sys:String x:Key="Notification_FetchErrorTitle">Calendar fetch error</sys:String>
-    <sys:String x:Key="Notification_FetchErrorBody">{0} consecutive failures\n{1}</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">{0} consecutive failures&#10;{1}</sys:String>
     <sys:String x:Key="Notification_CacheAgeFormat">Using cache from {0:F1} hours ago</sys:String>
     <sys:String x:Key="Notification_NoCache">No cache available</sys:String>
 
@@ -215,7 +215,7 @@
     <sys:String x:Key="Logs_Copy">Copy</sys:String>
     <sys:String x:Key="Logs_Empty">(No logs)</sys:String>
     <sys:String x:Key="Logs_ClearConfirmTitle">Confirm clear</sys:String>
-    <sys:String x:Key="Logs_ClearConfirmBody">Clear all logs?\nThis cannot be undone.</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmBody">Clear all logs?&#10;This cannot be undone.</sys:String>
 
     <!-- ════════════ Delay history window ════════════ -->
     <sys:String x:Key="History_Title">Delay history</sys:String>
@@ -226,7 +226,7 @@
     <sys:String x:Key="History_Manual">Manual</sys:String>
     <sys:String x:Key="History_Auto">Auto</sys:String>
     <sys:String x:Key="History_Empty">No delay records</sys:String>
-    <sys:String x:Key="History_NoDataBody">No delay history yet.\nRecords are encrypted and saved on each delay operation.</sys:String>
+    <sys:String x:Key="History_NoDataBody">No delay history yet.&#10;Records are encrypted and saved on each delay operation.</sys:String>
     <sys:String x:Key="History_EmptyCycleBody">No delay records in this cycle.</sys:String>
     <sys:String x:Key="History_CycleIdFormat">Cycle: {0}</sys:String>
     <sys:String x:Key="History_StatusFormat">Updated: {0} · Manual {1} · Auto {2}</sys:String>
@@ -256,9 +256,9 @@
     <!-- ════════════ Errors and startup ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus Error</sys:String>
     <sys:String x:Key="Error_Occurred">An error occurred</sys:String>
-    <sys:String x:Key="Error_OccurredBody">Error: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_OccurredBody">Error: {0}&#10;&#10;{1}</sys:String>
     <sys:String x:Key="Error_StartupFailed">Terminus startup failed</sys:String>
-    <sys:String x:Key="Error_StartupFailedBody">Startup error: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_StartupFailedBody">Startup error: {0}&#10;&#10;{1}</sys:String>
     <sys:String x:Key="Error_DashboardInitFailed">Dashboard initialization failed: {0}</sys:String>
 
     <!-- ════════════ Time formats ════════════ -->

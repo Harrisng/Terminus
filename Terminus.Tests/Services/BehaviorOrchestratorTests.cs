@@ -215,7 +215,7 @@ internal sealed class SpyShutdownService : ShutdownService
 
     public SpyShutdownService(IClock clock) : base(clock) { }
 
-    public override Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default)
+    public override Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default, bool userInitiated = false)
     {
         InitiateCalled = true;
         LastReason = reason;
