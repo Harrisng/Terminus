@@ -40,23 +40,26 @@ public class ShutdownService
     }
 
     /// <summary>
-    /// Initiates system shutdown with retry logic and cancel detection.
+    /// Initiates system shutdown with retry logic.
     /// Has safety guards to prevent accidental shutdown during daytime.
     /// </summary>
-    public virtual async Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default)
+    /// <param name="reason">Reason for shutdown (logged)</param>
+    /// <param name="userInitiated">If true, bypass startup grace period (user explicitly requested)</param>
+    public virtual async Task<ShutdownResult> InitiateShutdownAsync(string reason, CancellationToken cancellationToken = default, bool userInitiated = false)
     {
-        // Safety check 1: Startup grace period
+        // Safety check 1: Startup grace period (skipped for user-initiated shutdowns)
         var now = SystemClock.Instance.GetCurrentInstant();
         var timeSinceStartup = now - _startupTime;
-        if (timeSinceStartup < StartupGracePeriod)
+        if (!userInitiated && timeSinceStartup < StartupGracePeriod)
         {
             var remaining = StartupGracePeriod - timeSinceStartup;
+            LoggerService.Info($"ShutdownService: 啟動寬限期內阻止關機, 剩餘 {remaining.TotalSeconds:F0}s, reason={reason}");
             ShutdownBlocked?.Invoke(this, new ShutdownEventArgs
             {
                 Reason = reason,
                 Message = $"Blocked: startup grace period active, {remaining.TotalSeconds:F0}s remaining"
             });
-            
+
             return new ShutdownResult
             {
                 Success = false,
@@ -69,12 +72,13 @@ public class ShutdownService
         var hkTime = now.InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
         if (!IsWithinSafeShutdownWindow(hkTime.TimeOfDay))
         {
+            LoggerService.Info($"ShutdownService: 非安全時段阻止關機, 目前={hkTime.TimeOfDay:HH:mm}, reason={reason}");
             ShutdownBlocked?.Invoke(this, new ShutdownEventArgs
             {
                 Reason = reason,
                 Message = $"Blocked: outside safe shutdown window (current: {hkTime.TimeOfDay:HH:mm})"
             });
-            
+
             return new ShutdownResult
             {
                 Success = false,
@@ -87,6 +91,7 @@ public class ShutdownService
         {
             if (_isShutdownInProgress)
             {
+                LoggerService.Info($"ShutdownService: 已有關機進行中, 忽略重複要求, reason={reason}");
                 return new ShutdownResult
                 {
                     Success = false,
@@ -100,6 +105,7 @@ public class ShutdownService
             _lastShutdownAttempt = DateTime.UtcNow;
         }
 
+        LoggerService.Info($"ShutdownService: 開始關機流程, reason={reason}, userInitiated={userInitiated}");
         ShutdownInitiated?.Invoke(this, new ShutdownEventArgs { Reason = reason, Attempt = _retryCount + 1 });
 
         try
@@ -109,29 +115,23 @@ public class ShutdownService
 
             if (result.Success)
             {
+                LoggerService.Info($"ShutdownService: 關機指令已送出, 系統將在 30 秒後關機");
                 ShutdownCompleted?.Invoke(this, new ShutdownEventArgs { Reason = reason });
                 return result;
             }
 
-            // Check if cancelled
-            if (await DetectShutdownCancelAsync(cancellationToken))
+            LoggerService.Warn($"ShutdownService: 關機指令失敗: {result.Message}");
+
+            // Failed - retry logic (only for automated, not user-initiated)
+            if (userInitiated)
             {
                 lock (_lock)
                 {
-                    _shutdownWasCancelled = true;
                     _isShutdownInProgress = false;
                 }
-
-                ShutdownCancelled?.Invoke(this, new ShutdownEventArgs { Reason = reason });
-                return new ShutdownResult
-                {
-                    Success = false,
-                    Message = "Shutdown was cancelled by user",
-                    WasCancelled = true
-                };
+                return result;
             }
 
-            // Failed but not cancelled - retry logic
             _retryCount++;
             if (_retryCount < MaxRetries)
             {
@@ -153,6 +153,7 @@ public class ShutdownService
             }
 
             // Max retries exceeded - force shutdown
+            LoggerService.Warn($"ShutdownService: 重試次數已達上限, 執行強制關機");
             ShutdownFailed?.Invoke(this, new ShutdownEventArgs
             {
                 Reason = reason,
@@ -172,6 +173,7 @@ public class ShutdownService
         }
         catch (Exception ex)
         {
+            LoggerService.Error($"ShutdownService: 關機流程例外: {ex.Message}", ex);
             lock (_lock)
             {
                 _isShutdownInProgress = false;

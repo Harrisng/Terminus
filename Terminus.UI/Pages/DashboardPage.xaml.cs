@@ -380,8 +380,9 @@ public partial class DashboardPage : Page
     {
         var title = TryFindResource("Warning_ConfirmShutdown") as string ?? "確認關機";
         var body = TryFindResource("Warning_ConfirmShutdownMsg") as string ?? "確定要立即關機嗎？\n此操作無法復原。";
+        var confirmText = TryFindResource("Warning_ShutdownConfirmText") as string ?? "立即關機";
         var dialog = new WarningDialog(title, body, icon: "⚡");
-        dialog.SetConfirmMode(title, isDanger: true);
+        dialog.SetConfirmMode(confirmText, isDanger: true);
         dialog.ShowDialog();
 
         if (dialog.DialogResult == true)

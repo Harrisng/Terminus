@@ -158,15 +158,15 @@
     <sys:String x:Key="Warning_ShutdownNow">⚡ 立即關機</sys:String>
     <sys:String x:Key="Warning_AIMode">🤖 AI 通宵模式</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">確認關機</sys:String>
-    <sys:String x:Key="Warning_ConfirmShutdownMsg">確定要立即關機嗎？\n此操作無法復原。</sys:String>
+    <sys:String x:Key="Warning_ConfirmShutdownMsg">確定要立即關機嗎？&#10;此操作無法復原。</sys:String>
     <sys:String x:Key="Warning_ConfirmDelay">確認延遲</sys:String>
     <sys:String x:Key="Warning_ConfirmDelayMsg">確定要延遲 30 分鐘嗎？</sys:String>
     <sys:String x:Key="Warning_UnableToDelay">無法延遲</sys:String>
-    <sys:String x:Key="Warning_NotInWarningState">目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。</sys:String>
+    <sys:String x:Key="Warning_NotInWarningState">目前不在警告階段，無法手動延遲。&#10;請等待警告出現後再操作。</sys:String>
     <sys:String x:Key="Warning_QuotaExceededTitle">配額已用完</sys:String>
     <sys:String x:Key="Warning_QuotaExceededBody">延遲配額不足（剩餘 {0:F0} 分鐘），無法延遲 {1:F0} 分鐘。</sys:String>
     <sys:String x:Key="Warning_ForceShutdownTitle">強制關機倒數</sys:String>
-    <sys:String x:Key="Warning_ForceShutdownBody">已達硬關機時間，系統將在 {0} 後強制關機。\n請儲存所有未儲存的資料，此次關機無法延後。</sys:String>
+    <sys:String x:Key="Warning_ForceShutdownBody">已達硬關機時間，系統將在 {0} 後強制關機。&#10;請儲存所有未儲存的資料，此次關機無法延後。</sys:String>
     <sys:String x:Key="Warning_TomorrowEarlyClassFormat">明日早課 {0}</sys:String>
     <sys:String x:Key="Warning_NoEarlyClass">明日無早課</sys:String>
     <sys:String x:Key="Warning_MessageEarlyClass">明日早課 {0}。剩餘額度：{1:F0} 分鐘。</sys:String>
@@ -175,22 +175,22 @@
 
     <!-- ════════════ 通知 ════════════ -->
     <sys:String x:Key="Notification_PreWarningTitle">睡眠週期預警</sys:String>
-    <sys:String x:Key="Notification_PreWarningBody">主警告將在 {0} 後出現\n{1}</sys:String>
+    <sys:String x:Key="Notification_PreWarningBody">主警告將在 {0} 後出現&#10;{1}</sys:String>
     <sys:String x:Key="Notification_WarningTitle">睡眠週期警告</sys:String>
     <sys:String x:Key="Notification_DelayedTitle">已延後</sys:String>
     <sys:String x:Key="Notification_DelayedBody">下次警告：{0} 後</sys:String>
     <sys:String x:Key="Notification_UnlimitedQuota">延後次數：無限制</sys:String>
     <sys:String x:Key="Notification_QuotaRemainingFormat">剩餘配額：{0}</sys:String>
     <sys:String x:Key="Notification_AIModeStartedTitle">AI 通宵模式</sys:String>
-    <sys:String x:Key="Notification_AIModeStartedBody">{0}\n任務完成後系統將自動關機</sys:String>
+    <sys:String x:Key="Notification_AIModeStartedBody">{0}&#10;任務完成後系統將自動關機</sys:String>
     <sys:String x:Key="Notification_AIModeCompletedTitle">AI 模式已完成</sys:String>
-    <sys:String x:Key="Notification_AIModeCompletedBody">{0}\n{1}</sys:String>
+    <sys:String x:Key="Notification_AIModeCompletedBody">{0}&#10;{1}</sys:String>
     <sys:String x:Key="Notification_AIModeSuccess">✓ 已成功完成</sys:String>
     <sys:String x:Key="Notification_AIModeFailed">✗ 失敗</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentTitle">即將關機</sys:String>
     <sys:String x:Key="Notification_ShutdownImminentBody">系統將在 {0} 分鐘後關機</sys:String>
     <sys:String x:Key="Notification_FetchErrorTitle">日曆獲取錯誤</sys:String>
-    <sys:String x:Key="Notification_FetchErrorBody">連續失敗 {0} 次\n{1}</sys:String>
+    <sys:String x:Key="Notification_FetchErrorBody">連續失敗 {0} 次&#10;{1}</sys:String>
     <sys:String x:Key="Notification_CacheAgeFormat">使用 {0:F1} 小時前的快取</sys:String>
     <sys:String x:Key="Notification_NoCache">無可用快取</sys:String>
 
@@ -215,7 +215,7 @@
     <sys:String x:Key="Logs_Copy">複製</sys:String>
     <sys:String x:Key="Logs_Empty">（無日誌記錄）</sys:String>
     <sys:String x:Key="Logs_ClearConfirmTitle">確認清空</sys:String>
-    <sys:String x:Key="Logs_ClearConfirmBody">確定要清空所有日誌嗎？\n此操作無法復原。</sys:String>
+    <sys:String x:Key="Logs_ClearConfirmBody">確定要清空所有日誌嗎？&#10;此操作無法復原。</sys:String>
 
     <!-- ════════════ 延遲歷史視窗 ════════════ -->
     <sys:String x:Key="History_Title">延遲歷史</sys:String>
@@ -226,7 +226,7 @@
     <sys:String x:Key="History_Manual">手動</sys:String>
     <sys:String x:Key="History_Auto">自動</sys:String>
     <sys:String x:Key="History_Empty">無延遲記錄</sys:String>
-    <sys:String x:Key="History_NoDataBody">尚無延遲歷史記錄。\n記錄會在每次延遲操作時自動加密存檔。</sys:String>
+    <sys:String x:Key="History_NoDataBody">尚無延遲歷史記錄。&#10;記錄會在每次延遲操作時自動加密存檔。</sys:String>
     <sys:String x:Key="History_EmptyCycleBody">本週期尚無延遲記錄。</sys:String>
     <sys:String x:Key="History_CycleIdFormat">週期：{0}</sys:String>
     <sys:String x:Key="History_StatusFormat">更新時間：{0} · 手動 {1} 次 · 自動 {2} 次</sys:String>
@@ -256,9 +256,9 @@
     <!-- ════════════ 錯誤與啟動 ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus 錯誤</sys:String>
     <sys:String x:Key="Error_Occurred">發生錯誤</sys:String>
-    <sys:String x:Key="Error_OccurredBody">發生錯誤：{0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_OccurredBody">發生錯誤：{0}&#10;&#10;{1}</sys:String>
     <sys:String x:Key="Error_StartupFailed">Terminus 啟動失敗</sys:String>
-    <sys:String x:Key="Error_StartupFailedBody">啟動錯誤: {0}\n\n{1}</sys:String>
+    <sys:String x:Key="Error_StartupFailedBody">啟動錯誤: {0}&#10;&#10;{1}</sys:String>
     <sys:String x:Key="Error_DashboardInitFailed">儀表板頁面初始化失敗：{0}</sys:String>
 
     <!-- ════════════ 時間格式 ════════════ -->

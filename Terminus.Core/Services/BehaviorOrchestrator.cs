@@ -228,12 +228,21 @@ public class BehaviorOrchestrator
         if (ctx == null)
             return;
 
-        lock (_lock)
-        {
-            ChangeState(ctx, BehaviorState.ShuttingDown);
-        }
+        // 先執行關機，成功後才切換狀態，避免被安全檢查阻止時狀態卡在「關機中」
+        var result = await _shutdownService.InitiateShutdownAsync(
+            "User requested shutdown", _cts?.Token ?? default, userInitiated: true);
 
-        await _shutdownService.InitiateShutdownAsync("User requested shutdown", _cts?.Token ?? default);
+        if (result.Success)
+        {
+            lock (_lock)
+            {
+                ChangeState(ctx, BehaviorState.ShuttingDown);
+            }
+        }
+        else
+        {
+            LoggerService.Warn($"Orchestrator: 使用者要求關機被阻止: {result.Message}");
+        }
     }
 
     /// <summary>
