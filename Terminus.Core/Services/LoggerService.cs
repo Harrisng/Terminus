@@ -72,12 +72,23 @@ public static class LoggerService
 
             lock (_lock)
             {
-                var writer = EnsureWriter();
-                writer.Write(line);
-                _writesSinceFlush++;
-                if (_writesSinceFlush >= FlushEveryWrites)
+                try
                 {
-                    writer.Flush();
+                    var writer = EnsureWriter();
+                    writer.Write(line);
+                    _writesSinceFlush++;
+                    if (_writesSinceFlush >= FlushEveryWrites)
+                    {
+                        writer.Flush();
+                        _writesSinceFlush = 0;
+                    }
+                }
+                catch
+                {
+                    // Writer 可能已故障（例如檔案被佔用、磁碟滿），
+                    // 重置後下次寫入會重新建立 FileStream
+                    try { _writer?.Dispose(); } catch { }
+                    _writer = null;
                     _writesSinceFlush = 0;
                 }
             }
