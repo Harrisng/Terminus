@@ -483,7 +483,7 @@ public class BehaviorOrchestrator
     {
         lock (_lock)
         {
-            _timer = new Timer(async _ => await OnTimerTickAsync(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            _timer = new Timer(async _ => await OnTimerTickAsync(), null, TimeSpan.Zero, TimeSpan.FromSeconds(3));
         }
     }
 
@@ -769,7 +769,11 @@ public class BehaviorOrchestrator
     private void ChangeState(BehaviorContext ctx, BehaviorState newState)
     {
         var oldState = ctx.State;
+        if (oldState == newState)
+            return;
+
         ctx.State = newState;
+        LoggerService.Info($"Orchestrator: 狀態轉換 {oldState} → {newState}");
 
         StateChanged?.Invoke(this, new BehaviorStateChangedEventArgs
         {
