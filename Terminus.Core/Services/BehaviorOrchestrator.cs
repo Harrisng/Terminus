@@ -498,60 +498,67 @@ public class BehaviorOrchestrator
         if (ctx == null)
             return;
 
-        var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
-        var currentTime = now.TimeOfDay;
-
-        // Check for cycle transition (12:00 boundary)
-        var currentCycle = SleepCycleCalculator.GetCurrentCycle(now);
-        if (!SleepCycleCalculator.IsSameCycle(ctx.CurrentCycle.CycleId, currentCycle.CycleId))
+        try
         {
-            // New cycle started - reinitialize
-            // But don't interrupt if shutdown is in progress
-            if (ctx.State != BehaviorState.ShuttingDown && ctx.State != BehaviorState.AIMode)
+            var now = _clock.GetCurrentInstant().InZone(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]);
+            var currentTime = now.TimeOfDay;
+
+            // Check for cycle transition (12:00 boundary)
+            var currentCycle = SleepCycleCalculator.GetCurrentCycle(now);
+            if (!SleepCycleCalculator.IsSameCycle(ctx.CurrentCycle.CycleId, currentCycle.CycleId))
             {
-                await InitializeContextAsync(_lastCalendarUrl ?? string.Empty);
-                return;
+                // New cycle started - reinitialize
+                // But don't interrupt if shutdown is in progress
+                if (ctx.State != BehaviorState.ShuttingDown && ctx.State != BehaviorState.AIMode)
+                {
+                    await InitializeContextAsync(_lastCalendarUrl ?? string.Empty);
+                    return;
+                }
+            }
+
+            // State machine
+            switch (ctx.State)
+            {
+                case BehaviorState.Idle:
+                    await HandleIdleStateAsync(ctx, currentTime);
+                    break;
+
+                case BehaviorState.PreWarning:
+                    await HandlePreWarningStateAsync(ctx, currentTime);
+                    break;
+
+                case BehaviorState.Warning:
+                    await HandleWarningStateAsync(ctx, currentTime, now);
+                    break;
+
+                case BehaviorState.Delayed:
+                    await HandleDelayedStateAsync(ctx, now);
+                    break;
+
+                case BehaviorState.AutoDelaying:
+                    await HandleAutoDelayingStateAsync(ctx, now);
+                    break;
+
+                case BehaviorState.AIMode:
+                    // Waiting for AI completion callback
+                    break;
+
+                case BehaviorState.ForceShutdown:
+                    await HandleForceShutdownStateAsync(ctx, now);
+                    break;
+
+                case BehaviorState.ShuttingDown:
+                    // Waiting for shutdown
+                    break;
+
+                case BehaviorState.Disabled:
+                    // Do nothing
+                    break;
             }
         }
-
-        // State machine
-        switch (ctx.State)
+        catch (Exception ex)
         {
-            case BehaviorState.Idle:
-                await HandleIdleStateAsync(ctx, currentTime);
-                break;
-
-            case BehaviorState.PreWarning:
-                await HandlePreWarningStateAsync(ctx, currentTime);
-                break;
-
-            case BehaviorState.Warning:
-                await HandleWarningStateAsync(ctx, currentTime, now);
-                break;
-
-            case BehaviorState.Delayed:
-                await HandleDelayedStateAsync(ctx, now);
-                break;
-
-            case BehaviorState.AutoDelaying:
-                await HandleAutoDelayingStateAsync(ctx, now);
-                break;
-
-            case BehaviorState.AIMode:
-                // Waiting for AI completion callback
-                break;
-
-            case BehaviorState.ForceShutdown:
-                await HandleForceShutdownStateAsync(ctx, now);
-                break;
-
-            case BehaviorState.ShuttingDown:
-                // Waiting for shutdown
-                break;
-
-            case BehaviorState.Disabled:
-                // Do nothing
-                break;
+            LoggerService.Error($"Orchestrator: OnTimerTickAsync 例外, State={ctx.State}", ex);
         }
     }
 
@@ -650,6 +657,12 @@ public class BehaviorOrchestrator
             }
             var autoDelayedTo = ctx.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-dd HH:mm");
             _cycleStateService.SaveCycleState(ctx, "auto", (int)ctx.DelayIncrement.TotalMinutes, autoDelayedTo);
+
+            // 顯示延遲確認通知，同時關閉舊的警告對話框（ShowSingleton 機制）
+            await _notificationService.ShowDelayConfirmationAsync(
+                ctx.DelayIncrement,
+                ctx.CurrentCycle.QuotaRemaining,
+                ctx.Timing.IsUnlimitedManualDelay);
             return;
         }
 
