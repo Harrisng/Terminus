@@ -163,13 +163,20 @@ public partial class DashboardPage : Page
         ClassificationText.Foreground = classInfo.Brush;
         ClassificationIndicator.Fill = classInfo.Brush;
 
-        // 下次預警時間：延遲中顯示延遲到期時間（警告重現時間），否則顯示排程預警時間（已過則 --）
+        // 下次預警時間：
+        // - 延遲中：顯示延遲到期時間（警告重現時間）
+        // - 警告中：顯示警告時間（已觸發）
+        // - 預警中/閒置：顯示排程警告時間，若已過則顯示 --
         if (context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
         {
             if (context.NextActionTime.HasValue)
                 WarningTimeText.Text = context.NextActionTime.Value.ToDateTimeUnspecified().ToString("HH:mm");
             else
                 WarningTimeText.Text = "--";
+        }
+        else if (context.State == BehaviorState.Warning)
+        {
+            WarningTimeText.Text = context.Timing.WarningTime.ToString("HH:mm", null);
         }
         else if (context.Timing.WarningTime != LocalTime.Midnight)
         {

@@ -450,11 +450,11 @@ public class BehaviorOrchestrator
         var safeUrl = calendarUrl ?? string.Empty;
         LoggerService.Info($"Orchestrator: InitializeContextAsync 開始, URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
 
-        // Fetch schedule data
-        var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(safeUrl);
+        // Fetch schedule data — fast path: only today+tomorrow for timing calculation
+        var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(safeUrl, daysAhead: 1);
         var hasData = status != CacheStatus.Default;
 
-        LoggerService.Info($"Orchestrator: 日曆數據, 事件數={events.Count}, hasData={hasData}, status={status}");
+        LoggerService.Info($"Orchestrator: 日曆數據(快速), 事件數={events.Count}, hasData={hasData}, status={status}");
 
         // Classify day (using configurable cutoff hour)
         var cutoffHour = EarlyClassCutoffHour;
@@ -524,6 +524,28 @@ public class BehaviorOrchestrator
         }
 
         LoggerService.Info($"Orchestrator: 初始化完成, 狀態={context.State}");
+
+        // 背景抓取完整日曆（供月曆頁與7天預覽使用），不阻塞啟動
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var (fullEvents, fullStatus, _) = await _calendarService.GetScheduleAsync(safeUrl);
+                if (fullEvents.Count > 0)
+                {
+                    lock (_lock)
+                    {
+                        if (_context != null)
+                            _context.Events = fullEvents;
+                    }
+                    LoggerService.Info($"Orchestrator: 背景完整日曆抓取完成, 事件數={fullEvents.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggerService.Warn($"Orchestrator: 背景完整日曆抓取失敗: {ex.Message}");
+            }
+        });
     }
 
     private void StartTimer()

@@ -26,9 +26,11 @@ public partial class ICalService
     /// Converts all events to Hong Kong timezone.
     /// </summary>
     /// <param name="url">Calendar URL (webcal:// will be converted to https://)</param>
+    /// <param name="daysAhead">If non-null, only expand occurrences within [today, today+daysAhead].
+    /// Use 1 for fast startup (today+tomorrow only). Null = full 4-year range.</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of calendar events with qualification status</returns>
-    public async Task<List<Models.CalendarEvent>> FetchCalendarAsync(string url, CancellationToken cancellationToken = default)
+    public async Task<List<Models.CalendarEvent>> FetchCalendarAsync(string url, int? daysAhead = null, CancellationToken cancellationToken = default)
     {
         // Convert webcal:// to https://
         if (url.StartsWith("webcal://", StringComparison.OrdinalIgnoreCase))
@@ -36,7 +38,8 @@ public partial class ICalService
             url = "https://" + url.Substring(9);
         }
 
-        LoggerService.Info($"ICalService: 開始抓取日曆, URL={url.Substring(0, Math.Min(80, url.Length))}...");
+        var rangeLabel = daysAhead.HasValue ? $"今天+{daysAhead.Value}天" : "完整4年範圍";
+        LoggerService.Info($"ICalService: 開始抓取日曆 ({rangeLabel}), URL={url.Substring(0, Math.Min(80, url.Length))}...");
 
         var icalContent = await _httpClient.GetStringAsync(url, cancellationToken);
 
@@ -55,8 +58,11 @@ public partial class ICalService
         var events = new List<Models.CalendarEvent>();
 
         // Use a reasonable date range instead of MinValue/MaxValue to avoid NodaTime overflow
-        var rangeStart = new CalDateTime(DateTime.Today.AddYears(-2));
-        var rangeEnd = new CalDateTime(DateTime.Today.AddYears(2));
+        // When daysAhead is specified, only expand a small range for fast startup
+        var rangeStart = new CalDateTime(DateTime.Today.AddDays(-1));
+        var rangeEnd = daysAhead.HasValue
+            ? new CalDateTime(DateTime.Today.AddDays(daysAhead.Value + 1))
+            : new CalDateTime(DateTime.Today.AddYears(2));
 
         foreach (var calendarEvent in calendar.Events)
         {
@@ -95,7 +101,7 @@ public partial class ICalService
             }
         }
 
-        LoggerService.Info($"ICalService: 展開後總事件數={events.Count}");
+        LoggerService.Info($"ICalService: 展開後總事件數={events.Count} ({rangeLabel})");
         return events;
     }
 
