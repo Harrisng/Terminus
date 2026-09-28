@@ -151,6 +151,12 @@ public partial class DashboardPage : Page
         if (context.NextActionTime.HasValue)
         {
             var nextAction = context.NextActionTime.Value.ToDateTimeUnspecified();
+            // 警告中狀態：NextActionTime 是寬限期開始時間，實際動作在寬限期到期後
+            if (context.State == BehaviorState.Warning)
+            {
+                var graceMinutes = (int)_orchestrator.WarningGracePeriod.TotalMinutes;
+                nextAction = nextAction.AddMinutes(graceMinutes);
+            }
             NextActionText.Text = nextAction.ToString("HH:mm");
         }
         else

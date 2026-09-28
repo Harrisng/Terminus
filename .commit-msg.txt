@@ -1,18 +1,11 @@
-Fix: dashboard content loads slowly — orchestrator no longer blocks UI thread
+Fix: 警告中狀態「下次動作」顯示錯誤時間
 
-根本原因：
-App.OnStartup 中 `await orchestrator.StartAsync(calendarUrl)` 阻塞 UI 執行緒。
-雖然 _mainWindow.Show() 在前，但 WPF 渲染需 UI 執行緒空閒才能完成，
-導致視窗顯示了但內容空白，直到 orchestrator 初始化完成（~1 秒）。
+問題：
+警告中狀態時，「下次動作」直接顯示 NextActionTime（寬限期開始時間），
+用戶誤以為該時間點會有動作。實際上寬限期（5 分鐘）到期後才會自動延遲或關機。
 
 修復：
-1. App.OnStartup：
-   - 先呼叫 NavigateToDashboard() 顯示儀表板（顯示「未啟動」預設值）
-   - orchestrator.StartAsync 改為 fire-and-forget（不 await）
-   - 儀表板透過 StateChanged 事件與 10 秒定時器自動更新
-2. BehaviorOrchestrator.InitializeContextAsync：
-   - 初始化完成後主動觸發 StateChanged 事件
-   - 讓儀表板立即更新狀態，不必等 10 秒定時器
+DashboardPage.UpdateDisplay 中，當狀態為 Warning 時，
+「下次動作」顯示 NextActionTime + WarningGracePeriod（寬限期到期時間）。
 
-效果：視窗開啟後立即顯示儀表板（「未啟動」狀態），
-orchestrator 就緒後（有快取時 ~50ms）立即更新為實際狀態。
+例如：警告 00:56 開始，寬限期 5 分鐘，「下次動作」顯示 01:01。
