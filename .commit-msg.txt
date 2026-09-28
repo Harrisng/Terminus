@@ -1,12 +1,21 @@
-Fix: timing settings (sleep/wash/breakfast/commute) not applied to warning calculation
+Fix: slow startup + "next warning" shows -- when starting past warning time
 
-根本原因：BehaviorOrchestrator.InitializeContextAsync 调用
-TimingCalculator.CalculateTiming 时只传了 earlyClassQuota，没有传
-sleepTime/preSleepBuffer/washTime/breakfastTime/commuteTime，导致
-无论用户在设定页怎么改这些值，预警时间始终用预设值（6h/15m/30m/45m/105m）。
+Issue 1 — 啟動慢：
+ICalService 對每個事件都記錄 ConvertToHongKongTime 詳細日誌（每事件 3 條），
+792 個事件產生約 2376 次日誌寫入（每次都 flush），嚴重拖慢啟動。
+CalendarPage 也對每一天記錄事件數。
 
-修复：
-- BehaviorOrchestrator 新增 SleepTime/PreSleepBuffer/WashTime/
-  BreakfastTime/CommuteTime 属性（默认值同 TimingCalculator）
-- InitializeContextAsync 调用 CalculateTiming 时传入这些属性
-- App.ApplyOrchestratorSettings 从 SettingsService 载入并设定这些属性
+修復：
+- 移除 ICalService.ConvertToHongKongTime 的逐事件日誌
+- 移除 ICalService 逐事件「出現次數」日誌
+- 移除 CalendarPage 逐日期事件數日誌
+- 保留摘要級別日誌（抓取開始/完成、事件總數）
+
+Issue 2 — 「下次預警」顯示 --：
+啟動時若目前時間已過預警或警告時間，狀態仍為 Idle，儀表板因警告時間
+已過而顯示 --。需等待第一個 timer tick（3 秒）才會轉換狀態。
+
+修復：
+- InitializeContextAsync 在還原狀態後，若仍為 Idle 且目前時間已過警告時間，
+  直接進入 Warning 狀態並設定 NextActionTime
+- 若已過預警時間但未過警告時間，進入 PreWarning 狀態

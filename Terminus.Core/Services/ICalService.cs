@@ -67,8 +67,6 @@ public partial class ICalService
                 // Get occurrences (handles RRULE expansion) - use bounded range to prevent overflow
                 var occurrences = calendarEvent.GetOccurrences(rangeStart, rangeEnd);
 
-                LoggerService.Info($"ICalService: 事件 '{summary}', 出現次數={occurrences.Count}");
-
                 foreach (var occurrence in occurrences)
                 {
                     var startTime = ConvertToHongKongTime(occurrence.Period.StartTime);
@@ -147,9 +145,6 @@ public partial class ICalService
     {
         try
         {
-            // Log the raw values for debugging
-            LoggerService.Info($"ICalService: ConvertToHongKongTime: Value={calDateTime.Value:yyyy-MM-dd HH:mm:ss}, TzId={calDateTime.TzId ?? "null"}, AsUtc={calDateTime.AsUtc:yyyy-MM-dd HH:mm:ss}, HasTime={calDateTime.HasTime}");
-
             DateTime utcDt;
 
             // Try AsUtc first (most reliable when available)
@@ -182,7 +177,6 @@ public partial class ICalService
 
             var instant = Instant.FromDateTimeUtc(utcDt);
             var result = instant.InZone(HongKongTimeZone);
-            LoggerService.Info($"ICalService: ConvertToHongKongTime: 結果={result.ToDateTimeUnspecified():yyyy-MM-dd HH:mm:ss}");
             return result;
         }
         catch (Exception ex)
