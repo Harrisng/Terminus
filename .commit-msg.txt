@@ -1,21 +1,13 @@
-Fix: fast startup (today+tomorrow only) + warning time display in Warning state
+Optimize: startup uses calendar cache first (no network wait)
 
-Issue 1 — 啟動仍慢：
-原本啟動時抓取完整 4 年範圍日曆並展開 RRULE（263→792 事件），
-即使移除了逐事件日誌，展開 792 個事件仍需時間。
+快速路徑（daysAhead=1）原本每次都強制聯網抓取，
+即使本機已有完整日曆快取也需等待 700ms+ 網路時間。
 
-修復（兩段式抓取）：
-- ICalService.FetchCalendarAsync 新增 daysAhead 參數：
-  非 null 時只展開 [今天-1天, 今天+daysAhead+1天] 範圍
-- CalendarDataService.GetScheduleAsync 新增 daysAhead 參數：
-  非 null 時跳過快取、只抓小範圍、不寫入快取
-- BehaviorOrchestrator.InitializeContextAsync：
-  - 先用 daysAhead=1 快速抓取（今天+明天）計算時間
-  - 初始化完成後用 Task.Run 背景抓取完整日曆，更新 context.Events
-  （供月曆頁與 7 天預覽使用）
-- ICalService 完整範圍從 -2y~+2y 縮小為 -1天~+2y（過去事件不需要）
+修復：
+- CalendarDataService.GetScheduleAsync 快速路徑改為先檢查快取：
+  若快取有資料，直接從快取過濾今天+明天的事件（不聯網）
+  僅在快取為空時才聯網抓取
+- 新增「已寫入快取」日誌，確認背景完整抓取確實存檔
 
-Issue 2 — 「下次預警」在警告中狀態顯示 --：
-DashboardPage 在 Warning 狀態時，因目前時間已過警告時間而顯示 --。
-
-修復：Warning 狀態直接顯示警告時間（已觸發的時間點）。
+效果：第二次之後啟動只需從本機快取載入（<50ms），
+不再等待網路請求。

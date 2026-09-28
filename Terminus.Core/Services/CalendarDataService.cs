@@ -40,10 +40,26 @@ public class CalendarDataService
     {
         var safeUrl = calendarUrl ?? string.Empty;
 
-        // Fast path: only fetch today+tomorrow for timing, bypass cache
+        // Fast path: only need today+tomorrow for timing. Try cache first (no network),
+        // fall back to network only if cache is empty.
         if (daysAhead.HasValue)
         {
-            LoggerService.Info($"CalendarDataService: 快速抓取 (今天+{daysAhead.Value}天), URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
+            LoggerService.Info($"CalendarDataService: 快速路徑 (今天+{daysAhead.Value}天), 先檢查快取...");
+
+            var (cachedEvents, _, cacheStatus) = await _cacheService.LoadAsync<CalendarEvent>(ScheduleCacheKey);
+            if (cacheStatus == CacheStatus.Cached && cachedEvents != null && cachedEvents.Count > 0)
+            {
+                // Filter to today+tomorrow only
+                var today = DateTime.Today;
+                var endDate = today.AddDays(daysAhead.Value + 1);
+                var filtered = cachedEvents
+                    .Where(e => e.Start.ToDateTimeUnspecified().Date >= today && e.Start.ToDateTimeUnspecified().Date <= endDate)
+                    .ToList();
+                LoggerService.Info($"CalendarDataService: 快速路徑使用快取, 過濾後事件數={filtered.Count} (原快取={cachedEvents.Count})");
+                return (filtered, CacheStatus.Cached, null);
+            }
+
+            LoggerService.Info("CalendarDataService: 快取為空, 改為網路抓取");
             try
             {
                 var events = await _iCalService.FetchCalendarAsync(safeUrl, daysAhead.Value);
@@ -81,6 +97,7 @@ public class CalendarDataService
                 };
 
                 await _cacheService.SaveAsync(ScheduleCacheKey, events, metadata);
+                LoggerService.Info($"CalendarDataService: 已寫入快取, key={ScheduleCacheKey}, 事件數={events.Count}");
 
                 _lastScheduleFetch = DateTime.UtcNow;
                 _consecutiveScheduleFailures = 0;
