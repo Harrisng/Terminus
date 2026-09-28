@@ -1,21 +1,21 @@
-Fix: slow startup + "next warning" shows -- when starting past warning time
+Fix: fast startup (today+tomorrow only) + warning time display in Warning state
 
-Issue 1 — 啟動慢：
-ICalService 對每個事件都記錄 ConvertToHongKongTime 詳細日誌（每事件 3 條），
-792 個事件產生約 2376 次日誌寫入（每次都 flush），嚴重拖慢啟動。
-CalendarPage 也對每一天記錄事件數。
+Issue 1 — 啟動仍慢：
+原本啟動時抓取完整 4 年範圍日曆並展開 RRULE（263→792 事件），
+即使移除了逐事件日誌，展開 792 個事件仍需時間。
 
-修復：
-- 移除 ICalService.ConvertToHongKongTime 的逐事件日誌
-- 移除 ICalService 逐事件「出現次數」日誌
-- 移除 CalendarPage 逐日期事件數日誌
-- 保留摘要級別日誌（抓取開始/完成、事件總數）
+修復（兩段式抓取）：
+- ICalService.FetchCalendarAsync 新增 daysAhead 參數：
+  非 null 時只展開 [今天-1天, 今天+daysAhead+1天] 範圍
+- CalendarDataService.GetScheduleAsync 新增 daysAhead 參數：
+  非 null 時跳過快取、只抓小範圍、不寫入快取
+- BehaviorOrchestrator.InitializeContextAsync：
+  - 先用 daysAhead=1 快速抓取（今天+明天）計算時間
+  - 初始化完成後用 Task.Run 背景抓取完整日曆，更新 context.Events
+  （供月曆頁與 7 天預覽使用）
+- ICalService 完整範圍從 -2y~+2y 縮小為 -1天~+2y（過去事件不需要）
 
-Issue 2 — 「下次預警」顯示 --：
-啟動時若目前時間已過預警或警告時間，狀態仍為 Idle，儀表板因警告時間
-已過而顯示 --。需等待第一個 timer tick（3 秒）才會轉換狀態。
+Issue 2 — 「下次預警」在警告中狀態顯示 --：
+DashboardPage 在 Warning 狀態時，因目前時間已過警告時間而顯示 --。
 
-修復：
-- InitializeContextAsync 在還原狀態後，若仍為 Idle 且目前時間已過警告時間，
-  直接進入 Warning 狀態並設定 NextActionTime
-- 若已過預警時間但未過警告時間，進入 PreWarning 狀態
+修復：Warning 狀態直接顯示警告時間（已觸發的時間點）。

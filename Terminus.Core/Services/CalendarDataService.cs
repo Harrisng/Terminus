@@ -31,14 +31,35 @@ public class CalendarDataService
     /// Gets schedule data with automatic caching and fallback.
     /// Returns (events, cache status, age in hours if cached).
     /// </summary>
+    /// <param name="daysAhead">If non-null, fetch only today+daysAhead (fast startup), bypass cache.
+    /// Null = full range with cache.</param>
     public async Task<(List<CalendarEvent> Events, CacheStatus Status, double? CacheAgeHours)> GetScheduleAsync(
         string calendarUrl,
-        bool forceRefresh = false)
+        bool forceRefresh = false,
+        int? daysAhead = null)
     {
+        var safeUrl = calendarUrl ?? string.Empty;
+
+        // Fast path: only fetch today+tomorrow for timing, bypass cache
+        if (daysAhead.HasValue)
+        {
+            LoggerService.Info($"CalendarDataService: 快速抓取 (今天+{daysAhead.Value}天), URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
+            try
+            {
+                var events = await _iCalService.FetchCalendarAsync(safeUrl, daysAhead.Value);
+                LoggerService.Info($"CalendarDataService: 快速抓取成功, 事件數={events.Count}");
+                return (events, CacheStatus.Fresh, null);
+            }
+            catch (Exception ex)
+            {
+                LoggerService.Error("CalendarDataService: 快速抓取失敗", ex);
+                return (new List<CalendarEvent>(), CacheStatus.Default, null);
+            }
+        }
+
         var shouldRefresh = forceRefresh ||
                            (DateTime.UtcNow - _lastScheduleFetch) >= _autoRefreshInterval;
 
-        var safeUrl = calendarUrl ?? string.Empty;
         LoggerService.Info($"CalendarDataService: GetScheduleAsync, shouldRefresh={shouldRefresh}, URL={safeUrl.Substring(0, Math.Min(50, safeUrl.Length))}...");
 
         if (shouldRefresh)
