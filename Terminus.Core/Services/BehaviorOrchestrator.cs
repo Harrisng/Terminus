@@ -59,6 +59,21 @@ public class BehaviorOrchestrator
     /// </summary>
     public TimeSpan EarlyClassDelayQuota { get; set; } = DelayOptionLong;
 
+    /// <summary>睡眠時長。預設 6 小時。由 App.ApplyOrchestratorSettings 從設定載入。</summary>
+    public TimeSpan SleepTime { get; set; } = TimingCalculator.DefaultSleepTime;
+
+    /// <summary>前置緩衝。預設 15 分鐘。</summary>
+    public TimeSpan PreSleepBuffer { get; set; } = TimingCalculator.DefaultPreSleepBuffer;
+
+    /// <summary>洗漱時間。預設 30 分鐘。</summary>
+    public TimeSpan WashTime { get; set; } = TimingCalculator.DefaultWashTime;
+
+    /// <summary>早餐時間。預設 45 分鐘。</summary>
+    public TimeSpan BreakfastTime { get; set; } = TimingCalculator.DefaultBreakfastTime;
+
+    /// <summary>通勤時間。預設 1 小時 45 分鐘。</summary>
+    public TimeSpan CommuteTime { get; set; } = TimingCalculator.DefaultCommuteTime;
+
     public event EventHandler<BehaviorStateChangedEventArgs>? StateChanged;
 
     public BehaviorOrchestrator(
@@ -448,9 +463,14 @@ public class BehaviorOrchestrator
 
         LoggerService.Info($"Orchestrator: 日期分類={classification}, 首節課時間={(firstClassTime.HasValue ? firstClassTime.Value.ToString("HH:mm", null) : "無")}, 早課截止={cutoffHour}:00");
 
-        // Calculate timing (using configurable delay quota)
+        // Calculate timing (using configurable delay quota and buffer times)
         var timing = TimingCalculator.CalculateTiming(
             classification, firstClassTime,
+            sleepTime: SleepTime,
+            preSleepBuffer: PreSleepBuffer,
+            washTime: WashTime,
+            breakfastTime: BreakfastTime,
+            commuteTime: CommuteTime,
             earlyClassQuota: EarlyClassDelayQuota);
 
         LoggerService.Info($"Orchestrator: 預警={timing.PreWarningTime}, 警告={timing.WarningTime}, 硬關機={timing.HardShutdownTime}");

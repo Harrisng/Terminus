@@ -174,5 +174,10 @@ public partial class App : Application
         orchestrator.EarlyClassDelayQuota = TimeSpan.FromMinutes(settings.GetEarlyClassDelayQuotaMinutes());
         orchestrator.WarningGracePeriod = NodaTime.Duration.FromMinutes(settings.GetWarningGraceMinutes());
         orchestrator.ForceShutdownGracePeriod = NodaTime.Duration.FromMinutes(settings.GetForceShutdownGraceMinutes());
+        orchestrator.SleepTime = settings.GetSleepTime();
+        orchestrator.PreSleepBuffer = settings.GetPreSleepBuffer();
+        orchestrator.WashTime = settings.GetWashTime();
+        orchestrator.BreakfastTime = settings.GetBreakfastTime();
+        orchestrator.CommuteTime = settings.GetCommuteTime();
     }
 }
