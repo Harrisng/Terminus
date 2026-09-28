@@ -505,6 +505,24 @@ public class BehaviorOrchestrator
             _cycleStateService.RestoreContextState(context, hkNow);
         }
 
+        // 若還原後仍為 Idle，但目前時間已過預警或警告時間，直接跳到對應狀態，
+        // 避免儀表板顯示「下次預警 --」且狀態卡在 Idle
+        if (context.State == BehaviorState.Idle)
+        {
+            if (IsTimeReached(hkNow.TimeOfDay, timing.WarningTime))
+            {
+                context.State = BehaviorState.Warning;
+                context.NextActionTime = hkNow;
+                LoggerService.Info($"Orchestrator: 啟動時已過警告時間, 狀態=Warning, NextActionTime={hkNow:HH:mm}");
+            }
+            else if (IsTimeReached(hkNow.TimeOfDay, timing.PreWarningTime))
+            {
+                context.State = BehaviorState.PreWarning;
+                context.NextActionTime = hkNow;
+                LoggerService.Info($"Orchestrator: 啟動時已過預警時間, 狀態=PreWarning, NextActionTime={hkNow:HH:mm}");
+            }
+        }
+
         LoggerService.Info($"Orchestrator: 初始化完成, 狀態={context.State}");
     }
 

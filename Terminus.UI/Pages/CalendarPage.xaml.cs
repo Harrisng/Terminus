@@ -364,12 +364,6 @@ public partial class CalendarPage : Page
                 .Take(3)
                 .ToList();
 
-            // Log for debugging
-            if (dayEvents.Count > 0)
-            {
-                Terminus.Core.Services.LoggerService.Info($"CalendarPage: 日期 {date:yyyy-MM-dd} 有 {dayEvents.Count} 個事件");
-            }
-
             foreach (var evt in dayEvents)
             {
                 var eventPanel = new StackPanel
