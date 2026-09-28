@@ -525,6 +525,15 @@ public class BehaviorOrchestrator
 
         LoggerService.Info($"Orchestrator: 初始化完成, 狀態={context.State}");
 
+        // 通知 UI 狀態已就緒（讓儀表板立即更新，不必等 10 秒定時器）
+        StateChanged?.Invoke(this, new BehaviorStateChangedEventArgs
+        {
+            OldState = BehaviorState.Idle,
+            NewState = context.State,
+            CurrentCycle = context.CurrentCycle,
+            Timing = context.Timing
+        });
+
         // 背景抓取完整日曆（供月曆頁與7天預覽使用），不阻塞啟動
         _ = Task.Run(async () =>
         {

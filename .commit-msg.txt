@@ -1,13 +1,18 @@
-Optimize: startup uses calendar cache first (no network wait)
+Fix: dashboard content loads slowly — orchestrator no longer blocks UI thread
 
-快速路徑（daysAhead=1）原本每次都強制聯網抓取，
-即使本機已有完整日曆快取也需等待 700ms+ 網路時間。
+根本原因：
+App.OnStartup 中 `await orchestrator.StartAsync(calendarUrl)` 阻塞 UI 執行緒。
+雖然 _mainWindow.Show() 在前，但 WPF 渲染需 UI 執行緒空閒才能完成，
+導致視窗顯示了但內容空白，直到 orchestrator 初始化完成（~1 秒）。
 
 修復：
-- CalendarDataService.GetScheduleAsync 快速路徑改為先檢查快取：
-  若快取有資料，直接從快取過濾今天+明天的事件（不聯網）
-  僅在快取為空時才聯網抓取
-- 新增「已寫入快取」日誌，確認背景完整抓取確實存檔
+1. App.OnStartup：
+   - 先呼叫 NavigateToDashboard() 顯示儀表板（顯示「未啟動」預設值）
+   - orchestrator.StartAsync 改為 fire-and-forget（不 await）
+   - 儀表板透過 StateChanged 事件與 10 秒定時器自動更新
+2. BehaviorOrchestrator.InitializeContextAsync：
+   - 初始化完成後主動觸發 StateChanged 事件
+   - 讓儀表板立即更新狀態，不必等 10 秒定時器
 
-效果：第二次之後啟動只需從本機快取載入（<50ms），
-不再等待網路請求。
+效果：視窗開啟後立即顯示儀表板（「未啟動」狀態），
+orchestrator 就緒後（有快取時 ~50ms）立即更新為實際狀態。
