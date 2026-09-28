@@ -1,21 +1,12 @@
-Fix: literal \n in dialogs + user shutdown blocked by startup grace period
+Fix: timing settings (sleep/wash/breakfast/commute) not applied to warning calculation
 
-Bug 1 — 對話框顯示字面 \n：
-XAML 字串資源中的 \n 不會被解析為換行，改為 XML 實體 &#10;。
-3 個語言字典各修正 11 處。
+根本原因：BehaviorOrchestrator.InitializeContextAsync 调用
+TimingCalculator.CalculateTiming 时只传了 earlyClassQuota，没有传
+sleepTime/preSleepBuffer/washTime/breakfastTime/commuteTime，导致
+无论用户在设定页怎么改这些值，预警时间始终用预设值（6h/15m/30m/45m/105m）。
 
-Bug 2 — 點「確認關機」沒反應，面板卡在「關機中」：
-根本原因：ShutdownService 有 2 分鐘啟動寬限期，使用者重開 app 後
-立即點關機會被靜默阻止，但 BehaviorOrchestrator 已經先把狀態改成
-ShuttingDown，造成面板顯示「關機中」但實際沒關機。
-
-修復：
-- InitiateShutdownAsync 新增 userInitiated 參數，使用者主動關機時
-  跳過啟動寬限期（自動關機仍受寬限期保護）
-- OnShutdownNowRequestedAsync 改為先執行關機、成功後才切換狀態，
-  避免被阻止時狀態卡在「關機中」
-- ShutdownService 全程加 LoggerService 記錄（開始、成功、失敗、被阻止）
-- 移除有缺陷的 DetectShutdownCancelAsync 呼叫（它會執行 shutdown /a
-  自行取消排程中的關機再偵測，邏輯顛倒）
-- DashboardPage 確認按鈕文字改用 Warning_ShutdownConfirmText
-  （原本誤用對話框標題）
+修复：
+- BehaviorOrchestrator 新增 SleepTime/PreSleepBuffer/WashTime/
+  BreakfastTime/CommuteTime 属性（默认值同 TimingCalculator）
+- InitializeContextAsync 调用 CalculateTiming 时传入这些属性
+- App.ApplyOrchestratorSettings 从 SettingsService 载入并设定这些属性
