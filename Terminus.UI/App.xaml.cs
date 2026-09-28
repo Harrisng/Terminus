@@ -129,12 +129,19 @@ public partial class App : Application
             }
             else
             {
-                // Existing user: start orchestrator and show dashboard
-                Terminus.Core.Services.LoggerService.Info("App: 已有用戶, 啟動 orchestrator 並跳轉到儀表板");
+                // Existing user: show dashboard immediately, start orchestrator in background
+                Terminus.Core.Services.LoggerService.Info("App: 已有用戶, 顯示儀表板並背景啟動 orchestrator");
+                _mainWindow.NavigateToDashboard();
+
                 var orchestrator = _host.Services.GetRequiredService<BehaviorOrchestrator>();
                 ApplyOrchestratorSettings(orchestrator, settings);
-                await orchestrator.StartAsync(calendarUrl);
-                _mainWindow.NavigateToDashboard();
+
+                // Fire-and-forget: don't block UI thread, dashboard will update via timer
+                _ = orchestrator.StartAsync(calendarUrl).ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                        Terminus.Core.Services.LoggerService.Error("App: orchestrator 啟動失敗", t.Exception);
+                }, TaskScheduler.Default);
             }
         }
         catch (Exception ex)
