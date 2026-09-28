@@ -1,11 +1,16 @@
-Fix: 警告中狀態「下次動作」顯示錯誤時間
+Fix: 啟動時已過警告時間應按已過去時間扣除配額
 
 問題：
-警告中狀態時，「下次動作」直接顯示 NextActionTime（寬限期開始時間），
-用戶誤以為該時間點會有動作。實際上寬限期（5 分鐘）到期後才會自動延遲或關機。
+啟動時若已過警告時間，直接進入 Warning 狀態但配額未扣除。
+用戶可透過重啟 app 規避配額消耗。
 
 修復：
-DashboardPage.UpdateDisplay 中，當狀態為 Warning 時，
-「下次動作」顯示 NextActionTime + WarningGracePeriod（寬限期到期時間）。
+InitializeContextAsync 中，當啟動時已過警告時間：
+1. 計算已過去時間 = now - warningTime
+2. 已用延遲增量數 = floor(已過去分鐘 / DelayIncrement)
+3. 扣除配額 = 已用增量數 × DelayIncrement
+4. 配額最低為 0，不會變負數
+5. 非早課日（無限延遲）不扣除
 
-例如：警告 00:56 開始，寬限期 5 分鐘，「下次動作」顯示 01:01。
+範例：警告 00:15，00:56 啟動（過 41 分鐘），
+DelayIncrement=30，扣除 1 個增量（30 分鐘），配額 90→60。

@@ -513,6 +513,29 @@ public class BehaviorOrchestrator
             {
                 context.State = BehaviorState.Warning;
                 context.NextActionTime = hkNow;
+
+                // 啟動時已過警告時間：按已過去的時間扣除配額
+                // （早課日才有配額限制，非早課日無限延遲不扣除）
+                if (!timing.IsUnlimitedManualDelay)
+                {
+                    var warningInstant = hkNow.Date.At(timing.WarningTime).InZoneLeniently(DateTimeZoneProviders.Tzdb["Asia/Hong_Kong"]).ToInstant();
+                    var elapsed = hkNow.ToInstant() - warningInstant;
+                    if (elapsed > Duration.Zero)
+                    {
+                        var delayIncrement = context.DelayIncrement;
+                        var usedIncrements = (int)Math.Floor(elapsed.TotalMinutes / delayIncrement.TotalMinutes);
+                        if (usedIncrements > 0)
+                        {
+                            var deducted = TimeSpan.FromMinutes(usedIncrements * delayIncrement.TotalMinutes);
+                            context.CurrentCycle.QuotaRemaining = TimeSpan.FromMinutes(
+                                Math.Max(0, context.CurrentCycle.QuotaRemaining.TotalMinutes - deducted.TotalMinutes));
+                            LoggerService.Info($"Orchestrator: 啟動時已過警告 {elapsed.TotalMinutes:F0} 分鐘, " +
+                                $"扣除 {usedIncrements} 個延遲增量 ({deducted.TotalMinutes:F0} 分鐘), " +
+                                $"剩餘配額={context.CurrentCycle.QuotaRemaining.TotalMinutes:F0} 分鐘");
+                        }
+                    }
+                }
+
                 LoggerService.Info($"Orchestrator: 啟動時已過警告時間, 狀態=Warning, NextActionTime={hkNow:HH:mm}");
             }
             else if (IsTimeReached(hkNow.TimeOfDay, timing.PreWarningTime))
