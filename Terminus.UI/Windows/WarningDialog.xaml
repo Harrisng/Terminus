@@ -83,6 +83,76 @@
                             Template="{StaticResource DelayButtonTemplate}"/>
                 </Grid>
 
+                <!-- 自訂分鐘延後 -->
+                <Button x:Name="DelayCustomButton"
+                        Click="DelayCustomButton_Click"
+                        Margin="0,0,0,8"
+                        Height="44"
+                        Cursor="Hand"
+                        Content="{DynamicResource Warning_DelayCustom}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{DynamicResource BgTertiary}" CornerRadius="8" BorderThickness="0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  TextBlock.Foreground="{DynamicResource TextPrimary}" TextBlock.FontSize="14" TextBlock.FontWeight="SemiBold"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgHover}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- 自訂延後輸入區（隱藏，點擊自訂按鈕後顯示） -->
+                <StackPanel x:Name="CustomDelayPanel" Visibility="Collapsed" Margin="0,0,0,8">
+                    <TextBlock Text="{DynamicResource Warning_CustomDelayPrompt}"
+                               FontSize="13"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="CustomDelayInput"
+                             Height="40"
+                             FontSize="16"
+                             HorizontalContentAlignment="Center"
+                             VerticalContentAlignment="Center"
+                             PreviewTextInput="CustomDelayInput_PreviewTextInput"
+                             DataObject.Pasting="CustomDelayInput_Pasting"
+                             Foreground="{DynamicResource TextPrimary}"
+                             Background="{DynamicResource BgSecondary}"
+                             BorderBrush="{DynamicResource BorderDefault}"
+                             Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="CustomDelayConfirmButton" Grid.Column="0" Margin="0,0,4,0"
+                                Click="CustomDelayConfirmButton_Click"
+                                Height="44" Cursor="Hand"
+                                Content="{DynamicResource Common_Confirm}"
+                                Template="{StaticResource DelayButtonTemplate}"/>
+                        <Button x:Name="CustomDelayCancelButton" Grid.Column="1" Margin="4,0,0,0"
+                                Click="CustomDelayCancelButton_Click"
+                                Height="44" Cursor="Hand"
+                                Content="{DynamicResource Common_Cancel}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{DynamicResource BgTertiary}" CornerRadius="8" BorderThickness="0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                          TextBlock.Foreground="{DynamicResource TextSecondary}" TextBlock.FontSize="14"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgHover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
                 <!-- 立即關機 -->
                 <Button x:Name="ShutdownButton"
                         Click="ShutdownButton_Click"

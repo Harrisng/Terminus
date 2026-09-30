@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using Terminus.Core.Services;
 
@@ -86,12 +87,14 @@ public partial class WarningDialog : Window
         if (showDelayButton)
         {
             SetupDelayButtons(quotaRemaining, isUnlimitedDelay);
+            DelayCustomButton.Visibility = Visibility.Visible;
         }
         else
         {
             Delay30Button.Visibility = Visibility.Collapsed;
             Delay60Button.Visibility = Visibility.Collapsed;
             Delay90Button.Visibility = Visibility.Collapsed;
+            DelayCustomButton.Visibility = Visibility.Collapsed;
         }
 
         if (!showShutdownButton)
@@ -288,5 +291,99 @@ public partial class WarningDialog : Window
     {
         _allowClose = true;
         Close();
+    }
+
+    // ── 自訂分鐘延後輸入 ──
+
+    /// <summary>進入自訂模式前快取的按鈕可見性，用於取消時還原。</summary>
+    private readonly Dictionary<Button, Visibility> _customDelayPrevVisibility = new();
+
+    /// <summary>點擊「自訂分鐘」按鈕：進入自訂輸入模式，隱藏其他按鈕。</summary>
+    private void DelayCustomButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 快取目前可見的按鈕狀態以便取消時還原
+        _customDelayPrevVisibility.Clear();
+        foreach (var btn in new[] { Delay30Button, Delay60Button, Delay90Button, DelayCustomButton, ShutdownButton, CloseButton })
+        {
+            _customDelayPrevVisibility[btn] = btn.Visibility;
+        }
+
+        // 隱藏所有原本按鈕
+        Delay30Button.Visibility = Visibility.Collapsed;
+        Delay60Button.Visibility = Visibility.Collapsed;
+        Delay90Button.Visibility = Visibility.Collapsed;
+        DelayCustomButton.Visibility = Visibility.Collapsed;
+        ShutdownButton.Visibility = Visibility.Collapsed;
+        CloseButton.Visibility = Visibility.Collapsed;
+
+        // 顯示自訂輸入區，預設值 30 並聚焦
+        CustomDelayPanel.Visibility = Visibility.Visible;
+        CustomDelayInput.Text = "30";
+        CustomDelayInput.Focus();
+        CustomDelayInput.SelectAll();
+    }
+
+    /// <summary>確認自訂延後分鐘數：解析並調用 _onDelay。</summary>
+    private async void CustomDelayConfirmButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!int.TryParse(CustomDelayInput.Text, out var minutes) || minutes < 1 || minutes > 480)
+        {
+            // 顯示錯誤提示但不關閉對話框
+            var invalidMsg = Application.Current.TryFindResource("Warning_CustomDelayInvalid") as string
+                ?? "請輸入 1-480 之間的有效數字";
+            CustomDelayInput.Text = "";
+            CustomDelayInput.ToolTip = invalidMsg;
+            CustomDelayInput.Focus();
+            return;
+        }
+
+        try
+        {
+            if (_onDelay != null)
+                await _onDelay(TimeSpan.FromMinutes(minutes));
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Error("WarningDialog: CustomDelayConfirmButton_Click 回調失敗", ex);
+        }
+        _allowClose = true;
+        Close();
+    }
+
+    /// <summary>取消自訂延後輸入：還原原本按鈕狀態。</summary>
+    private void CustomDelayCancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        // 還原按鈕可見性
+        foreach (var (btn, vis) in _customDelayPrevVisibility)
+        {
+            try { btn.Visibility = vis; } catch { /* 還原失敗時忽略 */ }
+        }
+        _customDelayPrevVisibility.Clear();
+
+        CustomDelayPanel.Visibility = Visibility.Collapsed;
+        CustomDelayInput.ToolTip = null;
+    }
+
+    /// <summary>TextBox 輸入限制：只允許數字。</summary>
+    private void CustomDelayInput_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+    {
+        e.Handled = !int.TryParse(e.Text, out _);
+    }
+
+    /// <summary>TextBox 貼上限制：只允許數字。</summary>
+    private void CustomDelayInput_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (e.DataObject.GetDataPresent(typeof(string)))
+        {
+            var text = (string)e.DataObject.GetData(typeof(string));
+            if (!int.TryParse(text, out _))
+            {
+                e.CancelCommand();
+            }
+        }
+        else
+        {
+            e.CancelCommand();
+        }
     }
 }

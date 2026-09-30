@@ -387,23 +387,45 @@ public partial class DashboardPage : Page
 
     private async void DelayButton_Click(object sender, RoutedEventArgs e)
     {
-        var title = TryFindResource("Warning_ConfirmDelay") as string ?? "確認延遲";
-        var body = TryFindResource("Warning_ConfirmDelayMsg") as string ?? "確定要延遲 30 分鐘嗎？";
-        var dialog = new WarningDialog(title, body, icon: "⏰");
-        dialog.SetConfirmMode(title);
-        dialog.ShowDialog();
-
-        if (dialog.DialogResult != true)
-            return;
-
-        var success = await _orchestrator.OnDelayRequestedAsync();
-        if (!success)
+        // 先檢查是否處於警告階段；不在警告階段則提示無法延遲
+        var context = _orchestrator.GetCurrentContext();
+        if (context == null || context.State != BehaviorState.Warning)
         {
             var failTitle = TryFindResource("Warning_UnableToDelay") as string ?? "無法延遲";
             var failBody = TryFindResource("Warning_NotInWarningState") as string ?? "目前不在警告階段，無法手動延遲。\n請等待警告出現後再操作。";
             var feedback = new WarningDialog(failTitle, failBody, icon: "ℹ️");
             WarningDialog.ShowSingleton(feedback);
+            return;
         }
+
+        // 彈出 delay-only 對話框：顯示延遲選項（30/60/90/自訂），不顯示立即關機
+        var title = TryFindResource("Warning_ConfirmDelay") as string ?? "選擇延遲時長";
+        var body = TryFindResource("Warning_ConfirmDelayMsg") as string ?? "請選擇延後分鐘數";
+        var quotaText = context.Timing.IsUnlimitedManualDelay
+            ? TryFindResource("Notification_UnlimitedQuota") as string
+            : string.Format(TryFindResource("Notification_QuotaRemainingFormat") as string ?? "剩餘 {0}",
+                FormatTimeSpanForQuota(context.CurrentCycle.QuotaRemaining));
+
+        var dialog = new WarningDialog(
+            title, body, quotaText,
+            showDelayButton: true,
+            showShutdownButton: false,
+            icon: "⏰",
+            quotaRemaining: context.CurrentCycle.QuotaRemaining,
+            isUnlimitedDelay: context.Timing.IsUnlimitedManualDelay,
+            onDelay: async duration =>
+            {
+                await _orchestrator.OnDelayRequestedAsync(duration);
+            });
+        WarningDialog.ShowSingleton(dialog);
+    }
+
+    /// <summary>格式化配額時長為本地化字串（用於延遲對話框顯示）。</summary>
+    private string FormatTimeSpanForQuota(TimeSpan ts)
+    {
+        if (ts.TotalHours >= 1)
+            return $"{(int)ts.TotalHours} 小時 {ts.Minutes} 分鐘";
+        return $"{(int)ts.TotalMinutes} 分鐘";
     }
 
     private async void ShutdownNowButton_Click(object sender, RoutedEventArgs e)

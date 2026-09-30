@@ -156,6 +156,9 @@
     <sys:String x:Key="Warning_Delay30">⏰ Delay 30 min</sys:String>
     <sys:String x:Key="Warning_Delay60">⏰ Delay 60 min</sys:String>
     <sys:String x:Key="Warning_Delay90">⏰ Delay 90 min</sys:String>
+    <sys:String x:Key="Warning_DelayCustom">⏰ Custom minutes</sys:String>
+    <sys:String x:Key="Warning_CustomDelayPrompt">Enter delay minutes (1-480)</sys:String>
+    <sys:String x:Key="Warning_CustomDelayInvalid">Please enter a valid number between 1 and 480</sys:String>
     <sys:String x:Key="Warning_ShutdownNow">⚡ Shut down now</sys:String>
     <sys:String x:Key="Warning_AIMode">🤖 AI overnight mode</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">Confirm shutdown</sys:String>
