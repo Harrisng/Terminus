@@ -72,6 +72,7 @@
     <sys:String x:Key="Classification_EarlyClass">Early class</sys:String>
     <sys:String x:Key="Classification_NonEarlyClass">No early class</sys:String>
     <sys:String x:Key="Classification_NoData">No calendar data</sys:String>
+    <sys:String x:Key="Classification_Holiday">🌅 Holiday</sys:String>
 
     <!-- Week preview -->
     <sys:String x:Key="Day_Sunday">Sun</sys:String>

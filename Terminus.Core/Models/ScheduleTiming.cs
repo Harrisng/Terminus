@@ -51,4 +51,10 @@ public class ScheduleTiming
     /// Original calculated warning time before insurance adjustment (if any)
     /// </summary>
     public LocalTime? OriginalWarningTime { get; init; }
+
+    /// <summary>
+    /// Whether the target date is a Hong Kong public holiday.
+    /// Holiday days are treated as NonEarlyClass timing-wise but displayed distinctly.
+    /// </summary>
+    public bool IsHoliday { get; init; }
 }

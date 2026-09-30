@@ -31,6 +31,7 @@ public static class TimingCalculator
     /// <summary>
     /// Calculates complete timing for a sleep cycle based on classification and first class time.
     /// </summary>
+    /// <param name="isHoliday">If true, marks the resulting ScheduleTiming as a holiday (only meaningful for NonEarlyClass).</param>
     public static ScheduleTiming CalculateTiming(
         DayClassification classification,
         LocalTime? firstClassTime,
@@ -39,7 +40,8 @@ public static class TimingCalculator
         TimeSpan? washTime = null,
         TimeSpan? breakfastTime = null,
         TimeSpan? commuteTime = null,
-        TimeSpan? earlyClassQuota = null)
+        TimeSpan? earlyClassQuota = null,
+        bool isHoliday = false)
     {
         var sleep = sleepTime ?? DefaultSleepTime;
         var preSleep = preSleepBuffer ?? DefaultPreSleepBuffer;
@@ -58,7 +60,7 @@ public static class TimingCalculator
         else
         {
             // Non-early-class or NoData - treat the same way
-            return CalculateNonEarlyClassTiming();
+            return CalculateNonEarlyClassTiming(isHoliday);
         }
     }
 
@@ -124,7 +126,8 @@ public static class TimingCalculator
     /// Warning: 00:30, Hard shutdown: 03:00 (only for silent auto-delay)
     /// Manual delays are unlimited and can exceed 03:00.
     /// </summary>
-    private static ScheduleTiming CalculateNonEarlyClassTiming()
+    /// <param name="isHoliday">If true, marks the timing as a holiday for UI display.</param>
+    private static ScheduleTiming CalculateNonEarlyClassTiming(bool isHoliday = false)
     {
         var warningTime = NonEarlyClassWarningTime;
         var preWarningTime = SubtractTimeWithWrap(warningTime, PreWarningAdvance);
@@ -139,7 +142,8 @@ public static class TimingCalculator
             TotalQuota = TimeSpan.Zero, // No quota limit for manual delays
             IsUnlimitedManualDelay = true,
             MinimumWarningInsuranceApplied = false,
-            OriginalWarningTime = null
+            OriginalWarningTime = null,
+            IsHoliday = isHoliday
         };
     }
 
