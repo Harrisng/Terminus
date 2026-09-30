@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using Terminus.Core.Services;
 
@@ -23,6 +24,12 @@ public partial class WarningDialog : Window
 
     /// <summary>警告模式（有延後/關機按鈕）下為 false，用戶必須選一個操作才能關閉。</summary>
     private bool _allowClose = true;
+
+    /// <summary>是否處於「立即關機確認模式」。確認後執行關機，取消則還原警告模式。</summary>
+    private bool _isShutdownConfirmMode;
+
+    /// <summary>進入確認模式前快取的按鈕可見性，用於取消時還原。</summary>
+    private readonly Dictionary<Button, Visibility> _previousButtonVisibility = new();
 
     // ── 單例管理：防止多個警告對話框堆疊 ──
     private static WarningDialog? _activeDialog;
@@ -155,8 +162,27 @@ public partial class WarningDialog : Window
             e.Cancel = true;
     }
 
-    private void ConfirmButton_Click(object sender, RoutedEventArgs e)
+    private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
     {
+        // 立即關機確認模式：執行 _onShutdown 後關閉對話框
+        if (_isShutdownConfirmMode)
+        {
+            try
+            {
+                if (_onShutdown != null)
+                    await _onShutdown();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.Error("WarningDialog: 立即關機確認回調失敗", ex);
+            }
+            _isShutdownConfirmMode = false;
+            _allowClose = true;
+            Close();
+            return;
+        }
+
+        // 標準確認模式（SetConfirmMode）：返回 true 關閉
         _allowClose = true;
         DialogResult = true;
         Close();
@@ -164,6 +190,14 @@ public partial class WarningDialog : Window
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
+        // 立即關機確認模式：取消並還原原本警告按鈕，不關閉對話框
+        if (_isShutdownConfirmMode)
+        {
+            ExitShutdownConfirmMode();
+            return;
+        }
+
+        // 標準確認模式（SetConfirmMode）：返回 false 關閉
         _allowClose = true;
         DialogResult = false;
         Close();
@@ -192,17 +226,62 @@ public partial class WarningDialog : Window
 
     private async void ShutdownButton_Click(object sender, RoutedEventArgs e)
     {
-        try
+        // 進入確認模式：用戶必須再次確認或取消。確認後才執行 _onShutdown。
+        EnterShutdownConfirmMode();
+    }
+
+    /// <summary>
+    /// 進入立即關機確認模式：隱藏所有按鈕，顯示紅色確認 + 取消。
+    /// 取消時呼叫 <see cref="ExitShutdownConfirmMode"/> 還原原本警告按鈕。
+    /// </summary>
+    private void EnterShutdownConfirmMode()
+    {
+        // 快取目前可見的按鈕狀態以便取消時還原
+        _previousButtonVisibility.Clear();
+        foreach (var btn in new[] { Delay30Button, Delay60Button, Delay90Button, ShutdownButton, CloseButton })
         {
-            if (_onShutdown != null)
-                await _onShutdown();
+            _previousButtonVisibility[btn] = btn.Visibility;
         }
-        catch (Exception ex)
+
+        // 隱藏所有原本按鈕
+        Delay30Button.Visibility = Visibility.Collapsed;
+        Delay60Button.Visibility = Visibility.Collapsed;
+        Delay90Button.Visibility = Visibility.Collapsed;
+        ShutdownButton.Visibility = Visibility.Collapsed;
+        CloseButton.Visibility = Visibility.Collapsed;
+
+        // 設定 ConfirmButton 為紅色危險樣式並顯示
+        ConfirmButton.Content = Application.Current.TryFindResource("Warning_ShutdownNow") as string
+            ?? "⚡ 立即關機";
+        ConfirmButton.Visibility = Visibility.Visible;
+        CancelButton.Visibility = Visibility.Visible;
+        ConfirmButton.ApplyTemplate();
+        var bd = ConfirmButton.Template.FindName("bd", ConfirmButton) as System.Windows.Controls.Border;
+        bd?.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "StatusError");
+
+        _isShutdownConfirmMode = true;
+    }
+
+    /// <summary>
+    /// 取消立即關機確認模式：還原原本警告按鈕可見性。
+    /// </summary>
+    private void ExitShutdownConfirmMode()
+    {
+        foreach (var (btn, vis) in _previousButtonVisibility)
         {
-            LoggerService.Error("WarningDialog: ShutdownButton_Click 回調失敗", ex);
+            try { btn.Visibility = vis; } catch { /* 還原失敗時忽略 */ }
         }
-        _allowClose = true;
-        Close();
+        _previousButtonVisibility.Clear();
+
+        ConfirmButton.Visibility = Visibility.Collapsed;
+        CancelButton.Visibility = Visibility.Collapsed;
+
+        // 還原 ConfirmButton 樣式（避免下次 SetConfirmMode 殘留紅色）
+        ConfirmButton.ApplyTemplate();
+        var bd = ConfirmButton.Template.FindName("bd", ConfirmButton) as System.Windows.Controls.Border;
+        bd?.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "AccentPrimary");
+
+        _isShutdownConfirmMode = false;
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
