@@ -72,6 +72,7 @@
     <sys:String x:Key="Classification_EarlyClass">早课日</sys:String>
     <sys:String x:Key="Classification_NonEarlyClass">非早课日</sys:String>
     <sys:String x:Key="Classification_NoData">无日历数据</sys:String>
+    <sys:String x:Key="Classification_Holiday">🌅 假日</sys:String>
 
     <!-- 周预览 -->
     <sys:String x:Key="Day_Sunday">周日</sys:String>

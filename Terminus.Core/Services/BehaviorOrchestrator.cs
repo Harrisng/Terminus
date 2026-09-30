@@ -456,14 +456,35 @@ public class BehaviorOrchestrator
 
         LoggerService.Info($"Orchestrator: 日曆數據(快速), 事件數={events.Count}, hasData={hasData}, status={status}");
 
-        // Classify day (using configurable cutoff hour)
+        // Fetch Hong Kong public holidays (cached, low overhead)
+        List<PublicHoliday>? holidays = null;
+        try
+        {
+            var (holidayList, holidayStatus, _) = await _calendarService.GetHolidaysAsync("tc");
+            if (holidayStatus != CacheStatus.Default && holidayList.Count > 0)
+            {
+                holidays = holidayList;
+                LoggerService.Info($"Orchestrator: 假期數據抓取成功, 假期數={holidays.Count}, status={holidayStatus}");
+            }
+            else
+            {
+                LoggerService.Info($"Orchestrator: 假期數據為空或抓取失敗, status={holidayStatus}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Warn($"Orchestrator: 假期數據抓取失敗: {ex.Message}");
+        }
+
+        // Classify day (using configurable cutoff hour, with holidays)
         var cutoffHour = EarlyClassCutoffHour;
-        var classification = ScheduleClassifier.ClassifyDay(cycle.TargetDate, events, hasData, cutoffHour);
+        var isHoliday = ScheduleClassifier.IsHoliday(cycle.TargetDate, holidays);
+        var classification = ScheduleClassifier.ClassifyDay(cycle.TargetDate, events, hasData, cutoffHour, holidays);
         var firstClassTime = ScheduleClassifier.GetFirstClassTime(cycle.TargetDate, events, cutoffHour);
 
-        LoggerService.Info($"Orchestrator: 日期分類={classification}, 首節課時間={(firstClassTime.HasValue ? firstClassTime.Value.ToString("HH:mm", null) : "無")}, 早課截止={cutoffHour}:00");
+        LoggerService.Info($"Orchestrator: 日期分類={classification}, 首節課時間={(firstClassTime.HasValue ? firstClassTime.Value.ToString("HH:mm", null) : "無")}, 早課截止={cutoffHour}:00, 是否假期={isHoliday}");
 
-        // Calculate timing (using configurable delay quota and buffer times)
+        // Calculate timing (using configurable delay quota and buffer times, with holiday flag)
         var timing = TimingCalculator.CalculateTiming(
             classification, firstClassTime,
             sleepTime: SleepTime,
@@ -471,9 +492,10 @@ public class BehaviorOrchestrator
             washTime: WashTime,
             breakfastTime: BreakfastTime,
             commuteTime: CommuteTime,
-            earlyClassQuota: EarlyClassDelayQuota);
+            earlyClassQuota: EarlyClassDelayQuota,
+            isHoliday: isHoliday);
 
-        LoggerService.Info($"Orchestrator: 預警={timing.PreWarningTime}, 警告={timing.WarningTime}, 硬關機={timing.HardShutdownTime}");
+        LoggerService.Info($"Orchestrator: 預警={timing.PreWarningTime}, 警告={timing.WarningTime}, 硬關機={timing.HardShutdownTime}, 假期={timing.IsHoliday}");
 
         var context = new BehaviorContext
         {
@@ -481,7 +503,8 @@ public class BehaviorOrchestrator
             Timing = timing,
             State = BehaviorState.Idle,
             NextActionTime = null,
-            Events = events
+            Events = events,
+            Holidays = holidays
         };
 
         // Safety check: if we're already past the hard shutdown time for this cycle,

@@ -7,6 +7,8 @@ namespace Terminus.Core.Logic;
 /// Pure functions for classifying days as early-class or non-early-class.
 /// Early-class day = has qualifying course between 00:00 and the cutoff hour
 /// (default 12:00, strict: before cutoff, not at cutoff).
+/// Holidays are treated as NonEarlyClass (no early-class shutdown) but flagged
+/// separately via <see cref="ScheduleTiming.IsHoliday"/> for UI display.
 /// </summary>
 public static class ScheduleClassifier
 {
@@ -17,16 +19,25 @@ public static class ScheduleClassifier
     /// <param name="events">All calendar events (pre-filtered for date range)</param>
     /// <param name="hasScheduleData">Whether we successfully fetched schedule data</param>
     /// <param name="cutoffHour">Hour (0-23) that separates early vs non-early class. Default 12 (noon).</param>
+    /// <param name="holidays">Hong Kong public holidays (optional). Holiday dates are classified as NonEarlyClass.</param>
     /// <returns>Day classification</returns>
     public static DayClassification ClassifyDay(
         LocalDate targetDate,
         List<CalendarEvent> events,
         bool hasScheduleData = true,
-        int cutoffHour = 12)
+        int cutoffHour = 12,
+        List<PublicHoliday>? holidays = null)
     {
         if (!hasScheduleData)
         {
             return DayClassification.NoData;
+        }
+
+        // Holiday check: holidays are always treated as NonEarlyClass timing-wise
+        // (no early-class shutdown on holidays). UI displays "Holiday" via ScheduleTiming.IsHoliday.
+        if (IsHoliday(targetDate, holidays))
+        {
+            return DayClassification.NonEarlyClass;
         }
 
         // Filter events for the target date
@@ -50,6 +61,17 @@ public static class ScheduleClassifier
         });
 
         return hasMorningClass ? DayClassification.EarlyClass : DayClassification.NonEarlyClass;
+    }
+
+    /// <summary>
+    /// Checks if a target date is a Hong Kong public holiday.
+    /// </summary>
+    /// <param name="targetDate">The date to check</param>
+    /// <param name="holidays">List of public holidays (null = no holiday data, returns false)</param>
+    /// <returns>True if the date is a public holiday</returns>
+    public static bool IsHoliday(LocalDate targetDate, List<PublicHoliday>? holidays)
+    {
+        return holidays?.Any(h => h.Date == targetDate) ?? false;
     }
 
     /// <summary>

@@ -164,7 +164,7 @@ public partial class DashboardPage : Page
             NextActionText.Text = "--";
         }
 
-        var classInfo = GetClassificationDisplayInfo(context.Timing.Classification);
+        var classInfo = GetClassificationDisplayInfo(context.Timing.Classification, context.Timing.IsHoliday);
         ClassificationText.Text = classInfo.Text;
         ClassificationText.Foreground = classInfo.Brush;
         ClassificationIndicator.Fill = classInfo.Brush;
@@ -260,8 +260,14 @@ public partial class DashboardPage : Page
         return (text, b, color);
     }
 
-    private (string Text, Brush Brush) GetClassificationDisplayInfo(DayClassification classification)
+    private (string Text, Brush Brush) GetClassificationDisplayInfo(DayClassification classification, bool isHoliday = false)
     {
+        // Holiday takes precedence over NonEarlyClass for display
+        if (isHoliday && classification == DayClassification.NonEarlyClass)
+        {
+            return (TryFindResource("Classification_Holiday") as string ?? "🌅 假期", _brushStatusSuccess!);
+        }
+
         return classification switch
         {
             DayClassification.EarlyClass => (TryFindResource("Classification_EarlyClass") as string ?? "早課日", _brushStatusIdle!),
@@ -278,6 +284,7 @@ public partial class DashboardPage : Page
         var context = _orchestrator.GetCurrentContext();
         var hasData = context != null && context.Timing.Classification != DayClassification.NoData;
         var events = context?.Events ?? new List<CalendarEvent>();
+        var holidays = context?.Holidays;
 
         var dayKeys = new[]
         {
@@ -331,16 +338,26 @@ public partial class DashboardPage : Page
 
             if (hasData)
             {
-                // Classify each day individually using the events
+                // Classify each day individually using the events + holidays
                 var hkDate = LocalDate.FromDateTime(date);
-                var classification = ScheduleClassifier.ClassifyDay(hkDate, events, true);
+                var isHoliday = ScheduleClassifier.IsHoliday(hkDate, holidays);
+                var classification = ScheduleClassifier.ClassifyDay(hkDate, events, true, 12, holidays);
                 var firstClass = ScheduleClassifier.GetFirstClassTime(hkDate, events);
 
-                typeText.Text = classification == DayClassification.EarlyClass
-                    ? (TryFindResource("Classification_EarlyClass") as string ?? "早課日")
-                    : (TryFindResource("Classification_NonEarlyClass") as string ?? "非早課日");
-                typeText.SetResourceReference(TextBlock.ForegroundProperty,
-                    classification == DayClassification.EarlyClass ? "StatusIdle" : "TextSecondary");
+                // 假期優先顯示「假期」，否則依分類顯示
+                if (isHoliday && classification == DayClassification.NonEarlyClass)
+                {
+                    typeText.Text = TryFindResource("Classification_Holiday") as string ?? "🌅 假期";
+                    typeText.SetResourceReference(TextBlock.ForegroundProperty, "StatusSuccess");
+                }
+                else
+                {
+                    typeText.Text = classification == DayClassification.EarlyClass
+                        ? (TryFindResource("Classification_EarlyClass") as string ?? "早課日")
+                        : (TryFindResource("Classification_NonEarlyClass") as string ?? "非早課日");
+                    typeText.SetResourceReference(TextBlock.ForegroundProperty,
+                        classification == DayClassification.EarlyClass ? "StatusIdle" : "TextSecondary");
+                }
 
                 if (classification == DayClassification.EarlyClass && firstClass.HasValue)
                 {

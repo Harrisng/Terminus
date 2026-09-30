@@ -81,4 +81,6 @@ public class BehaviorContext
     /// <summary>本輪警告是否已用過一次自動延遲。用過後再無回應就直接關機。</summary>
     public bool AutoDelayUsed { get; set; }
     public List<CalendarEvent> Events { get; set; } = new();
+    /// <summary>香港公眾假期列表（供 ScheduleClassifier 與 UI 使用，可能為 null 表示尚未抓取）。</summary>
+    public List<PublicHoliday>? Holidays { get; set; }
 }
