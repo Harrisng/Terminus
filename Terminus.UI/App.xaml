@@ -10,10 +10,7 @@
                 <!-- Default language (Traditional Chinese) -->
                 <ResourceDictionary Source="Strings/Strings.zh-TW.xaml"/>
                 <!-- Shared UI styles -->
-                <ResourceDictionary Source="Styles/Cards.xaml"/>
-                <ResourceDictionary Source="Styles/Buttons.xaml"/>
-                <ResourceDictionary Source="Styles/Inputs.xaml"/>
-                <ResourceDictionary Source="Styles/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="Styles/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
