@@ -156,6 +156,9 @@
     <sys:String x:Key="Warning_Delay30">⏰ 延後 30 分鐘</sys:String>
     <sys:String x:Key="Warning_Delay60">⏰ 延後 60 分鐘</sys:String>
     <sys:String x:Key="Warning_Delay90">⏰ 延後 90 分鐘</sys:String>
+    <sys:String x:Key="Warning_DelayCustom">⏰ 自訂分鐘</sys:String>
+    <sys:String x:Key="Warning_CustomDelayPrompt">請輸入延後分鐘數（1-480）</sys:String>
+    <sys:String x:Key="Warning_CustomDelayInvalid">請輸入 1-480 之間的有效數字</sys:String>
     <sys:String x:Key="Warning_ShutdownNow">⚡ 立即關機</sys:String>
     <sys:String x:Key="Warning_AIMode">🤖 AI 通宵模式</sys:String>
     <sys:String x:Key="Warning_ConfirmShutdown">確認關機</sys:String>
