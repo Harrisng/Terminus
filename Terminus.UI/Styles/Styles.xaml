@@ -421,6 +421,22 @@
                                       HorizontalAlignment="Center"/>
                             </Grid>
                         </Border>
+                        <!-- 透明 ToggleButton 覆蓋整個 ComboBox，負責切換 IsDropDownOpen -->
+                        <ToggleButton x:Name="ToggleButton"
+                                      IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press"
+                                      Focusable="False"
+                                      IsTabStop="False"
+                                      OverridesDefaultStyle="True"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Padding="0">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent"/>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
                         <Popup x:Name="PART_Popup"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
                                Placement="Bottom"
