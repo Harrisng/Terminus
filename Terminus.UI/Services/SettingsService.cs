@@ -203,6 +203,16 @@ public class SettingsService
 
     public void SetForceShutdownGraceMinutes(int minutes) => WriteInt("ForceShutdownGraceMinutes", Math.Clamp(minutes, 1, 30));
 
+    /// <summary>
+    /// AI 通宵模式監控的進程名稱清單（逗號分隔，不含副檔名）。
+    /// 預設涵蓋常見 AI agent／coding 工具。
+    /// </summary>
+    public string GetAIMonitoredProcesses() =>
+        ReadString("AIMonitoredProcesses", "claude,trae,dsh,code,ollama,llama-server,text-generation-webui,autogpt,babyagi");
+
+    public void SetAIMonitoredProcesses(string processList) =>
+        WriteString("AIMonitoredProcesses", processList);
+
     public bool GetStartWithWindows()
     {
         try

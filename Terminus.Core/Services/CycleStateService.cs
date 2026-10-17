@@ -44,7 +44,8 @@ public class CycleStateService : ICycleStateService
                 History = history,
                 State = context.State.ToString(),
                 NextActionTime = context.NextActionTime?.ToDateTimeUnspecified().ToString("yyyy-MM-ddTHH:mm:ss"),
-                AutoDelayUsed = context.AutoDelayUsed
+                AutoDelayUsed = context.AutoDelayUsed,
+                PreWarningDelayMinutes = context.PreWarningDelayMinutes
             };
 
             WriteState(state);
@@ -99,6 +100,9 @@ public class CycleStateService : ICycleStateService
 
             // 還原 AutoDelayUsed，防止重啟後重複觸發自動延遲
             context.AutoDelayUsed = saved.AutoDelayUsed;
+
+            // 還原 PreWarning 延後分鐘數
+            context.PreWarningDelayMinutes = saved.PreWarningDelayMinutes;
 
             // 如果延遲時間已過，回到 Warning
             if ((context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)

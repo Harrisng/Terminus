@@ -31,7 +31,8 @@ public class BehaviorOrchestratorTests
     private BehaviorOrchestrator CreateOrchestrator()
     {
         var calSvc = new CalendarDataService(new StubICalService(), new CacheService());
-        var orch = new BehaviorOrchestrator(calSvc, _shutdown, _notifications, _cycleState, new NullLocalizationService(), _clock);
+        var power = new PowerManagementService();
+        var orch = new BehaviorOrchestrator(calSvc, _shutdown, _notifications, _cycleState, new NullLocalizationService(), power, _clock);
         return orch;
     }
 
@@ -100,15 +101,56 @@ public class BehaviorOrchestratorTests
     }
 
     [Fact]
-    public async Task OnDelayRequestedAsync_NotInWarningState_ReturnsFalse()
+    public async Task OnDelayRequestedAsync_InIdleState_ShiftsTimingAndStaysIdle()
     {
         var orch = CreateOrchestrator();
         var ctx = CreateEarlyClassContext(orch, BehaviorState.Idle);
+        var originalPreWarning = ctx.Timing.PreWarningTime;
+        var originalWarning = ctx.Timing.WarningTime;
+
+        var result = await orch.OnDelayRequestedAsync(TimeSpan.FromMinutes(30));
+
+        result.Should().BeTrue();
+        ctx.State.Should().Be(BehaviorState.Idle);   // 還在原狀態
+        ctx.CurrentCycle.DelayCount.Should().Be(1);
+        ctx.CurrentCycle.QuotaRemaining.TotalMinutes.Should().Be(60);   // 早課日照樣扣額度
+        ctx.PreWarningDelayMinutes.Should().Be(30);
+        ctx.Timing.PreWarningTime.Should().Be(originalPreWarning.PlusMinutes(30));
+        ctx.Timing.WarningTime.Should().Be(originalWarning.PlusMinutes(30));
+        _cycleState.LastSavedType.Should().Be("prewarning_delay");
+        _notifications.LastDelayConfirmation.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task OnDelayRequestedAsync_InPreWarningState_ShiftsTimingAndStaysPreWarning()
+    {
+        var orch = CreateOrchestrator();
+        var ctx = CreateEarlyClassContext(orch, BehaviorState.PreWarning);
+        var originalPreWarning = ctx.Timing.PreWarningTime;
+        var originalWarning = ctx.Timing.WarningTime;
+
+        var result = await orch.OnDelayRequestedAsync(TimeSpan.FromMinutes(60));
+
+        result.Should().BeTrue();
+        ctx.State.Should().Be(BehaviorState.PreWarning);   // 還在原狀態
+        ctx.CurrentCycle.DelayCount.Should().Be(1);
+        ctx.CurrentCycle.QuotaRemaining.TotalMinutes.Should().Be(30);
+        ctx.PreWarningDelayMinutes.Should().Be(60);
+        ctx.Timing.PreWarningTime.Should().Be(originalPreWarning.PlusMinutes(60));
+        ctx.Timing.WarningTime.Should().Be(originalWarning.PlusMinutes(60));
+        _cycleState.LastSavedType.Should().Be("prewarning_delay");
+    }
+
+    [Fact]
+    public async Task OnDelayRequestedAsync_InDelayedState_ReturnsFalse()
+    {
+        var orch = CreateOrchestrator();
+        var ctx = CreateEarlyClassContext(orch, BehaviorState.Delayed);
 
         var result = await orch.OnDelayRequestedAsync(TimeSpan.FromMinutes(30));
 
         result.Should().BeFalse();
-        ctx.State.Should().Be(BehaviorState.Idle);
+        ctx.State.Should().Be(BehaviorState.Delayed);
         ctx.CurrentCycle.DelayCount.Should().Be(0);
     }
 

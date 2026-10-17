@@ -78,6 +78,7 @@ public partial class App : Application
                 services.AddSingleton<RebootDetectionService>();
                 services.AddSingleton<ICycleStateService, CycleStateService>();
                 services.AddSingleton<INotificationService, WindowsNotificationService>();
+                services.AddSingleton<PowerManagementService>();
 
                 // Language: LanguageService 必須在 BehaviorOrchestrator 之前初始化
                 services.AddSingleton<LanguageService>();
@@ -156,6 +157,13 @@ public partial class App : Application
 
     protected override async void OnExit(ExitEventArgs e)
     {
+        // 確保即使在 AI 模式中關閉 app，也會還原系統睡眠設定
+        try
+        {
+            _host?.Services.GetService<PowerManagementService>()?.AllowSleep();
+        }
+        catch { /* 忽略還原失敗 */ }
+
         _trayIconService?.Dispose();
 
         if (_host != null)
@@ -186,5 +194,6 @@ public partial class App : Application
         orchestrator.WashTime = settings.GetWashTime();
         orchestrator.BreakfastTime = settings.GetBreakfastTime();
         orchestrator.CommuteTime = settings.GetCommuteTime();
+        orchestrator.AIMonitoredProcesses = settings.GetAIMonitoredProcesses();
     }
 }

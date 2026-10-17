@@ -66,10 +66,107 @@
                                Foreground="{DynamicResource TextTertiary}"
                                Margin="0,0,0,16"/>
 
+                    <!-- 睡眠時間軸預覽（可拉動） -->
+                    <StackPanel Margin="0,0,0,20">
+
+                        <!-- 摘要文字 -->
+                        <TextBlock x:Name="SleepTimelineSummary"
+                                   FontSize="{StaticResource FontSizeBase}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   Margin="0,0,0,12"
+                                   TextWrapping="Wrap"/>
+
+                        <!-- 可拉動時間軸 Canvas（精緻現代風格，底部時間刻度） -->
+                        <Canvas x:Name="TimelineCanvas"
+                                Height="108"
+                                Background="{DynamicResource BgTertiary}"
+                                ClipToBounds="True"
+                                SizeChanged="TimelineCanvas_SizeChanged"
+                                MouseLeftButtonDown="TimelineCanvas_MouseLeftButtonDown"
+                                MouseMove="TimelineCanvas_MouseMove"
+                                MouseLeftButtonUp="TimelineCanvas_MouseLeftButtonUp"
+                                MouseLeave="TimelineCanvas_MouseLeave"/>
+
+                        <!-- 圖例（圓形色點 + 名稱 + 時長） -->
+                        <WrapPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource AccentSecondary}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Settings_PreSleepLabel}"
+                                           Margin="6,0,4,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="LegendBufferDuration" Text="--"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource AccentPrimary}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Settings_SleepTimeLabel}"
+                                           Margin="6,0,4,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="LegendSleepDuration" Text="--"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource StatusInfo}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Settings_WashTimeLabel}"
+                                           Margin="6,0,4,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="LegendWashDuration" Text="--"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource StatusWarning}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Settings_BreakfastTimeLabel}"
+                                           Margin="6,0,4,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="LegendBreakfastDuration" Text="--"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource StatusSuccess}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Settings_CommuteTimeLabel}"
+                                           Margin="6,0,4,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextSecondary}"/>
+                                <TextBlock x:Name="LegendCommuteDuration" Text="--"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeXS}"
+                                           Foreground="{DynamicResource TextTertiary}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="220"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -89,14 +186,27 @@
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Right"
                                     Margin="0,0,0,12">
-                            <TextBox x:Name="SleepTimeTextBox"
-                                     Width="80"
+                            <TextBox x:Name="SleepHoursTextBox"
+                                     Width="72"
                                      MinHeight="40"
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="小時" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondary}"
+                                       FontSize="{StaticResource FontSizeSM}"
+                                       Margin="8,0,12,0"/>
+                            <TextBox x:Name="SleepMinutesTextBox"
+                                     Width="72"
+                                     MinHeight="40"
+                                     Padding="8,0"
+                                     HorizontalContentAlignment="Center"
+                                     VerticalContentAlignment="Center"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="分鐘" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondary}"
                                        FontSize="{StaticResource FontSizeSM}"
                                        Margin="8,0,0,0"/>
@@ -118,7 +228,8 @@
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
                             <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondary}"
                                        FontSize="{StaticResource FontSizeSM}"
@@ -141,7 +252,8 @@
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
                             <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondary}"
                                        FontSize="{StaticResource FontSizeSM}"
@@ -164,7 +276,8 @@
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
                             <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondary}"
                                        FontSize="{StaticResource FontSizeSM}"
@@ -185,7 +298,8 @@
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
                                      VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     TextChanged="SleepInput_TextChanged"/>
                             <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondary}"
                                        FontSize="{StaticResource FontSizeSM}"
@@ -207,7 +321,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="220"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -229,7 +343,7 @@
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Right">
                             <TextBox x:Name="CutoffHourTextBox"
-                                     Width="80"
+                                     Width="72"
                                      MinHeight="40"
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"
@@ -257,7 +371,7 @@
                                     HorizontalAlignment="Right"
                                     Margin="0,12,0,0">
                             <TextBox x:Name="DelayQuotaTextBox"
-                                     Width="80"
+                                     Width="72"
                                      MinHeight="40"
                                      Padding="8,0"
                                      HorizontalContentAlignment="Center"

@@ -38,6 +38,7 @@ public class BehaviorOrchestrator
     private readonly ICycleStateService _cycleStateService;
     private readonly ILocalizationService _localization;
     private readonly IClock _clock;
+    private readonly PowerManagementService _powerManagement;
     private readonly object _lock = new();
 
     private BehaviorContext? _context;
@@ -74,6 +75,12 @@ public class BehaviorOrchestrator
     /// <summary>通勤時間。預設 1 小時 45 分鐘。</summary>
     public TimeSpan CommuteTime { get; set; } = TimingCalculator.DefaultCommuteTime;
 
+    /// <summary>
+    /// AI 通宵模式監控的進程名稱清單（逗號分隔，不含副檔名）。
+    /// 由 App.ApplyOrchestratorSettings 從設定載入。
+    /// </summary>
+    public string AIMonitoredProcesses { get; set; } = "claude,trae,dsh,code,ollama,llama-server";
+
     public event EventHandler<BehaviorStateChangedEventArgs>? StateChanged;
 
     public BehaviorOrchestrator(
@@ -82,6 +89,7 @@ public class BehaviorOrchestrator
         INotificationService notificationService,
         ICycleStateService cycleStateService,
         ILocalizationService localization,
+        PowerManagementService powerManagement,
         IClock? clock = null)
     {
         _calendarService = calendarService;
@@ -89,6 +97,7 @@ public class BehaviorOrchestrator
         _notificationService = notificationService;
         _cycleStateService = cycleStateService;
         _localization = localization;
+        _powerManagement = powerManagement;
         _clock = clock ?? SystemClock.Instance;
     }
 
@@ -174,6 +183,8 @@ public class BehaviorOrchestrator
 
     /// <summary>
     /// User pressed delay button. Accepts custom duration (default 30 min).
+    /// Idle/PreWarning: 延後 Timing（PreWarningTime/WarningTime 都延後），還在原狀態。
+    /// Warning: 進入 Delayed 狀態。
     /// </summary>
     public async Task<bool> OnDelayRequestedAsync(TimeSpan? duration = null)
     {
@@ -183,7 +194,11 @@ public class BehaviorOrchestrator
             ctx = _context;
         }
 
-        if (ctx == null || ctx.State != BehaviorState.Warning)
+        if (ctx == null)
+            return false;
+
+        // 只有 Idle/PreWarning/Warning 狀態可以延後，其他狀態直接拒絕（不扣額度、不計次數）
+        if (ctx.State != BehaviorState.Idle && ctx.State != BehaviorState.PreWarning && ctx.State != BehaviorState.Warning)
             return false;
 
         var delayAmount = duration ?? ctx.DelayIncrement;
@@ -212,6 +227,41 @@ public class BehaviorOrchestrator
         }
 
         ctx.CurrentCycle.DelayCount++;
+
+        // Idle/PreWarning: 延後 Timing，還在原狀態
+        if (ctx.State == BehaviorState.Idle || ctx.State == BehaviorState.PreWarning)
+        {
+            ctx.PreWarningDelayMinutes += (int)delayAmount.TotalMinutes;
+
+            // 延後 Timing：PreWarningTime 和 WarningTime 都延後
+            ctx.Timing = ShiftTiming(ctx.Timing, (int)delayAmount.TotalMinutes);
+
+            // 存起來（重啟還原）
+            _cycleStateService.SaveCycleState(ctx, "prewarning_delay", (int)delayAmount.TotalMinutes,
+                $"延後 PreWarning/Warning {delayAmount.TotalMinutes} 分鐘");
+
+            LoggerService.Info($"Orchestrator: Idle/PreWarning 延後 {delayAmount.TotalMinutes} 分鐘，PreWarningTime → {ctx.Timing.PreWarningTime}, WarningTime → {ctx.Timing.WarningTime}");
+
+            // 觸發 StateChanged 通知 UI 更新（Timing 變了）
+            StateChanged?.Invoke(this, new BehaviorStateChangedEventArgs
+            {
+                OldState = ctx.State,
+                NewState = ctx.State,
+                CurrentCycle = ctx.CurrentCycle,
+                Timing = ctx.Timing
+            });
+
+            await _notificationService.ShowDelayConfirmationAsync(
+                delayAmount,
+                ctx.CurrentCycle.QuotaRemaining,
+                ctx.Timing.IsUnlimitedManualDelay);
+            return true;
+        }
+
+        // Warning: 進入 Delayed 狀態
+        if (ctx.State != BehaviorState.Warning)
+            return false;
+
         ctx.NextActionTime = now.Plus(Duration.FromTimeSpan(delayAmount));
 
         lock (_lock)
@@ -227,6 +277,28 @@ public class BehaviorOrchestrator
             ctx.CurrentCycle.QuotaRemaining,
             ctx.Timing.IsUnlimitedManualDelay);
         return true;
+    }
+
+    /// <summary>
+    /// 複製 ScheduleTiming 並將 PreWarningTime/WarningTime 延後指定分鐘數。
+    /// （ScheduleTiming 是 class 且屬性為 init-only，無法用 with 語法）
+    /// </summary>
+    private static ScheduleTiming ShiftTiming(ScheduleTiming t, int delayMinutes)
+    {
+        var period = Period.FromMinutes(delayMinutes);
+        return new ScheduleTiming
+        {
+            Classification = t.Classification,
+            PreWarningTime = t.PreWarningTime.Plus(period),
+            WarningTime = t.WarningTime.Plus(period),
+            HardShutdownTime = t.HardShutdownTime,
+            FirstClassTime = t.FirstClassTime,
+            TotalQuota = t.TotalQuota,
+            IsUnlimitedManualDelay = t.IsUnlimitedManualDelay,
+            MinimumWarningInsuranceApplied = t.MinimumWarningInsuranceApplied,
+            OriginalWarningTime = t.OriginalWarningTime,
+            IsHoliday = t.IsHoliday
+        };
     }
 
     /// <summary>
@@ -261,6 +333,81 @@ public class BehaviorOrchestrator
     }
 
     /// <summary>
+    /// 取得目前正在執行的 AI 監控進程名稱清單（去重、小寫比對）。
+    /// </summary>
+    public IReadOnlyList<string> GetRunningAIProcessNames()
+    {
+        var monitored = AIMonitoredProcesses
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(p => p.ToLowerInvariant())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (monitored.Count == 0)
+            return Array.Empty<string>();
+
+        var running = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            foreach (var proc in Process.GetProcesses())
+            {
+                try
+                {
+                    var name = proc.ProcessName.ToLowerInvariant();
+                    if (monitored.Contains(name))
+                        running.Add(proc.ProcessName);
+                }
+                catch { /* 忽略無法存取的進程 */ }
+                finally
+                {
+                    try { proc.Dispose(); } catch { }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Warn($"Orchestrator: 列舉 AI 進程失敗: {ex.Message}");
+        }
+        return running.ToList();
+    }
+
+    /// <summary>是否有任何受監控的 AI 進程正在執行。</summary>
+    public bool HasRunningAIProcesses() => GetRunningAIProcessNames().Count > 0;
+
+    /// <summary>
+    /// 進入 AI 通宵模式（以「偵測到正在執行的 AI 進程」為由）。
+    /// 防止系統睡眠、顯示通知、狀態切換為 AIMode，由計時器輪詢進程退出。
+    /// </summary>
+    public async Task EnterAIModeForRunningProcessesAsync()
+    {
+        BehaviorContext? ctx;
+        lock (_lock)
+        {
+            ctx = _context;
+        }
+        if (ctx == null || ctx.IsAIModeActive)
+            return;
+
+        var running = GetRunningAIProcessNames();
+        if (running.Count == 0)
+            return;
+
+        var desc = $"AI 進程執行中：{string.Join(", ", running)}";
+        LoggerService.Info($"Orchestrator: 偵測到 AI 進程，進入 AI 通宵模式: {desc}");
+
+        ctx.IsAIModeActive = true;
+        ctx.IsAIModeProcessDetection = true;
+        ctx.AITaskDescription = desc;
+        _powerManagement.PreventSleep();
+
+        lock (_lock)
+        {
+            ChangeState(ctx, BehaviorState.AIMode);
+        }
+
+        await _notificationService.ShowAIModeStartedAsync(desc);
+    }
+
+    /// <summary>
     /// User pressed AI overnight mode button. Starts the external process and
     /// transitions to AIMode state. When the process exits, OnAIModeCompletedAsync
     /// is invoked automatically (success = exit code 0).
@@ -277,7 +424,9 @@ public class BehaviorOrchestrator
             return;
 
         ctx.IsAIModeActive = true;
+        ctx.IsAIModeProcessDetection = false;
         ctx.AITaskDescription = description;
+        _powerManagement.PreventSleep();
 
         lock (_lock)
         {
@@ -419,7 +568,9 @@ public class BehaviorOrchestrator
             success);
 
         ctx.IsAIModeActive = false;
+        ctx.IsAIModeProcessDetection = false;
         ctx.AITaskDescription = null;
+        _powerManagement.AllowSleep();
 
         if (success)
         {
@@ -526,6 +677,13 @@ public class BehaviorOrchestrator
         if (context.State != BehaviorState.Disabled)
         {
             _cycleStateService.RestoreContextState(context, hkNow);
+
+            // 如果還原了 PreWarningDelayMinutes，需要重新延後 Timing
+            if (context.PreWarningDelayMinutes > 0)
+            {
+                context.Timing = ShiftTiming(context.Timing, context.PreWarningDelayMinutes);
+                LoggerService.Info($"Orchestrator: 還原 PreWarning 延後 {context.PreWarningDelayMinutes} 分鐘，PreWarningTime → {context.Timing.PreWarningTime}, WarningTime → {context.Timing.WarningTime}");
+            }
         }
 
         // 若還原後仍為 Idle，但目前時間已過預警或警告時間，直接跳到對應狀態，
@@ -588,12 +746,28 @@ public class BehaviorOrchestrator
                 var (fullEvents, fullStatus, _) = await _calendarService.GetScheduleAsync(safeUrl);
                 if (fullEvents.Count > 0)
                 {
+                    BehaviorContext? ctxToNotify = null;
                     lock (_lock)
                     {
                         if (_context != null)
+                        {
                             _context.Events = fullEvents;
+                            ctxToNotify = _context;
+                        }
                     }
                     LoggerService.Info($"Orchestrator: 背景完整日曆抓取完成, 事件數={fullEvents.Count}");
+
+                    // 觸發 UI 更新（7 天預覽需使用完整事件列表）
+                    if (ctxToNotify != null)
+                    {
+                        StateChanged?.Invoke(this, new BehaviorStateChangedEventArgs
+                        {
+                            OldState = ctxToNotify.State,
+                            NewState = ctxToNotify.State,
+                            CurrentCycle = ctxToNotify.CurrentCycle,
+                            Timing = ctxToNotify.Timing
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -664,7 +838,12 @@ public class BehaviorOrchestrator
                     break;
 
                 case BehaviorState.AIMode:
-                    // Waiting for AI completion callback
+                    // 偵測模式：輪詢受監控 AI 進程是否全部退出
+                    if (ctx.IsAIModeProcessDetection && !HasRunningAIProcesses())
+                    {
+                        LoggerService.Info("Orchestrator: AI 進程已全部退出，準備關機");
+                        await OnAIModeCompletedAsync(true);
+                    }
                     break;
 
                 case BehaviorState.ForceShutdown:
@@ -734,6 +913,19 @@ public class BehaviorOrchestrator
         }
     }
 
+    /// <summary>
+    /// 自動關機前檢查：若有受監控的 AI 進程正在執行，改為進入 AI 通宵模式。
+    /// 回傳 true 表示已進入 AI 模式，呼叫端不應繼續關機。
+    /// </summary>
+    private async Task<bool> TryEnterAIModeIfProcessesRunningAsync()
+    {
+        if (!HasRunningAIProcesses())
+            return false;
+
+        await EnterAIModeForRunningProcessesAsync();
+        return true;
+    }
+
     private async Task HandleWarningStateAsync(BehaviorContext ctx, LocalTime currentTime, ZonedDateTime now)
     {
         // 無回應寬限期（5 分鐘）
@@ -744,6 +936,9 @@ public class BehaviorOrchestrator
             // 已用過一次自動延遲，仍無回應 → 直接關機
             if (ctx.AutoDelayUsed)
             {
+                // 若有 AI 進程在跑，改為進入 AI 通宵模式
+                if (await TryEnterAIModeIfProcessesRunningAsync()) return;
+
                 lock (_lock)
                 {
                     ChangeState(ctx, BehaviorState.ShuttingDown);
@@ -757,6 +952,9 @@ public class BehaviorOrchestrator
             // 早課日配額不足時直接關機，不延遲
             if (!ctx.Timing.IsUnlimitedManualDelay && ctx.CurrentCycle.QuotaRemaining < ctx.DelayIncrement)
             {
+                // 若有 AI 進程在跑，改為進入 AI 通宵模式
+                if (await TryEnterAIModeIfProcessesRunningAsync()) return;
+
                 lock (_lock)
                 {
                     ChangeState(ctx, BehaviorState.ShuttingDown);
@@ -819,6 +1017,9 @@ public class BehaviorOrchestrator
     {
         if (ctx.NextActionTime.HasValue && now.ToInstant() >= ctx.NextActionTime.Value.ToInstant())
         {
+            // 若有 AI 進程在跑，改為進入 AI 通宵模式（不強制關機）
+            if (await TryEnterAIModeIfProcessesRunningAsync()) return;
+
             lock (_lock)
             {
                 ChangeState(ctx, BehaviorState.ShuttingDown);

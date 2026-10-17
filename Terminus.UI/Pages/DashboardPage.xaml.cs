@@ -173,6 +173,7 @@ public partial class DashboardPage : Page
         // - 延遲中：顯示延遲到期時間（警告重現時間）
         // - 警告中：顯示警告時間（已觸發）
         // - 預警中/閒置：顯示排程警告時間，若已過則顯示 --
+        // - Idle/PreWarning 延後過：顯示延後後的警告時間（含延後標記）
         if (context.State == BehaviorState.Delayed || context.State == BehaviorState.AutoDelaying)
         {
             if (context.NextActionTime.HasValue)
@@ -187,10 +188,39 @@ public partial class DashboardPage : Page
         else if (context.Timing.WarningTime != LocalTime.Midnight)
         {
             var nowTime = new LocalTime(now.Hour, now.Minute);
-            if (nowTime < context.Timing.WarningTime)
-                WarningTimeText.Text = context.Timing.WarningTime.ToString("HH:mm", null);
+            var warningTime = context.Timing.WarningTime;
+            // 處理跨午夜：警告時間在凌晨（00:00~11:59），當前時間在晚上（12:00~23:59），警告尚未到來
+            bool isWarningAhead;
+            if (warningTime.Hour < 12 && nowTime.Hour >= 12)
+            {
+                // 警告時間在明天凌晨，當前在晚上 → 警告還沒到
+                isWarningAhead = true;
+            }
+            else if (warningTime.Hour >= 12 && nowTime.Hour < 12)
+            {
+                // 警告時間在晚上，當前在凌晨 → 警告已過
+                isWarningAhead = false;
+            }
             else
+            {
+                // 同一時段，直接比較
+                isWarningAhead = nowTime < warningTime;
+            }
+
+            if (isWarningAhead)
+            {
+                var timeStr = warningTime.ToString("HH:mm", null);
+                // 如果有 PreWarning 延後，加上標記
+                if (context.PreWarningDelayMinutes > 0)
+                {
+                    timeStr += $" (延後{context.PreWarningDelayMinutes}分)";
+                }
+                WarningTimeText.Text = timeStr;
+            }
+            else
+            {
                 WarningTimeText.Text = "--";
+            }
         }
         else
         {
@@ -445,15 +475,6 @@ public partial class DashboardPage : Page
 
     private async void AIModeButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new AIModeDialog
-        {
-            Owner = Window.GetWindow(this)
-        };
-        dialog.ShowDialog();
-
-        if (dialog.DialogResult != true)
-            return;
-
         var orchestrator = App.Services.GetService(typeof(BehaviorOrchestrator)) as BehaviorOrchestrator;
         if (orchestrator == null)
         {
@@ -464,12 +485,33 @@ public partial class DashboardPage : Page
             return;
         }
 
+        // 取得目前正在執行的 AI 進程，傳入對話框供使用者選擇「監控」
+        var running = orchestrator.GetRunningAIProcessNames();
+
+        var dialog = new AIModeDialog(running)
+        {
+            Owner = Window.GetWindow(this)
+        };
+        dialog.ShowDialog();
+
+        if (dialog.DialogResult != true)
+            return;
+
         try
         {
-            await orchestrator.OnAIModeRequestedAsync(
-                dialog.CommandLine,
-                dialog.WorkingDirectory,
-                dialog.Description);
+            if (dialog.UseProcessDetection)
+            {
+                // 監控正在執行的 AI 進程，等它們結束後關機
+                await orchestrator.EnterAIModeForRunningProcessesAsync();
+            }
+            else
+            {
+                // 手動啟動指定命令
+                await orchestrator.OnAIModeRequestedAsync(
+                    dialog.CommandLine,
+                    dialog.WorkingDirectory,
+                    dialog.Description);
+            }
         }
         catch (Exception ex)
         {

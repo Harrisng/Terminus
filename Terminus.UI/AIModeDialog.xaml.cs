@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using Terminus.UI.Windows;
 
@@ -5,13 +7,39 @@ namespace Terminus.UI;
 
 public partial class AIModeDialog : Window
 {
+    /// <summary>使用者選擇「監控正在執行的 AI 進程」模式。</summary>
+    public bool UseProcessDetection { get; private set; }
+
     public string CommandLine { get; private set; } = string.Empty;
     public string WorkingDirectory { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
 
-    public AIModeDialog()
+    private readonly IReadOnlyList<string> _runningProcesses;
+
+    public AIModeDialog(IReadOnlyList<string>? runningProcesses = null)
     {
         InitializeComponent();
+        _runningProcesses = runningProcesses ?? new List<string>();
+
+        if (_runningProcesses.Count > 0)
+        {
+            RunningProcessesText.Text = string.Join("、", _runningProcesses);
+            MonitorButton.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            RunningProcessesText.Text = TryFindResource("AIMode_NoRunningProcess") as string ?? "目前沒有偵測到正在執行的 AI 進程";
+            MonitorButton.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    /// <summary>監控正在執行的 AI 進程，等它們結束後再關機。</summary>
+    private void MonitorButton_Click(object sender, RoutedEventArgs e)
+    {
+        UseProcessDetection = true;
+        Description = $"AI 進程執行中：{string.Join(", ", _runningProcesses)}";
+        DialogResult = true;
+        Close();
     }
 
     private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -26,6 +54,7 @@ public partial class AIModeDialog : Window
             return;
         }
 
+        UseProcessDetection = false;
         CommandLine = cmd;
         WorkingDirectory = WorkDirTextBox.Text.Trim();
         Description = string.IsNullOrEmpty(DescriptionTextBox.Text.Trim())

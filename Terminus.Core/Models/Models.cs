@@ -279,6 +279,9 @@ public class CycleStateData
     public string? NextActionTime { get; set; }
     /// <summary>是否已用過自動延遲（重啟還原用，防止重啟後重複自動延遲）</summary>
     public bool AutoDelayUsed { get; set; }
+
+    /// <summary>PreWarning 階段延後的分鐘數（重啟還原用）</summary>
+    public int PreWarningDelayMinutes { get; set; }
 }
 
 /// <summary>
@@ -436,9 +439,14 @@ public class BehaviorContext
     public TimeSpan DelayIncrement { get; set; } = TimeSpan.FromMinutes(30);
     public bool IsAIModeActive { get; set; }
     public string? AITaskDescription { get; set; }
+    /// <summary>AI 模式是否為「偵測到正在執行的 AI 進程」觸發（需輪詢進程退出）。</summary>
+    public bool IsAIModeProcessDetection { get; set; }
     /// <summary>本輪警告是否已用過一次自動延遲。用過後再無回應就直接關機。</summary>
     public bool AutoDelayUsed { get; set; }
     public List<CalendarEvent> Events { get; set; } = new();
     /// <summary>香港公眾假期列表（供 ScheduleClassifier 與 UI 使用，可能為 null 表示尚未抓取）。</summary>
     public List<PublicHoliday>? Holidays { get; set; }
+
+    /// <summary>PreWarning 階段累計延後的分鐘數（Idle/PreWarning 狀態延後時累加）。</summary>
+    public int PreWarningDelayMinutes { get; set; }
 }

@@ -100,6 +100,7 @@
     <sys:String x:Key="Settings_CalendarUrlHint">Get the webcal:// or https:// address from your calendar</sys:String>
     <sys:String x:Key="Settings_SleepCardTitle">Sleep</sys:String>
     <sys:String x:Key="Settings_SleepCardDesc">Sleep duration and buffers</sys:String>
+    <sys:String x:Key="SleepTimeline_SummaryFormat">Bedtime {0} → Wake {1} → Arrive {2} (Total {3})</sys:String>
     <sys:String x:Key="Settings_SleepTimeLabel">Sleep duration</sys:String>
     <sys:String x:Key="Settings_PreSleepLabel">Pre-sleep buffer</sys:String>
     <sys:String x:Key="Settings_WashTimeLabel">Wash time</sys:String>
@@ -256,6 +257,10 @@
     <sys:String x:Key="AIMode_NotAvailable">AI mode cannot be started right now.</sys:String>
     <sys:String x:Key="AIMode_StartFailed">AI mode start failed</sys:String>
     <sys:String x:Key="AIMode_StartFailedBody">Unable to start AI mode: {0}</sys:String>
+    <sys:String x:Key="AIMode_RunningProcesses">Detected AI processes</sys:String>
+    <sys:String x:Key="AIMode_MonitorRunning">Monitor these processes, shut down when done</sys:String>
+    <sys:String x:Key="AIMode_NoRunningProcess">No AI processes detected</sys:String>
+    <sys:String x:Key="AIMode_OrLaunch">or launch manually with command line</sys:String>
 
     <!-- ════════════ Errors and startup ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus Error</sys:String>

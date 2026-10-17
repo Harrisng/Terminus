@@ -100,6 +100,7 @@
     <sys:String x:Key="Settings_CalendarUrlHint">从你的日历获取 webcal:// 或 https:// 地址</sys:String>
     <sys:String x:Key="Settings_SleepCardTitle">睡眠设置</sys:String>
     <sys:String x:Key="Settings_SleepCardDesc">设置睡眠时长与缓冲</sys:String>
+    <sys:String x:Key="SleepTimeline_SummaryFormat">预计 {0} 就寝 → {1} 起床 → {2} 抵达（总计 {3}）</sys:String>
     <sys:String x:Key="Settings_SleepTimeLabel">睡眠时长</sys:String>
     <sys:String x:Key="Settings_PreSleepLabel">前置缓冲</sys:String>
     <sys:String x:Key="Settings_WashTimeLabel">洗漱时间</sys:String>
@@ -122,7 +123,7 @@
     <sys:String x:Key="Settings_CacheClearedSuccess">缓存已清除成功。</sys:String>
     <sys:String x:Key="Settings_DiagnosticsCardTitle">诊断工具</sys:String>
     <sys:String x:Key="Settings_DiagnosticsCardDesc">查看系统日志与延迟历史记录，排查问题。</sys:String>
-    <sys:String x:Key="Settings_HourUnit">时</sys:String>
+    <sys:String x:Key="Settings_HourUnit">小时</sys:String>
     <sys:String x:Key="Settings_InitError">设置页面初始化失败：{0}</sys:String>
     <sys:String x:Key="Settings_SettingsSavedSuccess">设置已保存，日历数据已即时载入。</sys:String>
     <sys:String x:Key="Settings_ValidationError">验证错误</sys:String>
@@ -256,6 +257,10 @@
     <sys:String x:Key="AIMode_NotAvailable">AI 模式目前无法启动。</sys:String>
     <sys:String x:Key="AIMode_StartFailed">AI 模式启动失败</sys:String>
     <sys:String x:Key="AIMode_StartFailedBody">无法启动 AI 模式：{0}</sys:String>
+    <sys:String x:Key="AIMode_RunningProcesses">当前检测到的 AI 进程</sys:String>
+    <sys:String x:Key="AIMode_MonitorRunning">监控这些进程，结束后关机</sys:String>
+    <sys:String x:Key="AIMode_NoRunningProcess">当前没有检测到正在运行的 AI 进程</sys:String>
+    <sys:String x:Key="AIMode_OrLaunch">或手动输入命令行启动</sys:String>
 
     <!-- ════════════ 错误与启动 ════════════ -->
     <sys:String x:Key="Error_AppTitle">Terminus 错误</sys:String>
