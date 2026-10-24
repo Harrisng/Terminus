@@ -510,7 +510,7 @@ public partial class DashboardPage : Page
 
             var chip = new Border
             {
-                CornerRadius = new CornerRadius(999),
+                CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(8, 3, 8, 3),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center
