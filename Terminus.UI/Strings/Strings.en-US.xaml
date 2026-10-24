@@ -18,6 +18,7 @@
     <sys:String x:Key="Nav_AppSubtitle">Sleep Cycle Manager</sys:String>
     <sys:String x:Key="Nav_Dashboard">Dashboard</sys:String>
     <sys:String x:Key="Nav_Calendar">Calendar</sys:String>
+    <sys:String x:Key="Calendar_Refresh">Refresh calendar</sys:String>
     <sys:String x:Key="Nav_Settings">Settings</sys:String>
     <sys:String x:Key="Nav_MainMenu">Main menu</sys:String>
     <sys:String x:Key="Nav_DarkMode">Dark mode</sys:String>

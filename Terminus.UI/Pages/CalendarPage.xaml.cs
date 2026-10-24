@@ -145,7 +145,7 @@ public partial class CalendarPage : Page
         await RefreshEventsAsync();
     }
 
-    public async Task RefreshEventsAsync()
+    public async Task RefreshEventsAsync(bool forceRefresh = false)
     {
         try
         {
@@ -162,7 +162,14 @@ public partial class CalendarPage : Page
 
             Terminus.Core.Services.LoggerService.Info($"CalendarPage: 正在載入日曆, URL={url.Substring(0, Math.Min(60, url.Length))}...");
 
-            var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(url);
+            var (events, status, cacheAge) = await _calendarService.GetScheduleAsync(url, forceRefresh: forceRefresh);
+
+            // 無快取時（例如快取被清掉）自動補救一次強制抓取，避免月曆空白
+            if (!forceRefresh && events.Count == 0 && status == CacheStatus.Default)
+            {
+                Terminus.Core.Services.LoggerService.Info("CalendarPage: 快取為空，自動改為強制抓取");
+                (events, status, cacheAge) = await _calendarService.GetScheduleAsync(url, forceRefresh: true);
+            }
 
             Terminus.Core.Services.LoggerService.Info($"CalendarPage: 載入完成, 事件數={events.Count}, 狀態={status}, 快取年齡={cacheAge}h");
 
@@ -191,6 +198,20 @@ public partial class CalendarPage : Page
     public void RefreshEvents()
     {
         _ = RefreshEventsAsync();
+    }
+
+    /// <summary>手動刷新按鈕：強制聯網重拉行事曆。</summary>
+    private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+    {
+        RefreshButton.IsEnabled = false;
+        try
+        {
+            await RefreshEventsAsync(forceRefresh: true);
+        }
+        finally
+        {
+            RefreshButton.IsEnabled = true;
+        }
     }
 
     // --- View Toggle ---

@@ -18,6 +18,7 @@
     <sys:String x:Key="Nav_AppSubtitle">睡眠週期管理</sys:String>
     <sys:String x:Key="Nav_Dashboard">儀表板</sys:String>
     <sys:String x:Key="Nav_Calendar">月曆</sys:String>
+    <sys:String x:Key="Calendar_Refresh">重新整理行事曆</sys:String>
     <sys:String x:Key="Nav_Settings">設定</sys:String>
     <sys:String x:Key="Nav_MainMenu">主選單</sys:String>
     <sys:String x:Key="Nav_DarkMode">深色模式</sys:String>
