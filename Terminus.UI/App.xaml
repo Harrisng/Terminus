@@ -5,8 +5,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Default theme (Dark) -->
-                <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
+                <!-- Default theme (Light) -->
+                <ResourceDictionary Source="Themes/LightTheme.xaml"/>
                 <!-- Default language (Traditional Chinese) -->
                 <ResourceDictionary Source="Strings/Strings.zh-TW.xaml"/>
                 <!-- Shared UI styles -->

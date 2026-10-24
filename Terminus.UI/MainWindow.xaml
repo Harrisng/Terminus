@@ -1,118 +1,190 @@
 <Window x:Class="Terminus.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{DynamicResource Nav_AppSubtitle}"
-        Width="1000" Height="650"
-        MinWidth="800" MinHeight="550"
+        Title="Terminus"
+        Width="1180" Height="780"
+        MinWidth="960" MinHeight="640"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="CanResize"
-        Background="{DynamicResource BgPrimary}">
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display">
 
-    <Border Background="{DynamicResource BgPrimary}" BorderThickness="0">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="44"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Border x:Name="RootFrame"
+            Background="{DynamicResource WindowAmbientGradient}"
+            BorderBrush="{DynamicResource GlassStroke}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource CornerRadiusWindow}">
 
-            <!-- Sidebar Header -->
-            <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource BgSidebar}" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,1,0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Border Width="20" Height="20" CornerRadius="5" Background="Transparent">
-                        <Image Source="pack://application:,,,/Resources/Terminus_logo.png" Stretch="Uniform"/>
-                    </Border>
-                    <TextBlock Text="{DynamicResource Nav_AppName}"
-                               FontSize="{StaticResource FontSizeBase}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextPrimary}"
-                               Margin="10,0,0,0"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+        <Grid x:Name="RootClipHost" SnapsToDevicePixels="True">
 
-            <!-- Title Bar -->
-            <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource BgHeader}" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,0,1">
-                <TextBlock x:Name="PageTitle"
-                           Text="{DynamicResource Nav_Dashboard}"
-                           FontSize="{StaticResource FontSizeBase}"
-                           FontWeight="Medium"
-                           Foreground="{DynamicResource TextPrimary}"
-                           VerticalAlignment="Center"
-                           Margin="16,0,0,0"/>
-            </Border>
+            <!-- ══════ 環境光層（玻璃折射的偽造） ══════ -->
+            <Grid IsHitTestVisible="False">
+                <Ellipse Width="760" Height="560" HorizontalAlignment="Left" VerticalAlignment="Top"
+                         Margin="-220,-260,0,0" Fill="{DynamicResource AmbientIndigo}"/>
+                <Ellipse Width="700" Height="520" HorizontalAlignment="Right" VerticalAlignment="Top"
+                         Margin="0,-240,-200,0" Fill="{DynamicResource AmbientCyan}"/>
+                <Ellipse Width="760" Height="560" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                         Margin="0,0,-180,-240" Fill="{DynamicResource AmbientPink}"/>
+                <Ellipse Width="700" Height="520" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                         Margin="-220,0,0,-230" Fill="{DynamicResource AmbientMint}"/>
+                <Ellipse Width="640" Height="480" HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Fill="{DynamicResource AmbientCenter}"/>
+            </Grid>
 
-            <!-- Sidebar -->
-            <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource BgSidebar}" BorderBrush="{DynamicResource BorderPrimary}" BorderThickness="0,0,1,0">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Margin="0,12,0,0">
-                        <TextBlock Text="{DynamicResource Nav_MainMenu}"
-                                   FontSize="{StaticResource FontSizeXS}"
-                                   Foreground="{DynamicResource TextMuted}"
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="46"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ══════ 自繪 macOS 標題列 ══════ -->
+                <Border x:Name="TitleBar"
+                        Grid.Row="0"
+                        Background="{DynamicResource BgHeader}"
+                        BorderBrush="{DynamicResource BorderSecondary}"
+                        BorderThickness="0,0,0,1"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="16,0,0,0">
+                            <Button x:Name="BtnClose" Style="{StaticResource TrafficCloseStyle}"
+                                    Click="BtnClose_Click" ToolTip="關閉"/>
+                            <Button x:Name="BtnMinimize" Style="{StaticResource TrafficMinStyle}"
+                                    Margin="8,0,0,0" Click="BtnMinimize_Click" ToolTip="最小化"/>
+                            <Button x:Name="BtnMaximize" Style="{StaticResource TrafficMaxStyle}"
+                                    Margin="8,0,0,0" Click="BtnMaximize_Click" ToolTip="最大化"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="PageTitle"
+                                   Text="{DynamicResource Nav_Dashboard}"
+                                   FontSize="13"
                                    FontWeight="SemiBold"
-                                   Margin="24,0,24,8"/>
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
 
-                        <Button x:Name="NavDashboard"
-                                Style="{StaticResource NavItemActiveStyle}"
-                                Click="NavDashboard_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📊" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="{DynamicResource Nav_Dashboard}" VerticalAlignment="Center"/>
+                <!-- ══════ 主體 ══════ -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="228"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 側邊欄 -->
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource SidebarGradient}"
+                            BorderBrush="{DynamicResource GlassStrokeSoft}"
+                            BorderThickness="0,0,1,0">
+                        <DockPanel>
+                            <!-- 品牌 -->
+                            <StackPanel DockPanel.Dock="Top" Margin="18,14,18,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="28" Height="28" CornerRadius="7" Background="#0DFFFFFF">
+                                        <Image Source="pack://application:,,,/Resources/Terminus_logo.png"
+                                               Stretch="Uniform" Margin="1"/>
+                                    </Border>
+                                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{DynamicResource Nav_AppName}"
+                                                   FontSize="13.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimary}"/>
+                                        <TextBlock Text="{DynamicResource Nav_AppSubtitle}"
+                                                   FontSize="10.5"
+                                                   Foreground="{DynamicResource TextTertiary}"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
-                        </Button>
 
-                        <Button x:Name="NavCalendar"
-                                Style="{StaticResource NavItemStyle}"
-                                Click="NavCalendar_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📅" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="{DynamicResource Nav_Calendar}" VerticalAlignment="Center"/>
+                            <!-- 底部工具 -->
+                            <StackPanel DockPanel.Dock="Bottom" Margin="12,0,12,12">
+                                <Border Height="1" Background="{DynamicResource BorderSecondary}" Margin="6,8,6,8"/>
+                                <Button x:Name="ThemeToggleButton"
+                                        Style="{StaticResource BottomActionStyle}"
+                                        Click="ThemeToggleButton_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="15" Height="15" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path x:Name="ThemeIcon" Style="{StaticResource FootIconStyle}"
+                                                  Data="M13.2 3.4a6.8 6.8 0 1 0 3.4 11.5 5.6 5.6 0 0 1-3.4-11.5z"/>
+                                        </Viewbox>
+                                        <TextBlock x:Name="ThemeText" Text="{DynamicResource Nav_DarkMode}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="MinimizeButton"
+                                        Style="{StaticResource BottomActionStyle}"
+                                        Click="MinimizeButton_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="15" Height="15" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path Style="{StaticResource FootIconStyle}"
+                                                  Data="M10 3v8m0 0 3-3m-3 3L7 8M3.5 12.5v2A2.5 2.5 0 0 0 6 17h8a2.5 2.5 0 0 0 2.5-2.5v-2"/>
+                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource Nav_MinimizeToTray}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
-                        </Button>
 
-                        <Button x:Name="NavSettings"
-                                Style="{StaticResource NavItemStyle}"
-                                Click="NavSettings_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="⚙️" FontSize="15" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock Text="{DynamicResource Nav_Settings}" VerticalAlignment="Center"/>
+                            <!-- 導覽 -->
+                            <StackPanel DockPanel.Dock="Top" Margin="12,0,12,0">
+                                <TextBlock Text="{DynamicResource Nav_MainMenu}"
+                                           FontSize="{DynamicResource FontSizeXS}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextTertiary}"
+                                           Margin="10,0,10,6"/>
+
+                                <Button x:Name="NavDashboard"
+                                        Style="{StaticResource NavItemActiveStyle}"
+                                        Click="NavDashboard_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path Style="{StaticResource NavIconStyle}"
+                                                  Data="M4 15.5V10M10 15.5V5M16 15.5v-3M2.5 17h15"/>
+                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource Nav_Dashboard}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="NavCalendar"
+                                        Style="{StaticResource NavItemStyle}"
+                                        Click="NavCalendar_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path Style="{StaticResource NavIconStyle}"
+                                                  Data="M5.6 4.5h8.8a2.6 2.6 0 0 1 2.6 2.6v8.8a2.6 2.6 0 0 1-2.6 2.6H5.6A2.6 2.6 0 0 1 3 15.9V7.1a2.6 2.6 0 0 1 2.6-2.6zM3 8.4h14M7 2.8v3.2M13 2.8v3.2"/>
+                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource Nav_Calendar}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="NavSettings"
+                                        Style="{StaticResource NavItemStyle}"
+                                        Click="NavSettings_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Viewbox Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path Style="{StaticResource NavIconStyle}"
+                                                  Data="M3 6.5h9.5M16 6.5h1M3 13.5h3.5M9.5 13.5H17"/>
+                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource Nav_Settings}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
-                        </Button>
-                    </StackPanel>
+                        </DockPanel>
+                    </Border>
 
-                    <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,14">
-                        <Border Height="1" Background="{DynamicResource BorderPrimary}" Margin="16,8,16,10"/>
-                        <Button x:Name="ThemeToggleButton"
-                                Style="{StaticResource BottomActionStyle}"
-                                Click="ThemeToggleButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock x:Name="ThemeIcon" Text="🌙" FontSize="14"
-                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="ThemeText" Text="{DynamicResource Nav_DarkMode}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button x:Name="MinimizeButton"
-                                Style="{StaticResource BottomActionStyle}"
-                                Click="MinimizeButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📥" FontSize="14"
-                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBlock Text="{DynamicResource Nav_MinimizeToTray}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </DockPanel>
-            </Border>
-
-            <!-- Main Content Area -->
-            <Grid Grid.Row="1" Grid.Column="1">
-                <Frame x:Name="MainFrame"
-                       NavigationUIVisibility="Hidden"
-                       Background="{DynamicResource BgPrimary}"/>
+                    <!-- 內容區 -->
+                    <Frame x:Name="MainFrame"
+                           Grid.Column="1"
+                           NavigationUIVisibility="Hidden"
+                           Background="Transparent"/>
+                </Grid>
             </Grid>
         </Grid>
     </Border>

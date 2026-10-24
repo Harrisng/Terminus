@@ -5,10 +5,10 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="900"
-      Background="{DynamicResource BgPrimary}">
+      Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="24">
+        <StackPanel Margin="30,26,30,36" MaxWidth="1080">
 
             <!-- Header -->
             <StackPanel Margin="0,0,0,16">
@@ -16,152 +16,216 @@
                 <TextBlock x:Name="CurrentDateText" Text="--" Style="{StaticResource PageSubtitleStyle}"/>
             </StackPanel>
 
-            <!-- Hero Status Card -->
-            <Border Style="{StaticResource CardStyle}" Padding="24">
+            <!-- ══════ Hero 狀態卡 ══════ -->
+            <Border Style="{StaticResource HeroCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Status Indicator + State Text -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse x:Name="StateIndicator" Width="14" Height="14" Fill="{DynamicResource StatusIdle}" VerticalAlignment="Center">
-                            <Ellipse.Effect>
-                                <DropShadowEffect Color="#7c6df2" Opacity="0.6" BlurRadius="10" ShadowDepth="0"/>
-                            </Ellipse.Effect>
-                        </Ellipse>
-                        <TextBlock x:Name="StateText" Text="{DynamicResource State_Idle}"
-                                   FontSize="{StaticResource FontSize4XL}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource StatusIdle}"
-                                   Margin="12,0,0,0"
-                                   VerticalAlignment="Center"/>
+                    <!-- 左：目前狀態 -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Dashboard_StateLabel}"
+                                   Style="{StaticResource CardLabelStyle}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                            <Ellipse x:Name="StateIndicator" Width="10" Height="10"
+                                     Fill="{DynamicResource StatusIdle}" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StateText" Text="{DynamicResource State_Idle}"
+                                       FontSize="38"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource StatusIdle}"
+                                       Margin="11,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock x:Name="HeroNoteText" Text=""
+                                   FontSize="12.5"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   Margin="0,9,0,0"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
 
-                    <!-- Right: Next Action Time -->
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource Dashboard_NextActionLabel}"
-                                   Style="{StaticResource CardLabelStyle}"
-                                   HorizontalAlignment="Right"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock x:Name="NextActionText" Text="--"
-                                   FontSize="{StaticResource FontSizeXL}"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   HorizontalAlignment="Right"/>
-                    </StackPanel>
+                    <!-- 右：下次動作 -->
+                    <Border Grid.Column="1" Margin="28,0,0,0" Padding="26,0,0,0"
+                            BorderThickness="1,0,0,0"
+                            BorderBrush="{DynamicResource GlassStroke}"
+                            VerticalAlignment="Stretch">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Dashboard_NextActionLabel}"
+                                       Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock x:Name="NextActionText" Text="--"
+                                       FontSize="56"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       Margin="0,2,0,0"/>
+                            <TextBlock x:Name="CountdownText" Text=""
+                                       FontSize="12.5"
+                                       Foreground="{DynamicResource TextSecondary}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
+                                <TextBlock Text="{DynamicResource Dashboard_CycleIdLabel}"
+                                           Style="{StaticResource CardMetaStyle}" FontSize="11"/>
+                                <TextBlock x:Name="CycleIdText" Text="--"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource TextTertiary}"
+                                           Margin="7,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Border>
 
-            <!-- Stats Cards Row -->
-            <UniformGrid Columns="3" Margin="0,0,0,16">
+            <!-- ══════ 今晚作息 ══════ -->
+            <TextBlock Text="{DynamicResource Dashboard_TonightRoutine}" Style="{StaticResource SectionTitleStyle}"/>
 
-                <!-- Quota Card -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,8,0">
+            <Border x:Name="RoutineCard" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="TimelineSummaryText" Text=""
+                               FontSize="12.5"
+                               Foreground="{DynamicResource TextSecondary}"
+                               TextWrapping="Wrap"/>
+
+                    <!-- 時間軸色塊（程式動態生成） -->
+                    <Grid x:Name="TimelineSegments" Height="14" Margin="0,14,0,0"/>
+
+                    <!-- 圖例 -->
+                    <WrapPanel Margin="0,14,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentBuffer}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Dashboard_RoutineBuffer}" FontSize="11.5"
+                                       Foreground="{DynamicResource TextTertiary}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentSleep}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Dashboard_RoutineSleep}" FontSize="11.5"
+                                       Foreground="{DynamicResource TextTertiary}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentWash}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Dashboard_RoutineWash}" FontSize="11.5"
+                                       Foreground="{DynamicResource TextTertiary}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentBreakfast}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Dashboard_RoutineBreakfast}" FontSize="11.5"
+                                       Foreground="{DynamicResource TextTertiary}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,18,0">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentCommute}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Dashboard_RoutineCommute}" FontSize="11.5"
+                                       Foreground="{DynamicResource TextTertiary}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════ 即時數據 ══════ -->
+            <TextBlock Text="{DynamicResource Dashboard_LiveStats}" Style="{StaticResource SectionTitleStyle}"/>
+
+            <UniformGrid Columns="3" Margin="0,0,0,4">
+
+                <!-- 剩餘配額 -->
+                <Border Style="{StaticResource StatCardStyle}" Margin="0,0,8,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Dashboard_QuotaLabel}"
-                                   Style="{StaticResource CardLabelStyle}"
-                                   Margin="0,0,0,8"/>
+                                   Style="{StaticResource CardLabelStyle}"/>
                         <TextBlock x:Name="QuotaText" Text="{DynamicResource Dashboard_Unlimited}"
                                    Style="{StaticResource MetricValueStyle}"
-                                   Foreground="{DynamicResource StatusSuccess}"/>
-                    </StackPanel>
-                </Border>
+                                   Foreground="{DynamicResource StatusSuccess}"
+                                   Margin="0,6,0,0"/>
 
-                <!-- Today's Cycle Card -->
-                <Border Style="{StaticResource CardStyle}" Margin="8,0,8,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Dashboard_CycleIdLabel}"
-                                   Style="{StaticResource CardLabelStyle}"
-                                   Margin="0,0,0,8"/>
-                        <TextBlock x:Name="CycleIdText" Text="--"
-                                   FontSize="{StaticResource FontSize2XL}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   Margin="0,0,0,4"/>
+                        <Border x:Name="QuotaMeterTrack" Height="5" CornerRadius="3"
+                                Background="{DynamicResource BgTertiary}"
+                                Margin="0,12,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="QuotaFillColumn" Width="1*"/>
+                                    <ColumnDefinition x:Name="QuotaRestColumn" Width="0*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" CornerRadius="3"
+                                        Background="{DynamicResource AccentPrimary}"/>
+                            </Grid>
+                        </Border>
+
                         <TextBlock x:Name="DelayCountText" Text="--"
-                                   FontSize="{StaticResource FontSizeSM}"
-                                   Foreground="{DynamicResource TextSecondary}"/>
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextTertiary}"
+                                   Margin="0,9,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Next Warning Card -->
-                <Border Style="{StaticResource CardStyle}" Margin="8,0,0,0">
+                <!-- 下次預警 -->
+                <Border Style="{StaticResource StatCardStyle}" Margin="4,0,4,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Dashboard_WarningTimeLabel}"
-                                   Style="{StaticResource CardLabelStyle}"
-                                   Margin="0,0,0,8"/>
+                                   Style="{StaticResource CardLabelStyle}"/>
                         <TextBlock x:Name="WarningTimeText" Text="--"
                                    Style="{StaticResource MetricValueStyle}"
-                                   Foreground="{DynamicResource StatusWarning}"/>
+                                   Foreground="{DynamicResource StatusWarning}"
+                                   Margin="0,6,0,0"/>
+                        <TextBlock x:Name="WarningLeadText" Text=""
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextTertiary}"
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 明日首課 -->
+                <Border Style="{StaticResource StatCardStyle}" Margin="8,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Dashboard_TomorrowClassLabel}"
+                                   Style="{StaticResource CardLabelStyle}"/>
+                        <TextBlock x:Name="TomorrowClassTimeText" Text="--"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   Margin="0,6,0,0"/>
+                        <Border x:Name="ClassificationBadge"
+                                Style="{StaticResource BadgeEarlyBorderStyle}"
+                                HorizontalAlignment="Left"
+                                Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="ClassificationIndicator" Width="6" Height="6"
+                                         Fill="{DynamicResource AccentPrimary}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ClassificationText" Text="{DynamicResource Classification_NonEarlyClass}"
+                                           FontSize="10.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentPrimary}"
+                                           Margin="6,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Border>
             </UniformGrid>
 
-            <!-- Tomorrow Info Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Left: First Class Time -->
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource Dashboard_TomorrowClassLabel}"
-                                   Style="{StaticResource CardLabelStyle}"
-                                   Margin="0,0,0,8"/>
-                        <TextBlock x:Name="TomorrowClassTimeText" Text="--"
-                                   Style="{StaticResource MetricValueStyle}"/>
-                    </StackPanel>
-
-                    <!-- Right: Classification with color indicator -->
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
-                        <Ellipse x:Name="ClassificationIndicator" Width="10" Height="10" Fill="{DynamicResource AccentPrimary}" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="ClassificationText" Text="{DynamicResource Classification_NonEarlyClass}"
-                                   FontSize="{StaticResource FontSizeLG}"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentPrimary}"
-                                   Margin="8,0,0,0"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Quick Actions -->
+            <!-- ══════ 快速操作 ══════ -->
             <TextBlock Text="{DynamicResource Dashboard_QuickActions}" Style="{StaticResource SectionTitleStyle}"/>
 
-            <WrapPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                 <Button x:Name="DelayButton" Content="{DynamicResource Warning_Delay30}"
-                        Width="180" Height="50"
-                        Margin="0,0,12,12"
-                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,10,0"
+                        Style="{StaticResource PrimaryButtonStyle}"
                         Click="DelayButton_Click"/>
 
-                <Button x:Name="ShutdownNowButton" Content="{DynamicResource Warning_ShutdownNow}"
-                        Width="180" Height="50"
-                        Margin="0,0,12,12"
-                        Style="{StaticResource DangerButtonStyle}"
-                        Click="ShutdownNowButton_Click"/>
-
                 <Button x:Name="AIModeButton" Content="{DynamicResource Warning_AIMode}"
-                        Width="180" Height="50"
-                        Margin="0,0,12,12"
-                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="0,0,10,0"
+                        Style="{StaticResource TintedButtonStyle}"
                         Click="AIModeButton_Click"/>
-            </WrapPanel>
 
-            <!-- Next Schedule Preview -->
+                <Button x:Name="ShutdownNowButton" Content="{DynamicResource Warning_ShutdownNow}"
+                        Style="{StaticResource DestructiveButtonStyle}"
+                        Click="ShutdownNowButton_Click"/>
+            </StackPanel>
+
+            <!-- ══════ 未來 7 天 ══════ -->
             <TextBlock Text="{DynamicResource Dashboard_SchedulePreviewLabel}" Style="{StaticResource SectionTitleStyle}"/>
 
-            <Border Style="{StaticResource CardStyle}" Margin="0">
+            <Border Style="{StaticResource GlassListStyle}">
                 <StackPanel x:Name="SchedulePanel">
-                    <!-- Schedule items will be added programmatically -->
                     <TextBlock Text="{DynamicResource Dashboard_Loading}"
-                               FontSize="{StaticResource FontSizeBase}"
+                               FontSize="12"
                                Foreground="{DynamicResource TextSecondary}"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center"
+                               Margin="0,12,0,12"/>
                 </StackPanel>
             </Border>
 

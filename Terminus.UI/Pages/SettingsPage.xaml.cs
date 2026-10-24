@@ -211,16 +211,16 @@ public partial class SettingsPage : Page
         var pxPerMin = width / totalRangeMin;
 
         // 取得叢集顏色
-        var bBuffer = FindResource("AccentSecondary") as Brush;
-        var bSleep = FindResource("AccentPrimary") as Brush;
-        var bWash = FindResource("StatusInfo") as Brush;
-        var bBreakfast = FindResource("StatusWarning") as Brush;
-        var bCommute = FindResource("StatusSuccess") as Brush;
+        var bBuffer = FindResource("SegmentBuffer") as Brush;
+        var bSleep = FindResource("SegmentSleep") as Brush;
+        var bWash = FindResource("SegmentWash") as Brush;
+        var bBreakfast = FindResource("SegmentBreakfast") as Brush;
+        var bCommute = FindResource("SegmentCommute") as Brush;
         var bTickMinor = FindResource("BorderPrimary") as Brush;
         var bTickMajor = FindResource("TextTertiary") as Brush;
-        var bDivider = FindResource("BgPrimary") as Brush;       // 段間分隔線（背景色）
-        var bHandle = FindResource("AccentPrimary") as Brush;    // handle 用紫色
-        var bHandleStroke = FindResource("BgPrimary") as Brush;  // handle 邊框
+        var bDivider = FindResource("BgTertiary") as Brush;       // 段間分隔線（畫布底色）
+        var bHandle = FindResource("AccentPrimary") as Brush;     // handle 用紫色
+        var bHandleStroke = FindResource("GlassStroke") as Brush; // handle 白描邊
         var bAxisLabel = FindResource("TextTertiary") as Brush;   // 刻度標籤（更淡）
         var bBoundaryLabel = FindResource("TextSecondary") as Brush;
         var bBoundaryTime = FindResource("TextPrimary") as Brush;

@@ -124,15 +124,23 @@ public partial class DashboardPage : Page
             StateText.Foreground = _brushStatusWarning!;
             StateIndicator.Fill = _brushStatusWarning!;
             NextActionText.SetResourceReference(TextBlock.TextProperty, "Dashboard_PleaseSetup");
+            HeroNoteText.Text = "";
+            CountdownText.Text = "";
             QuotaText.Text = "--";
             CycleIdText.Text = "--";
             var delayFmt0 = TryFindResource("Dashboard_DelayCountFormat") as string ?? "手動 {0} 次 · 自動 {1} 次";
             DelayCountText.Text = string.Format(delayFmt0, 0, 0);
+            QuotaMeterTrack.Visibility = Visibility.Collapsed;
             WarningTimeText.Text = "--";
+            WarningLeadText.Text = "";
             TomorrowClassTimeText.Text = "--";
             ClassificationText.SetResourceReference(TextBlock.TextProperty, "Dashboard_PleaseConfigCalendar");
             ClassificationText.Foreground = _brushStatusWarning!;
             ClassificationIndicator.Fill = _brushStatusWarning!;
+            ClassificationBadge.SetResourceReference(Border.BackgroundProperty, "BadgeWarning");
+            TimelineSegments.Children.Clear();
+            TimelineSegments.ColumnDefinitions.Clear();
+            TimelineSummaryText.Text = TryFindResource("Dashboard_NoRoutine") as string ?? "尚未取得作息排程";
             return;
         }
 
@@ -148,6 +156,7 @@ public partial class DashboardPage : Page
             ShadowDepth = 0
         };
 
+        DateTime? nextActionAt = null;
         if (context.NextActionTime.HasValue)
         {
             var nextAction = context.NextActionTime.Value.ToDateTimeUnspecified();
@@ -158,16 +167,82 @@ public partial class DashboardPage : Page
                 nextAction = nextAction.AddMinutes(graceMinutes);
             }
             NextActionText.Text = nextAction.ToString("HH:mm");
+            nextActionAt = nextAction;
         }
         else
         {
             NextActionText.Text = "--";
         }
 
+        // 距下次動作的倒數
+        if (nextActionAt.HasValue)
+        {
+            var remaining = nextActionAt.Value - now;
+            if (remaining.TotalMinutes <= 1)
+            {
+                CountdownText.Text = TryFindResource("Dashboard_CountdownSoon") as string ?? "即將開始";
+            }
+            else if (remaining.TotalMinutes < 180)
+            {
+                var countdownFmt = TryFindResource("Dashboard_CountdownFormat") as string ?? "距今 {0} 分鐘";
+                CountdownText.Text = string.Format(countdownFmt, (int)Math.Ceiling(remaining.TotalMinutes));
+            }
+            else
+            {
+                CountdownText.Text = FormatDuration(remaining);
+            }
+        }
+        else
+        {
+            CountdownText.Text = "";
+        }
+
+        // 今晚的預警/警告時間提示
+        if (context.Timing.PreWarningTime != LocalTime.Midnight && context.Timing.WarningTime != LocalTime.Midnight)
+        {
+            var noteFmt = TryFindResource("Dashboard_HeroNoteFormat") as string ?? "今晚 {0} 進入預警階段 · {1} 開始警告";
+            HeroNoteText.Text = string.Format(noteFmt,
+                context.Timing.PreWarningTime.ToString("HH:mm", null),
+                context.Timing.WarningTime.ToString("HH:mm", null));
+        }
+        else
+        {
+            HeroNoteText.Text = "";
+        }
+
         var classInfo = GetClassificationDisplayInfo(context.Timing.Classification, context.Timing.IsHoliday);
         ClassificationText.Text = classInfo.Text;
         ClassificationText.Foreground = classInfo.Brush;
         ClassificationIndicator.Fill = classInfo.Brush;
+
+        // 日分類徽章底色
+        if (context.Timing.Classification == DayClassification.EarlyClass)
+            ClassificationBadge.SetResourceReference(Border.BackgroundProperty, "AccentSoft");
+        else if (context.Timing.Classification == DayClassification.NonEarlyClass && !context.Timing.IsHoliday)
+            ClassificationBadge.SetResourceReference(Border.BackgroundProperty, "BadgeNeutral");
+        else
+            ClassificationBadge.SetResourceReference(Border.BackgroundProperty, "BadgeWarning");
+
+        // 預警提前量
+        if (context.Timing.PreWarningTime != LocalTime.Midnight && context.Timing.WarningTime != LocalTime.Midnight)
+        {
+            var leadMinutes = (context.Timing.WarningTime.Hour * 60 + context.Timing.WarningTime.Minute)
+                              - (context.Timing.PreWarningTime.Hour * 60 + context.Timing.PreWarningTime.Minute);
+            if (leadMinutes < 0) leadMinutes += 24 * 60;
+            if (leadMinutes > 0)
+            {
+                var leadFmt = TryFindResource("Dashboard_WarningLeadFormat") as string ?? "提前 {0} 分鐘提醒";
+                WarningLeadText.Text = string.Format(leadFmt, leadMinutes);
+            }
+            else
+            {
+                WarningLeadText.Text = "";
+            }
+        }
+        else
+        {
+            WarningLeadText.Text = "";
+        }
 
         // 下次預警時間：
         // - 延遲中：顯示延遲到期時間（警告重現時間）
@@ -230,11 +305,19 @@ public partial class DashboardPage : Page
         if (context.Timing.IsUnlimitedManualDelay)
         {
             QuotaText.SetResourceReference(TextBlock.TextProperty, "Dashboard_Unlimited");
+            QuotaMeterTrack.Visibility = Visibility.Collapsed;
         }
         else
         {
             var quotaFmt = TryFindResource("Format_QuotaRemaining") as string ?? "{0:F0} 分鐘";
             QuotaText.Text = string.Format(quotaFmt, context.CurrentCycle.QuotaRemaining.TotalMinutes);
+            QuotaMeterTrack.Visibility = Visibility.Visible;
+
+            var totalQuota = context.CurrentCycle.TotalQuota.TotalMinutes;
+            var remainingQuota = context.CurrentCycle.QuotaRemaining.TotalMinutes;
+            var ratio = totalQuota > 0 ? Math.Clamp(remainingQuota / totalQuota, 0, 1) : 0;
+            QuotaFillColumn.Width = new GridLength(ratio, GridUnitType.Star);
+            QuotaRestColumn.Width = new GridLength(1 - ratio, GridUnitType.Star);
         }
 
         var delayFmt = TryFindResource("Dashboard_DelayCountFormat") as string ?? "手動 {0} 次 · 自動 {1} 次";
@@ -257,6 +340,9 @@ public partial class DashboardPage : Page
             TomorrowClassTimeText.Text = "--";
         }
 
+        // 今晚作息時間軸
+        UpdateTimeline(context);
+
         // Refresh 7-day preview when data availability changes
         var hasData = context.Timing.Classification != DayClassification.NoData;
         if (hasData != _lastHasData)
@@ -264,6 +350,78 @@ public partial class DashboardPage : Page
             _lastHasData = hasData;
             LoadSchedulePreview();
         }
+    }
+
+    /// <summary>繪製今晚作息時間軸（前置緩衝 → 睡眠 → 洗漱 → 早餐 → 通勤）。</summary>
+    private void UpdateTimeline(BehaviorContext context)
+    {
+        TimelineSegments.Children.Clear();
+        TimelineSegments.ColumnDefinitions.Clear();
+
+        if (context.Timing.WarningTime == LocalTime.Midnight)
+        {
+            TimelineSummaryText.Text = TryFindResource("Dashboard_NoRoutine") as string ?? "尚未取得作息排程";
+            return;
+        }
+
+        var warningTime = context.Timing.WarningTime;
+        var bedtime = new TimeSpan(warningTime.Hour, warningTime.Minute, 0);
+        var buffer = _orchestrator.PreSleepBuffer;
+        var sleep = _orchestrator.SleepTime;
+        var wash = _orchestrator.WashTime;
+        var breakfast = _orchestrator.BreakfastTime;
+        var commute = _orchestrator.CommuteTime;
+
+        var wake = bedtime + buffer + sleep;
+        var arrival = wake + wash + breakfast + commute;
+        var total = buffer + sleep + wash + breakfast + commute;
+
+        var summaryFmt = TryFindResource("SleepTimeline_SummaryFormat") as string
+                         ?? "預計 {0} 就寢 → {1} 起床 → {2} 抵達（總計 {3}）";
+        TimelineSummaryText.Text = string.Format(summaryFmt,
+            FormatClock(bedtime), FormatClock(wake), FormatClock(arrival), FormatDuration(total));
+
+        var items = new (TimeSpan Length, string BrushKey)[]
+        {
+            (buffer, "SegmentBuffer"),
+            (sleep, "SegmentSleep"),
+            (wash, "SegmentWash"),
+            (breakfast, "SegmentBreakfast"),
+            (commute, "SegmentCommute")
+        }.Where(x => x.Length > TimeSpan.Zero).ToList();
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            TimelineSegments.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = new GridLength(items[i].Length.TotalMinutes, GridUnitType.Star)
+            });
+
+            var segment = new Border
+            {
+                Background = (Brush)FindResource(items[i].BrushKey),
+                CornerRadius = new CornerRadius(
+                    i == 0 ? 7 : 0,
+                    i == items.Count - 1 ? 7 : 0,
+                    i == items.Count - 1 ? 7 : 0,
+                    i == 0 ? 7 : 0)
+            };
+            Grid.SetColumn(segment, i);
+            TimelineSegments.Children.Add(segment);
+        }
+    }
+
+    private static string FormatClock(TimeSpan time)
+    {
+        var hours = (int)(time.TotalHours % 24);
+        if (hours < 0) hours += 24;
+        return $"{hours:D2}:{time.Minutes:D2}";
+    }
+
+    private string FormatDuration(TimeSpan span)
+    {
+        var fmt = TryFindResource("Format_HoursMinutes") as string ?? "{0} 小時 {1} 分鐘";
+        return string.Format(fmt, (int)span.TotalHours, span.Minutes);
     }
 
     private (string Text, Brush Brush, Color Color) GetStateDisplayInfo(BehaviorState state)
@@ -328,36 +486,41 @@ public partial class DashboardPage : Page
         {
             var date = today.AddDays(i);
             var dayName = i == 0 ? todayLabel : (TryFindResource(dayKeys[(int)date.DayOfWeek]) as string ?? date.DayOfWeek.ToString());
-            var normalBgKey = i == 0 ? "BgTertiary" : "BgSecondary";
-
-            var item = new Border
+            var row = new Border
             {
-                CornerRadius = new CornerRadius(8),
-                Padding = new Thickness(12, 8, 12, 8),
-                Margin = new Thickness(0, 0, 0, 6)
+                Padding = new Thickness(20, 11, 20, 11),
+                MinHeight = 42
             };
-            item.SetResourceReference(Border.BackgroundProperty, normalBgKey);
 
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(132) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             var dateText = new TextBlock
             {
                 Text = $"{date:MM/dd} {dayName}",
-                FontWeight = FontWeights.SemiBold,
+                FontSize = 12.5,
+                FontWeight = i == 0 ? FontWeights.SemiBold : FontWeights.Medium,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            dateText.SetResourceReference(TextBlock.ForegroundProperty, "TextPrimary");
+            dateText.SetResourceReference(TextBlock.ForegroundProperty, i == 0 ? "AccentPrimary" : "TextPrimary");
             Grid.SetColumn(dateText, 0);
             grid.Children.Add(dateText);
 
+            var chip = new Border
+            {
+                CornerRadius = new CornerRadius(999),
+                Padding = new Thickness(8, 3, 8, 3),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
             var typeText = new TextBlock
             {
-                FontSize = 12,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                FontSize = 10.5,
+                FontWeight = FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             var timeText = new TextBlock
@@ -378,15 +541,17 @@ public partial class DashboardPage : Page
                 if (isHoliday && classification == DayClassification.NonEarlyClass)
                 {
                     typeText.Text = TryFindResource("Classification_Holiday") as string ?? "🌅 假期";
-                    typeText.SetResourceReference(TextBlock.ForegroundProperty, "StatusSuccess");
+                    typeText.SetResourceReference(TextBlock.ForegroundProperty, "StatusWarning");
+                    chip.SetResourceReference(Border.BackgroundProperty, "BadgeWarning");
                 }
                 else
                 {
                     typeText.Text = classification == DayClassification.EarlyClass
                         ? (TryFindResource("Classification_EarlyClass") as string ?? "早課日")
                         : (TryFindResource("Classification_NonEarlyClass") as string ?? "非早課日");
-                    typeText.SetResourceReference(TextBlock.ForegroundProperty,
-                        classification == DayClassification.EarlyClass ? "StatusIdle" : "TextSecondary");
+                    var isEarly = classification == DayClassification.EarlyClass;
+                    typeText.SetResourceReference(TextBlock.ForegroundProperty, isEarly ? "AccentPrimary" : "TextSecondary");
+                    chip.SetResourceReference(Border.BackgroundProperty, isEarly ? "AccentSoft" : "BadgeNeutral");
                 }
 
                 if (classification == DayClassification.EarlyClass && firstClass.HasValue)
@@ -401,17 +566,26 @@ public partial class DashboardPage : Page
             {
                 typeText.Text = TryFindResource("Dashboard_PendingConfig") as string ?? "待配置";
                 typeText.SetResourceReference(TextBlock.ForegroundProperty, "TextTertiary");
+                chip.SetResourceReference(Border.BackgroundProperty, "BadgeNeutral");
                 timeText.Text = "--";
             }
             timeText.SetResourceReference(TextBlock.ForegroundProperty, "TextTertiary");
 
-            Grid.SetColumn(typeText, 1);
-            grid.Children.Add(typeText);
+            chip.Child = typeText;
+            Grid.SetColumn(chip, 1);
+            grid.Children.Add(chip);
             Grid.SetColumn(timeText, 2);
             grid.Children.Add(timeText);
 
-            item.Child = grid;
-            SchedulePanel.Children.Add(item);
+            row.Child = grid;
+            SchedulePanel.Children.Add(row);
+
+            if (i < 6)
+            {
+                var divider = new Border { Height = 1, Margin = new Thickness(20, 0, 20, 0) };
+                divider.SetResourceReference(Border.BackgroundProperty, "BorderSecondary");
+                SchedulePanel.Children.Add(divider);
+            }
         }
     }
 

@@ -55,16 +55,14 @@ public partial class CalendarPage : Page
         {
             var border = new Border
             {
-                Padding = new Thickness(0, 8, 0, 8),
-                CornerRadius = new CornerRadius(4)
+                Padding = new Thickness(0, 6, 0, 8)
             };
-            border.SetResourceReference(Border.BackgroundProperty, "BgTertiary");
 
             var textBlock = new TextBlock
             {
                 Text = dayNames[i],
-                FontSize = 13,
-                FontWeight = FontWeights.Bold,
+                FontSize = 11,
+                FontWeight = FontWeights.SemiBold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -86,10 +84,10 @@ public partial class CalendarPage : Page
         // Empty corner cell
         var corner = new Border
         {
-            Background = (Brush)FindResource("BgHeader"),
+            Background = Brushes.Transparent,
             BorderThickness = new Thickness(0, 0, 1, 0)
         };
-        corner.SetResourceReference(Border.BorderBrushProperty, "BorderPrimary");
+        corner.SetResourceReference(Border.BorderBrushProperty, "BorderSecondary");
         Grid.SetColumn(corner, 0);
         WeekHeadersGrid.Children.Add(corner);
 
@@ -103,10 +101,12 @@ public partial class CalendarPage : Page
 
             var border = new Border
             {
-                BorderThickness = new Thickness(0, 0, 1, 0)
+                BorderThickness = new Thickness(0, 0, 1, 0),
+                Background = Brushes.Transparent
             };
-            border.SetResourceReference(Border.BorderBrushProperty, "BorderPrimary");
-            border.SetResourceReference(Border.BackgroundProperty, isToday ? "AccentSoft" : "BgHeader");
+            border.SetResourceReference(Border.BorderBrushProperty, "BorderSecondary");
+            if (isToday)
+                border.SetResourceReference(Border.BackgroundProperty, "AccentSoft");
 
             var panel = new StackPanel
             {
@@ -125,10 +125,10 @@ public partial class CalendarPage : Page
             var dateText = new TextBlock
             {
                 Text = date.Day.ToString(),
-                FontSize = 15,
+                FontSize = 14,
                 FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 2, 0, 0)
+                Margin = new Thickness(0, 1, 0, 0)
             };
             dateText.SetResourceReference(TextBlock.ForegroundProperty, isToday ? "TextAccent" : "TextPrimary");
 
@@ -203,10 +203,8 @@ public partial class CalendarPage : Page
             PageSubtitleText.Text = "本週課程時間表";
             MonthViewBorder.Visibility = Visibility.Collapsed;
             WeekViewBorder.Visibility = Visibility.Visible;
-            MonthViewButton.ClearValue(BackgroundProperty);
-            WeekViewButton.Background = (Brush)FindResource("AccentSoft");
-            WeekViewButton.Foreground = (Brush)FindResource("TextAccent");
-            MonthViewButton.Foreground = (Brush)FindResource("TextSecondary");
+            WeekViewButton.Style = (Style)FindResource("SegmentButtonActiveStyle");
+            MonthViewButton.Style = (Style)FindResource("SegmentButtonStyle");
             MonthTitleText.Text = $"{_weekStartDate:M/d} - {_weekStartDate.AddDays(6):M/d}";
         }
         else
@@ -215,10 +213,8 @@ public partial class CalendarPage : Page
             PageSubtitleText.Text = "點擊日期查看課程詳情";
             MonthViewBorder.Visibility = Visibility.Visible;
             WeekViewBorder.Visibility = Visibility.Collapsed;
-            MonthViewButton.Background = (Brush)FindResource("AccentSoft");
-            MonthViewButton.Foreground = (Brush)FindResource("TextAccent");
-            WeekViewButton.ClearValue(BackgroundProperty);
-            WeekViewButton.Foreground = (Brush)FindResource("TextSecondary");
+            MonthViewButton.Style = (Style)FindResource("SegmentButtonActiveStyle");
+            WeekViewButton.Style = (Style)FindResource("SegmentButtonStyle");
         }
     }
 
@@ -300,62 +296,83 @@ public partial class CalendarPage : Page
 
     private Border CreateDayCell(DateTime date, bool isCurrentMonth, bool isToday)
     {
+        var isSelected = _selectedDate.HasValue && _selectedDate.Value.Date == date.Date;
+
         var cell = new Border
         {
-            CornerRadius = new CornerRadius(6),
-            Margin = new Thickness(1),
-            Padding = new Thickness(6),
+            CornerRadius = new CornerRadius(12),
+            Margin = new Thickness(3),
+            Padding = new Thickness(7, 6, 7, 6),
             Cursor = Cursors.Hand,
-            MinHeight = 70,
+            MinHeight = 74,
             Tag = date
         };
 
-        string bgKey;
-        if (isToday)
-            bgKey = "AccentSoft";
-        else if (isCurrentMonth)
-            bgKey = "BgSecondary";
-        else
-            bgKey = "BgPrimary";
-
-        cell.SetResourceReference(Border.BackgroundProperty, bgKey);
-
-        if (isToday)
+        if (isSelected)
         {
-            cell.BorderThickness = new Thickness(1);
+            // 選中：白色玻璃 + 紫色內描邊
+            cell.SetResourceReference(Border.BackgroundProperty, "GlassFaceStrong");
+            cell.BorderThickness = new Thickness(1.5);
             cell.SetResourceReference(Border.BorderBrushProperty, "AccentPrimary");
         }
+        else if (isToday)
+        {
+            cell.SetResourceReference(Border.BackgroundProperty, "AccentSoft");
+            cell.BorderThickness = new Thickness(1);
+            cell.SetResourceReference(Border.BorderBrushProperty, "TintedStroke");
+        }
         else
         {
+            cell.Background = Brushes.Transparent;
             cell.BorderThickness = new Thickness(0);
-        }
-
-        if (_selectedDate.HasValue && _selectedDate.Value.Date == date.Date)
-        {
-            cell.SetResourceReference(Border.BackgroundProperty, "AccentActive");
         }
 
         cell.MouseLeftButtonUp += (s, e) => OnDayCellClicked(date);
 
         var panel = new StackPanel();
 
-        var dayNumber = new TextBlock
-        {
-            Text = date.Day.ToString(),
-            FontSize = isCurrentMonth ? 14 : 12,
-            FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Margin = new Thickness(2, 0, 0, 0)
-        };
-
         if (isToday)
-            dayNumber.SetResourceReference(TextBlock.ForegroundProperty, "TextAccent");
-        else if (isCurrentMonth)
-            dayNumber.SetResourceReference(TextBlock.ForegroundProperty, "TextPrimary");
-        else
-            dayNumber.SetResourceReference(TextBlock.ForegroundProperty, "TextMuted");
+        {
+            // 今日：實心紫圓日期數字
+            var circle = new Border
+            {
+                Width = 24,
+                Height = 24,
+                CornerRadius = new CornerRadius(12),
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            circle.SetResourceReference(Border.BackgroundProperty, "AccentPrimary");
 
-        panel.Children.Add(dayNumber);
+            var circleText = new TextBlock
+            {
+                Text = date.Day.ToString(),
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            circleText.SetResourceReference(TextBlock.ForegroundProperty, "TextWhite");
+            circle.Child = circleText;
+            panel.Children.Add(circle);
+        }
+        else
+        {
+            var dayNumber = new TextBlock
+            {
+                Text = date.Day.ToString(),
+                FontSize = isCurrentMonth ? 12.5 : 11.5,
+                FontWeight = isCurrentMonth ? FontWeights.Medium : FontWeights.Normal,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(3, 2, 0, 0)
+            };
+
+            if (isCurrentMonth)
+                dayNumber.SetResourceReference(TextBlock.ForegroundProperty, "TextPrimary");
+            else
+                dayNumber.SetResourceReference(TextBlock.ForegroundProperty, "TextMuted");
+
+            panel.Children.Add(dayNumber);
+        }
 
         if (_events != null)
         {
@@ -467,10 +484,12 @@ public partial class CalendarPage : Page
 
                 var cellBorder = new Border
                 {
-                    BorderThickness = new Thickness(0, 0, 1, 1)
+                    BorderThickness = new Thickness(0, 0, 1, 1),
+                    Background = Brushes.Transparent
                 };
-                cellBorder.SetResourceReference(Border.BorderBrushProperty, "BorderPrimary");
-                cellBorder.SetResourceReference(Border.BackgroundProperty, isToday ? "AccentSoft" : "BgPrimary");
+                cellBorder.SetResourceReference(Border.BorderBrushProperty, "BorderSecondary");
+                if (isToday)
+                    cellBorder.SetResourceReference(Border.BackgroundProperty, "AccentSoft");
                 Grid.SetRow(cellBorder, i);
                 Grid.SetColumn(cellBorder, d + 1);
                 WeekTimeGrid.Children.Add(cellBorder);
@@ -518,7 +537,7 @@ public partial class CalendarPage : Page
 
         var block = new Border
         {
-            CornerRadius = new CornerRadius(4),
+            CornerRadius = new CornerRadius(8),
             Margin = new Thickness(2),
             Padding = new Thickness(6, 4, 6, 4),
             Cursor = Cursors.Hand
@@ -526,7 +545,7 @@ public partial class CalendarPage : Page
         block.SetResourceReference(Border.BackgroundProperty, "AccentPrimary");
         block.SetResourceReference(Border.BorderBrushProperty, "AccentPrimary");
         block.BorderThickness = new Thickness(0, 0, 0, 0);
-        block.Opacity = 0.85;
+        block.Opacity = 0.92;
 
         var panel = new StackPanel();
 
@@ -655,9 +674,9 @@ public partial class CalendarPage : Page
         {
             var item = new Border
             {
-                Padding = new Thickness(12, 8, 12, 8),
-                Margin = new Thickness(0, 0, 0, 6),
-                CornerRadius = new CornerRadius(6)
+                Padding = new Thickness(14, 9, 14, 9),
+                Margin = new Thickness(0, 0, 0, 8),
+                CornerRadius = new CornerRadius(12)
             };
             item.SetResourceReference(Border.BackgroundProperty, "BgTertiary");
 

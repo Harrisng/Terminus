@@ -5,489 +5,429 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="900"
-      Background="{DynamicResource BgPrimary}">
+      Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="28">
+        <StackPanel Margin="30,26,30,36" MaxWidth="820">
 
             <!-- Header -->
-            <StackPanel Margin="0,0,0,28">
+            <StackPanel Margin="0,0,0,6">
                 <TextBlock Text="{DynamicResource Settings_Title}" Style="{StaticResource PageTitleStyle}"/>
                 <TextBlock Text="{DynamicResource Settings_Subtitle}" Style="{StaticResource PageSubtitleStyle}"/>
             </StackPanel>
 
-            <!-- Language Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_LanguageCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_LanguageCardDesc}"
-                               FontSize="{StaticResource FontSizeSM}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="0,0,0,16"/>
-                    <ComboBox x:Name="LanguageComboBox"
-                              MinHeight="40"
-                              Padding="8,0"
-                              VerticalContentAlignment="Center"
-                              Style="{StaticResource DefaultComboBoxStyle}"
-                              SelectionChanged="LanguageComboBox_SelectionChanged">
-                        <ComboBoxItem x:Name="LangZhTWItem" Content="{DynamicResource Settings_Language_zhTW}" Tag="zh-TW"/>
-                        <ComboBoxItem x:Name="LangEnUSItem" Content="{DynamicResource Settings_Language_enUS}" Tag="en-US"/>
-                        <ComboBoxItem x:Name="LangZhCNItem" Content="{DynamicResource Settings_Language_zhCN}" Tag="zh-CN"/>
-                    </ComboBox>
-                </StackPanel>
+            <!-- ══════ 語言 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_LanguageCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{DynamicResource Settings_LanguageCardDesc}"
+                                   Style="{StaticResource RowLabelStyle}"
+                                   FontWeight="Normal"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox x:Name="LanguageComboBox"
+                                  Grid.Column="1"
+                                  Width="180"
+                                  Style="{StaticResource DefaultComboBoxStyle}"
+                                  SelectionChanged="LanguageComboBox_SelectionChanged">
+                            <ComboBoxItem x:Name="LangZhTWItem" Content="{DynamicResource Settings_Language_zhTW}" Tag="zh-TW"/>
+                            <ComboBoxItem x:Name="LangEnUSItem" Content="{DynamicResource Settings_Language_enUS}" Tag="en-US"/>
+                            <ComboBoxItem x:Name="LangZhCNItem" Content="{DynamicResource Settings_Language_zhCN}" Tag="zh-CN"/>
+                        </ComboBox>
+                    </Grid>
+                </Border>
             </Border>
 
-            <!-- Calendar Settings Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_CalendarCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_CalendarUrlLabel}"
-                               Style="{StaticResource CardLabelStyle}"
-                               Margin="0,0,0,8"/>
-                    <TextBox x:Name="CalendarUrlTextBox"
-                             MinHeight="48"
-                             Padding="12,0"
-                             VerticalContentAlignment="Center"
-                             VerticalAlignment="Stretch"
-                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_CalendarUrlHint}"
-                               FontSize="{StaticResource FontSizeXS}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="4,8,0,0"/>
-                </StackPanel>
+            <!-- ══════ 日曆來源 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_CalendarCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings_CalendarUrlLabel}"
+                                       Style="{StaticResource RowLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_CalendarUrlHint}"
+                                       Style="{StaticResource RowHintStyle}"/>
+                        </StackPanel>
+                        <TextBox x:Name="CalendarUrlTextBox"
+                                 Grid.Column="1"
+                                 Width="380"
+                                 Style="{StaticResource DefaultTextBoxStyle}"/>
+                    </Grid>
+                </Border>
             </Border>
 
-            <!-- Time Buffer Settings Card -->
-            <Border Style="{StaticResource CardStyle}">
+            <!-- ══════ 睡眠設定 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_SleepCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_SleepCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_SleepCardDesc}"
-                               FontSize="{StaticResource FontSizeSM}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="0,0,0,16"/>
 
-                    <!-- 睡眠時間軸預覽（可拉動） -->
-                    <StackPanel Margin="0,0,0,20">
-
-                        <!-- 摘要文字 -->
+                <!-- 時間軸預覽 -->
+                <Border Padding="18,15,18,15">
+                    <StackPanel>
                         <TextBlock x:Name="SleepTimelineSummary"
-                                   FontSize="{StaticResource FontSizeBase}"
+                                   FontSize="12.5"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextPrimary}"
-                                   Margin="0,0,0,12"
+                                   Margin="0,0,0,10"
                                    TextWrapping="Wrap"/>
 
-                        <!-- 可拉動時間軸 Canvas（精緻現代風格，底部時間刻度） -->
-                        <Canvas x:Name="TimelineCanvas"
-                                Height="108"
-                                Background="{DynamicResource BgTertiary}"
-                                ClipToBounds="True"
-                                SizeChanged="TimelineCanvas_SizeChanged"
-                                MouseLeftButtonDown="TimelineCanvas_MouseLeftButtonDown"
-                                MouseMove="TimelineCanvas_MouseMove"
-                                MouseLeftButtonUp="TimelineCanvas_MouseLeftButtonUp"
-                                MouseLeave="TimelineCanvas_MouseLeave"/>
+                        <Border CornerRadius="14" ClipToBounds="True"
+                                Background="{DynamicResource BgTertiary}">
+                            <Canvas x:Name="TimelineCanvas"
+                                    Height="108"
+                                    Background="Transparent"
+                                    ClipToBounds="True"
+                                    SizeChanged="TimelineCanvas_SizeChanged"
+                                    MouseLeftButtonDown="TimelineCanvas_MouseLeftButtonDown"
+                                    MouseMove="TimelineCanvas_MouseMove"
+                                    MouseLeftButtonUp="TimelineCanvas_MouseLeftButtonUp"
+                                    MouseLeave="TimelineCanvas_MouseLeave"/>
+                        </Border>
 
-                        <!-- 圖例（圓形色點 + 名稱 + 時長） -->
                         <WrapPanel Orientation="Horizontal" Margin="0,12,0,0">
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource AccentSecondary}"
-                                         VerticalAlignment="Center"/>
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentBuffer}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Settings_PreSleepLabel}"
-                                           Margin="6,0,4,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
-                                           Foreground="{DynamicResource TextSecondary}"/>
+                                           Margin="6,0,4,0" VerticalAlignment="Center"
+                                           FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                                 <TextBlock x:Name="LegendBufferDuration" Text="--"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
+                                           VerticalAlignment="Center" FontSize="11"
                                            Foreground="{DynamicResource TextTertiary}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource AccentPrimary}"
-                                         VerticalAlignment="Center"/>
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentSleep}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Settings_SleepTimeLabel}"
-                                           Margin="6,0,4,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
-                                           Foreground="{DynamicResource TextSecondary}"/>
+                                           Margin="6,0,4,0" VerticalAlignment="Center"
+                                           FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                                 <TextBlock x:Name="LegendSleepDuration" Text="--"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
+                                           VerticalAlignment="Center" FontSize="11"
                                            Foreground="{DynamicResource TextTertiary}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource StatusInfo}"
-                                         VerticalAlignment="Center"/>
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentWash}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Settings_WashTimeLabel}"
-                                           Margin="6,0,4,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
-                                           Foreground="{DynamicResource TextSecondary}"/>
+                                           Margin="6,0,4,0" VerticalAlignment="Center"
+                                           FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                                 <TextBlock x:Name="LegendWashDuration" Text="--"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
+                                           VerticalAlignment="Center" FontSize="11"
                                            Foreground="{DynamicResource TextTertiary}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource StatusWarning}"
-                                         VerticalAlignment="Center"/>
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentBreakfast}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Settings_BreakfastTimeLabel}"
-                                           Margin="6,0,4,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
-                                           Foreground="{DynamicResource TextSecondary}"/>
+                                           Margin="6,0,4,0" VerticalAlignment="Center"
+                                           FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                                 <TextBlock x:Name="LegendBreakfastDuration" Text="--"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
+                                           VerticalAlignment="Center" FontSize="11"
                                            Foreground="{DynamicResource TextTertiary}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource StatusSuccess}"
-                                         VerticalAlignment="Center"/>
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource SegmentCommute}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Settings_CommuteTimeLabel}"
-                                           Margin="6,0,4,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
-                                           Foreground="{DynamicResource TextSecondary}"/>
+                                           Margin="6,0,4,0" VerticalAlignment="Center"
+                                           FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                                 <TextBlock x:Name="LegendCommuteDuration" Text="--"
-                                           VerticalAlignment="Center"
-                                           FontSize="{StaticResource FontSizeXS}"
+                                           VerticalAlignment="Center" FontSize="11"
                                            Foreground="{DynamicResource TextTertiary}"/>
                             </StackPanel>
                         </WrapPanel>
                     </StackPanel>
+                </Border>
 
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <!-- 睡眠時長 -->
+                <Border Style="{StaticResource SettingRowStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="220"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Sleep Time -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings_SleepTimeLabel}"
-                                   FontSize="{StaticResource FontSizeBase}"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,0,12"/>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,0,12">
-                            <TextBox x:Name="SleepHoursTextBox"
-                                     Width="72"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="小時" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,12,0"/>
-                            <TextBox x:Name="SleepMinutesTextBox"
-                                     Width="72"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="分鐘" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-
-                        <!-- Pre-sleep Buffer -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings_PreSleepLabel}"
-                                   FontSize="{StaticResource FontSizeBase}"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,0,12"/>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,0,12">
-                            <TextBox x:Name="PreSleepTextBox"
-                                     Width="80"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-
-                        <!-- Wash Time -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings_WashTimeLabel}"
-                                   FontSize="{StaticResource FontSizeBase}"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,0,12"/>
-                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,0,12">
-                            <TextBox x:Name="WashTextBox"
-                                     Width="80"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-
-                        <!-- Breakfast Time -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Settings_BreakfastTimeLabel}"
-                                   FontSize="{StaticResource FontSizeBase}"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,0,12"/>
-                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,0,12">
-                            <TextBox x:Name="BreakfastTextBox"
-                                     Width="80"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-
-                        <!-- Commute Time -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Settings_CommuteTimeLabel}"
-                                   FontSize="{StaticResource FontSizeBase}"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBox x:Name="CommuteTextBox"
-                                     Width="80"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"
-                                     TextChanged="SleepInput_TextChanged"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- Early Class Classification Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_EarlyClassCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_EarlyClassCardDesc}"
-                               FontSize="{StaticResource FontSizeSM}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="0,0,0,16"/>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="220"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Cutoff Hour -->
-                        <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Text="{DynamicResource Settings_EarlyClassCutoffLabel}"
-                                       FontSize="{StaticResource FontSizeBase}"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="{DynamicResource Settings_EarlyClassCutoffHint}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBox x:Name="CutoffHourTextBox"
-                                     Width="72"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings_HourUnit}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-
-                        <!-- Delay Quota -->
-                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
-                            <TextBlock Text="{DynamicResource Settings_EarlyClassQuotaLabel}"
-                                       FontSize="{StaticResource FontSizeBase}"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="{DynamicResource Settings_EarlyClassQuotaHint}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,12,0,0">
-                            <TextBox x:Name="DelayQuotaTextBox"
-                                     Width="72"
-                                     MinHeight="40"
-                                     Padding="8,0"
-                                     HorizontalContentAlignment="Center"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondary}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- General Settings Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_GeneralCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-
-                    <!-- Start with Windows -->
-                    <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource Settings_StartWithWindows}"
-                                       FontSize="{StaticResource FontSizeBase}"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       FontWeight="SemiBold"/>
-                            <TextBlock Text="{DynamicResource Settings_StartWithWindowsHint}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="0,4,0,0"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_SleepTimeLabel}"
+                                   Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="SleepHoursTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Settings_HourUnit}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,10,0"/>
+                            <TextBox x:Name="SleepMinutesTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
                         </StackPanel>
-                        <CheckBox x:Name="StartWithWindowsCheckBox"
-                                  Grid.Column="1"
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <!-- 前置緩衝 -->
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_PreSleepLabel}"
+                                   Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="PreSleepTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <!-- 洗漱時間 -->
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_WashTimeLabel}"
+                                   Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="WashTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <!-- 早餐時間 -->
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_BreakfastTimeLabel}"
+                                   Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="BreakfastTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <!-- 通勤時間 -->
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_CommuteTimeLabel}"
+                                   Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="CommuteTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"
+                                     TextChanged="SleepInput_TextChanged"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════ 早課判定 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_EarlyClassCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <StackPanel>
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings_EarlyClassCutoffLabel}"
+                                       Style="{StaticResource RowLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_EarlyClassCutoffHint}"
+                                       Style="{StaticResource RowHintStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="CutoffHourTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Settings_HourUnit}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings_EarlyClassQuotaLabel}"
+                                       Style="{StaticResource RowLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_EarlyClassQuotaHint}"
+                                       Style="{StaticResource RowHintStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="DelayQuotaTextBox" Width="72"
+                                     Style="{StaticResource DefaultTextBoxStyle}"
+                                     Padding="6,0"
+                                     HorizontalContentAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Common_Minutes}" VerticalAlignment="Center"
+                                       FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════ 一般設定 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_GeneralCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <StackPanel>
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings_StartWithWindows}"
+                                       Style="{StaticResource RowLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings_StartWithWindowsHint}"
+                                       Style="{StaticResource RowHintStyle}"/>
+                        </StackPanel>
+                        <CheckBox x:Name="StartWithWindowsCheckBox" Grid.Column="1"
                                   Style="{StaticResource DefaultCheckBoxStyle}"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center" HorizontalAlignment="Right"
                                   IsChecked="True"/>
                     </Grid>
+                </Border>
 
-                    <!-- Dark Mode -->
+                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                <Border Style="{StaticResource SettingRowStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Nav_DarkMode}"
-                                       FontSize="{StaticResource FontSizeBase}"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       FontWeight="SemiBold"/>
+                                       Style="{StaticResource RowLabelStyle}"/>
                             <TextBlock Text="{DynamicResource Settings_DarkModeHint}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="0,4,0,0"/>
+                                       Style="{StaticResource RowHintStyle}"/>
                         </StackPanel>
-                        <CheckBox x:Name="DarkModeCheckBox"
-                                  Grid.Column="1"
+                        <CheckBox x:Name="DarkModeCheckBox" Grid.Column="1"
                                   Style="{StaticResource DefaultCheckBoxStyle}"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center" HorizontalAlignment="Right"
                                   IsChecked="True"
                                   Checked="DarkModeCheckBox_Checked"
                                   Unchecked="DarkModeCheckBox_Unchecked"/>
                     </Grid>
+                </Border>
                 </StackPanel>
             </Border>
 
-            <!-- Cache Management Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_CacheCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_CacheCardDesc}"
-                               FontSize="{StaticResource FontSizeSM}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="0,0,0,16"/>
-                    <Button x:Name="ClearCacheButton"
-                            Content="{DynamicResource Settings_ClearCache}"
-                            Width="120" Height="36"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            Click="ClearCacheButton_Click"/>
-                </StackPanel>
+            <!-- ══════ 快取管理 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_CacheCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{DynamicResource Settings_CacheCardDesc}"
+                                   Style="{StaticResource RowHintStyle}"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   Margin="0"/>
+                        <Button x:Name="ClearCacheButton" Grid.Column="1"
+                                Content="{DynamicResource Settings_ClearCache}"
+                                Style="{StaticResource TextButtonStyle}"
+                                Click="ClearCacheButton_Click"/>
+                    </Grid>
+                </Border>
             </Border>
 
-            <!-- Diagnostics Card -->
-            <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Settings_DiagnosticsCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings_DiagnosticsCardDesc}"
-                               FontSize="{StaticResource FontSizeSM}"
-                               Foreground="{DynamicResource TextTertiary}"
-                               Margin="0,0,0,16"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Button x:Name="ViewLogsButton"
-                                Content="{DynamicResource Settings_ViewLogs}"
-                                Width="120" Height="36"
-                                Margin="0,0,8,0"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Click="ViewLogsButton_Click"/>
-                        <Button x:Name="ViewDelayHistoryButton"
-                                Content="{DynamicResource Settings_ViewHistory}"
-                                Width="130" Height="36"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Click="ViewDelayHistoryButton_Click"/>
-                    </StackPanel>
-                </StackPanel>
+            <!-- ══════ 診斷工具 ══════ -->
+            <TextBlock Text="{DynamicResource Settings_DiagnosticsCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+            <Border Style="{StaticResource GlassGroupStyle}">
+                <Border Style="{StaticResource SettingRowStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{DynamicResource Settings_DiagnosticsCardDesc}"
+                                   Style="{StaticResource RowHintStyle}"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   Margin="0"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="ViewLogsButton"
+                                    Content="{DynamicResource Settings_ViewLogs}"
+                                    Style="{StaticResource TextButtonStyle}"
+                                    Margin="0,0,8,0"
+                                    Click="ViewLogsButton_Click"/>
+                            <Button x:Name="ViewDelayHistoryButton"
+                                    Content="{DynamicResource Settings_ViewHistory}"
+                                    Style="{StaticResource TextButtonStyle}"
+                                    Click="ViewDelayHistoryButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Border>
 
-            <!-- Save Button -->
+            <!-- 儲存 -->
             <Button x:Name="SaveButton"
                     Content="{DynamicResource Common_Save}"
                     Height="44"
+                    Margin="0,10,0,0"
                     HorizontalAlignment="Stretch"
                     Style="{StaticResource PrimaryButtonStyle}"
                     Click="SaveButton_Click"/>

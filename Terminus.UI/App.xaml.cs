@@ -103,6 +103,7 @@ public partial class App : Application
 
             // Initialize theme service
             var themeService = _host.Services.GetRequiredService<ThemeService>();
+            themeService.ApplyCurrentTheme();
 
             // Create main window (but don't show yet for existing users)
             _mainWindow = _host.Services.GetRequiredService<MainWindow>();

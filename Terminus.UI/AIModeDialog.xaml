@@ -2,127 +2,150 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource AIMode_Title}"
-        Width="540" Height="Auto"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        Width="560" Height="Auto"
         SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
         UseLayoutRounding="True"
-        TextOptions.TextFormattingMode="Display"
-        Background="{DynamicResource BgPrimary}">
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display">
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-            <TextBlock Text="🤖" FontSize="24" Margin="0,0,10,0" VerticalAlignment="Center"/>
-            <TextBlock Text="{DynamicResource AIMode_Title}"
-                       FontSize="{StaticResource FontSize2XL}"
-                       FontWeight="Bold"
-                       Foreground="{DynamicResource TextPrimary}"
-                       VerticalAlignment="Center"/>
-        </StackPanel>
+    <!-- 玻璃卡片 -->
+    <Border Background="{DynamicResource WindowAmbientGradient}"
+            BorderBrush="{DynamicResource GlassStroke}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource CornerRadiusWindow}">
+        <Grid>
+            <Grid IsHitTestVisible="False">
+                <Ellipse Width="460" Height="340" HorizontalAlignment="Left" VerticalAlignment="Top"
+                         Margin="-190,-170,0,0" Fill="{DynamicResource AmbientIndigo}"/>
+                <Ellipse Width="420" Height="320" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                         Margin="0,0,-170,-150" Fill="{DynamicResource AmbientCyan}"/>
+            </Grid>
 
-        <!-- Running AI Processes Section -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <TextBlock Text="{DynamicResource AIMode_RunningProcesses}"
-                       FontSize="{StaticResource FontSizeBase}"
-                       Foreground="{DynamicResource TextSecondary}"
-                       Margin="0,0,0,6"/>
-            <Border Background="{DynamicResource BgTertiary}"
-                    BorderBrush="{DynamicResource BorderPrimary}"
-                    BorderThickness="1"
-                    CornerRadius="6"
-                    Padding="12">
-                <TextBlock x:Name="RunningProcessesText"
-                           TextWrapping="Wrap"
-                           Foreground="{DynamicResource TextPrimary}"
-                           FontSize="13"/>
-            </Border>
-        </StackPanel>
+            <StackPanel Margin="26,24,26,26">
 
-        <!-- Monitor Button (shown when processes are running) -->
-        <Button x:Name="MonitorButton" Grid.Row="2"
-                Content="{DynamicResource AIMode_MonitorRunning}"
-                Height="40"
-                Margin="0,0,0,16"
-                Style="{StaticResource PrimaryButtonStyle}"
-                Click="MonitorButton_Click"/>
+                <!-- Header -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <Border Width="46" Height="46"
+                            CornerRadius="14"
+                            Background="{DynamicResource GlassFaceStrong}"
+                            BorderBrush="{DynamicResource GlassStroke}"
+                            BorderThickness="1"
+                            Margin="0,0,14,0">
+                        <TextBlock Text="🤖" FontSize="22"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{DynamicResource AIMode_Title}"
+                               FontSize="19" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimary}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
 
-        <!-- Divider -->
-        <Grid Grid.Row="3" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Height="1" Background="{DynamicResource BorderPrimary}" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="1" Text="{DynamicResource AIMode_OrLaunch}"
-                       Foreground="{DynamicResource TextTertiary}"
-                       FontSize="{StaticResource FontSizeSM}"
-                       Margin="12,0"/>
-            <Border Grid.Column="2" Height="1" Background="{DynamicResource BorderPrimary}" VerticalAlignment="Center"/>
+                <!-- Running AI Processes Section -->
+                <StackPanel Margin="0,0,0,14">
+                    <TextBlock Text="{DynamicResource AIMode_RunningProcesses}"
+                               Style="{StaticResource RowLabelStyle}"
+                               FontSize="12.5"
+                               FontWeight="Normal"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,0,0,8"/>
+                    <Border Background="{DynamicResource BgTertiary}"
+                            BorderBrush="{DynamicResource GlassStrokeSoft}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="14,11">
+                        <TextBlock x:Name="RunningProcessesText"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   FontSize="12.5"
+                                   LineHeight="19"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Monitor Button (shown when processes are running) -->
+                <Button x:Name="MonitorButton"
+                        Content="{DynamicResource AIMode_MonitorRunning}"
+                        Height="42"
+                        Margin="0,0,0,16"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="MonitorButton_Click"/>
+
+                <!-- Divider -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Height="1" Background="{DynamicResource BorderPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{DynamicResource AIMode_OrLaunch}"
+                               Foreground="{DynamicResource TextTertiary}"
+                               FontSize="11"
+                               Margin="12,0"/>
+                    <Border Grid.Column="2" Height="1" Background="{DynamicResource BorderPrimary}" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Command Line Input (manual launch) -->
+                <StackPanel Margin="0,0,0,14">
+                    <TextBlock Text="{DynamicResource AIMode_CommandLabel}"
+                               Style="{StaticResource RowLabelStyle}"
+                               FontSize="12.5"
+                               FontWeight="Normal"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="CommandLineTextBox"
+                             Height="78"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             VerticalContentAlignment="Top"
+                             Padding="11,9"
+                             VerticalScrollBarVisibility="Auto"
+                             Style="{StaticResource DefaultTextBoxStyle}"/>
+                    <TextBlock Text="{DynamicResource AIMode_CommandHint}"
+                               Style="{StaticResource RowHintStyle}"
+                               Margin="2,6,0,0"/>
+                </StackPanel>
+
+                <!-- Working Directory + Description -->
+                <StackPanel Margin="0,0,0,6">
+                    <TextBlock Text="{DynamicResource AIMode_WorkDirLabel}"
+                               Style="{StaticResource RowLabelStyle}"
+                               FontSize="12.5"
+                               FontWeight="Normal"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="WorkDirTextBox"
+                             Height="38"
+                             TextWrapping="NoWrap"
+                             Style="{StaticResource DefaultTextBoxStyle}"
+                             Margin="0,0,0,14"/>
+
+                    <TextBlock Text="{DynamicResource AIMode_DescriptionLabel}"
+                               Style="{StaticResource RowLabelStyle}"
+                               FontSize="12.5"
+                               FontWeight="Normal"
+                               Foreground="{DynamicResource TextSecondary}"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="DescriptionTextBox"
+                             Height="38"
+                             TextWrapping="NoWrap"
+                             Style="{StaticResource DefaultTextBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                    <Button x:Name="StartButton" Content="{DynamicResource AIMode_Start}"
+                            MinWidth="104" Height="42" Margin="0,0,10,0"
+                            Style="{StaticResource PrimaryButtonStyle}" Click="StartButton_Click"/>
+                    <Button x:Name="CancelButton" Content="{DynamicResource Common_Cancel}"
+                            MinWidth="104" Height="42"
+                            Style="{StaticResource SecondaryButtonStyle}" Click="CancelButton_Click"/>
+                </StackPanel>
+            </StackPanel>
         </Grid>
-
-        <!-- Command Line Input (manual launch) -->
-        <StackPanel Grid.Row="4" Margin="0,0,0,12">
-            <TextBlock Text="{DynamicResource AIMode_CommandLabel}"
-                       FontSize="{StaticResource FontSizeBase}"
-                       Foreground="{DynamicResource TextSecondary}"
-                       Margin="0,0,0,6"/>
-            <TextBox x:Name="CommandLineTextBox"
-                     Height="64"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Auto"
-                     Style="{StaticResource DefaultTextBoxStyle}"
-                     Foreground="{DynamicResource TextPrimary}"
-                     Background="{DynamicResource BgInput}"/>
-            <TextBlock Text="{DynamicResource AIMode_CommandHint}"
-                       FontSize="{StaticResource FontSizeSM}"
-                       Foreground="{DynamicResource TextTertiary}"
-                       Margin="0,4,0,0"
-                       TextWrapping="Wrap"/>
-        </StackPanel>
-
-        <!-- Working Directory + Description -->
-        <StackPanel Grid.Row="5" Margin="0,0,0,12">
-            <TextBlock Text="{DynamicResource AIMode_WorkDirLabel}"
-                       FontSize="{StaticResource FontSizeBase}"
-                       Foreground="{DynamicResource TextSecondary}"
-                       Margin="0,0,0,6"/>
-            <TextBox x:Name="WorkDirTextBox"
-                     Height="32"
-                     TextWrapping="NoWrap"
-                     Style="{StaticResource DefaultTextBoxStyle}"
-                     Foreground="{DynamicResource TextPrimary}"
-                     Background="{DynamicResource BgInput}"
-                     Margin="0,0,0,8"/>
-            <TextBlock Text="{DynamicResource AIMode_DescriptionLabel}"
-                       FontSize="{StaticResource FontSizeBase}"
-                       Foreground="{DynamicResource TextSecondary}"
-                       Margin="0,0,0,6"/>
-            <TextBox x:Name="DescriptionTextBox"
-                     Height="32"
-                     TextWrapping="NoWrap"
-                     Style="{StaticResource DefaultTextBoxStyle}"
-                     Foreground="{DynamicResource TextPrimary}"
-                     Background="{DynamicResource BgInput}"/>
-        </StackPanel>
-
-        <!-- Buttons -->
-        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-            <Button x:Name="StartButton" Content="{DynamicResource AIMode_Start}" Width="100" Height="36" Margin="0,0,10,0"
-                    Style="{StaticResource PrimaryButtonStyle}" Click="StartButton_Click"/>
-            <Button x:Name="CancelButton" Content="{DynamicResource Common_Cancel}" Width="100" Height="36"
-                    Style="{StaticResource SecondaryButtonStyle}" Click="CancelButton_Click"/>
-        </StackPanel>
-    </Grid>
+    </Border>
 </Window>

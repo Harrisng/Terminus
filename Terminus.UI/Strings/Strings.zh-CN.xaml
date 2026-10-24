@@ -56,6 +56,18 @@
     <sys:String x:Key="Dashboard_FirstClassPrefix">首节 {0}</sys:String>
     <sys:String x:Key="Dashboard_InitError">仪表板页面初始化失败：{0}</sys:String>
     <sys:String x:Key="Dashboard_DateFormat">yyyy年MM月dd日 dddd HH:mm</sys:String>
+    <sys:String x:Key="Dashboard_TonightRoutine">今晚作息</sys:String>
+    <sys:String x:Key="Dashboard_LiveStats">即时数据</sys:String>
+    <sys:String x:Key="Dashboard_RoutineBuffer">前置缓冲</sys:String>
+    <sys:String x:Key="Dashboard_RoutineSleep">睡眠</sys:String>
+    <sys:String x:Key="Dashboard_RoutineWash">洗漱</sys:String>
+    <sys:String x:Key="Dashboard_RoutineBreakfast">早餐</sys:String>
+    <sys:String x:Key="Dashboard_RoutineCommute">通勤</sys:String>
+    <sys:String x:Key="Dashboard_WarningLeadFormat">提前 {0} 分钟提醒</sys:String>
+    <sys:String x:Key="Dashboard_CountdownFormat">距今 {0} 分钟</sys:String>
+    <sys:String x:Key="Dashboard_CountdownSoon">即将开始</sys:String>
+    <sys:String x:Key="Dashboard_HeroNoteFormat">今晚 {0} 进入预警阶段 · {1} 开始警告</sys:String>
+    <sys:String x:Key="Dashboard_NoRoutine">尚未获取作息排程</sys:String>
 
     <!-- 状态显示 -->
     <sys:String x:Key="State_Idle">闲置中</sys:String>

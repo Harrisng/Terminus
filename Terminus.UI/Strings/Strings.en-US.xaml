@@ -56,6 +56,18 @@
     <sys:String x:Key="Dashboard_FirstClassPrefix">First {0}</sys:String>
     <sys:String x:Key="Dashboard_InitError">Dashboard initialization failed: {0}</sys:String>
     <sys:String x:Key="Dashboard_DateFormat">dddd, MMMM dd, yyyy HH:mm</sys:String>
+    <sys:String x:Key="Dashboard_TonightRoutine">Tonight's routine</sys:String>
+    <sys:String x:Key="Dashboard_LiveStats">Live stats</sys:String>
+    <sys:String x:Key="Dashboard_RoutineBuffer">Buffer</sys:String>
+    <sys:String x:Key="Dashboard_RoutineSleep">Sleep</sys:String>
+    <sys:String x:Key="Dashboard_RoutineWash">Wash</sys:String>
+    <sys:String x:Key="Dashboard_RoutineBreakfast">Breakfast</sys:String>
+    <sys:String x:Key="Dashboard_RoutineCommute">Commute</sys:String>
+    <sys:String x:Key="Dashboard_WarningLeadFormat">{0} min notice</sys:String>
+    <sys:String x:Key="Dashboard_CountdownFormat">in {0} min</sys:String>
+    <sys:String x:Key="Dashboard_CountdownSoon">Starting soon</sys:String>
+    <sys:String x:Key="Dashboard_HeroNoteFormat">Pre-warning {0} · Warning {1}</sys:String>
+    <sys:String x:Key="Dashboard_NoRoutine">No routine available</sys:String>
 
     <!-- State display -->
     <sys:String x:Key="State_Idle">Idle</sys:String>

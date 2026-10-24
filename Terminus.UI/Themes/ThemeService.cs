@@ -41,6 +41,12 @@ public class ThemeService
         SetTheme(_currentTheme == AppTheme.Dark ? AppTheme.Light : AppTheme.Dark);
     }
 
+    /// <summary>啟動時套用註冊表中已儲存的主題（App.xaml 僅靜態載入 LightTheme 作預設）。</summary>
+    public void ApplyCurrentTheme()
+    {
+        ApplyTheme(_currentTheme);
+    }
+
     private AppTheme LoadTheme()
     {
         try
@@ -51,12 +57,12 @@ public class ThemeService
             {
                 "Light" => AppTheme.Light,
                 "Dark" => AppTheme.Dark,
-                _ => AppTheme.Dark // Default to dark
+                _ => AppTheme.Light // Default to light
             };
         }
         catch
         {
-            return AppTheme.Dark;
+            return AppTheme.Light;
         }
     }
 

@@ -8,199 +8,205 @@
         AllowsTransparency="True"
         ResizeMode="NoResize"
         UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
-        Background="{DynamicResource BgPrimary}">
+        Background="Transparent">
 
-    <Border Background="{DynamicResource BgPrimary}" BorderThickness="0">
+    <Border Background="{DynamicResource WindowAmbientGradient}"
+            BorderBrush="{DynamicResource GlassStroke}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource CornerRadiusWindow}">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="44"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Title Bar -->
-            <Grid Grid.Row="0" Background="{DynamicResource BgSecondary}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0"
-                           Text="{DynamicResource Nav_AppName}"
-                           FontSize="{StaticResource FontSizeBase}"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextPrimary}"
-                           VerticalAlignment="Center"
-                           Margin="16,0,0,0"/>
-                <Button Grid.Column="2"
-                        Content="&#x2715;"
-                        Style="{StaticResource CloseButtonStyle}"
-                        Click="CloseButton_Click"/>
+            <Grid IsHitTestVisible="False">
+                <Ellipse Width="520" Height="420" HorizontalAlignment="Left" VerticalAlignment="Top"
+                         Margin="-210,-200,0,0" Fill="{DynamicResource AmbientIndigo}"/>
+                <Ellipse Width="480" Height="400" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                         Margin="0,0,-200,-190" Fill="{DynamicResource AmbientCyan}"/>
             </Grid>
 
-            <!-- Content -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="28">
-                <StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="46"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                    <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="{DynamicResource Settings_Title}" Style="{StaticResource PageTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource SettingsWindow_FirstRunHint}" Style="{StaticResource PageSubtitleStyle}"/>
+                <!-- Title Bar -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource BgHeader}"
+                        BorderBrush="{DynamicResource BorderSecondary}"
+                        BorderThickness="0,0,0,1"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                            <Button Style="{StaticResource TrafficCloseStyle}"
+                                    Click="CloseButton_Click" ToolTip="{DynamicResource Common_Close}"/>
+                        </StackPanel>
+                        <TextBlock Text="{DynamicResource SettingsWindow_Title}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Content -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Padding="0,0,4,0">
+                    <StackPanel Margin="24,20,24,26">
+
+                        <StackPanel Margin="0,0,0,4">
+                            <TextBlock Text="{DynamicResource Settings_Title}" Style="{StaticResource PageTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource SettingsWindow_FirstRunHint}" Style="{StaticResource PageSubtitleStyle}"/>
+                        </StackPanel>
+
+                        <!-- Calendar URL -->
+                        <TextBlock Text="{DynamicResource Settings_CalendarCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+                        <Border Style="{StaticResource GlassGroupStyle}" Margin="0,0,0,4">
+                            <Border Style="{StaticResource SettingRowStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings_CalendarUrlLabel}" Style="{StaticResource RowLabelStyle}"/>
+                                    <TextBox x:Name="CalendarUrlTextBox"
+                                             Height="36"
+                                             Margin="0,9,0,0"
+                                             Style="{StaticResource DefaultTextBoxStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings_CalendarUrlHint}" Style="{StaticResource RowHintStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+
+                        <!-- Sleep Buffers -->
+                        <TextBlock Text="{DynamicResource Settings_SleepCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+                        <Border Style="{StaticResource GlassGroupStyle}" Margin="0,0,0,4">
+                            <StackPanel>
+                                <Border Style="{StaticResource SettingRowStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_SleepTimeLabel}" Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox x:Name="SleepTimeTextBox" Width="72" Height="34"
+                                                     HorizontalContentAlignment="Center"
+                                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                            <TextBlock Text="{DynamicResource Common_Minutes}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiary}"
+                                                       FontSize="11" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                                <Border Style="{StaticResource SettingRowStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_PreSleepLabel}" Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox x:Name="PreSleepTextBox" Width="72" Height="34"
+                                                     HorizontalContentAlignment="Center"
+                                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                            <TextBlock Text="{DynamicResource Common_Minutes}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiary}"
+                                                       FontSize="11" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                                <Border Style="{StaticResource SettingRowStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_WashTimeLabel}" Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox x:Name="WashTextBox" Width="72" Height="34"
+                                                     HorizontalContentAlignment="Center"
+                                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                            <TextBlock Text="{DynamicResource Common_Minutes}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiary}"
+                                                       FontSize="11" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                                <Border Style="{StaticResource SettingRowStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_BreakfastTimeLabel}" Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox x:Name="BreakfastTextBox" Width="72" Height="34"
+                                                     HorizontalContentAlignment="Center"
+                                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                            <TextBlock Text="{DynamicResource Common_Minutes}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiary}"
+                                                       FontSize="11" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource SettingRowDividerStyle}"/>
+
+                                <Border Style="{StaticResource SettingRowStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Settings_CommuteTimeLabel}" Style="{StaticResource RowLabelStyle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox x:Name="CommuteTextBox" Width="72" Height="34"
+                                                     HorizontalContentAlignment="Center"
+                                                     Style="{StaticResource DefaultTextBoxStyle}"/>
+                                            <TextBlock Text="{DynamicResource Common_Minutes}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiary}"
+                                                       FontSize="11" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Startup -->
+                        <TextBlock Text="{DynamicResource Settings_StartupCardTitle}" Style="{StaticResource SectionTitleStyle}"/>
+                        <Border Style="{StaticResource GlassGroupStyle}" Margin="0,0,0,4">
+                            <Border Style="{StaticResource SettingRowStyle}">
+                                <CheckBox x:Name="StartWithWindowsCheckBox"
+                                          Content="{DynamicResource Settings_StartWithWindows}"
+                                          HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Left"
+                                          Style="{StaticResource DefaultCheckBoxStyle}"/>
+                            </Border>
+                        </Border>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                            <Button x:Name="CancelButton" Content="{DynamicResource Common_Cancel}"
+                                    MinWidth="104" Height="42"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Margin="0,0,10,0" Click="CancelButton_Click"/>
+                            <Button x:Name="SaveButton" Content="{DynamicResource Common_Save}"
+                                    MinWidth="104" Height="42"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Click="SaveButton_Click"/>
+                        </StackPanel>
+
                     </StackPanel>
-
-                    <!-- Calendar URL Card -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings_CalendarCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings_CalendarUrlLabel}"
-                                       Style="{StaticResource CardLabelStyle}"
-                                       Margin="0,0,0,8"/>
-                            <TextBox x:Name="CalendarUrlTextBox"
-                                     Height="38"
-                                     VerticalContentAlignment="Center"
-                                     Style="{StaticResource DefaultTextBoxStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings_CalendarUrlHint}"
-                                       FontSize="{StaticResource FontSizeXS}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="4,8,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Time Buffer Card -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings_SleepCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings_SleepCardDesc}"
-                                       FontSize="{StaticResource FontSizeSM}"
-                                       Foreground="{DynamicResource TextTertiary}"
-                                       Margin="0,0,0,16"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings_SleepTimeLabel}"
-                                           FontSize="{StaticResource FontSizeBase}"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           VerticalAlignment="Center" Margin="0,8"/>
-                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,8">
-                                    <TextBox x:Name="SleepTimeTextBox"
-                                             Width="80" Height="32"
-                                             HorizontalContentAlignment="Center"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text="{DynamicResource Common_Minutes}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               FontSize="{StaticResource FontSizeSM}"
-                                               Margin="10,0"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings_PreSleepLabel}"
-                                           FontSize="{StaticResource FontSizeBase}"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           VerticalAlignment="Center" Margin="0,8"/>
-                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,8">
-                                    <TextBox x:Name="PreSleepTextBox"
-                                             Width="80" Height="32"
-                                             HorizontalContentAlignment="Center"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text="{DynamicResource Common_Minutes}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               FontSize="{StaticResource FontSizeSM}"
-                                               Margin="10,0"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings_WashTimeLabel}"
-                                           FontSize="{StaticResource FontSizeBase}"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           VerticalAlignment="Center" Margin="0,8"/>
-                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,8">
-                                    <TextBox x:Name="WashTextBox"
-                                             Width="80" Height="32"
-                                             HorizontalContentAlignment="Center"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text="{DynamicResource Common_Minutes}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               FontSize="{StaticResource FontSizeSM}"
-                                               Margin="10,0"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Settings_BreakfastTimeLabel}"
-                                           FontSize="{StaticResource FontSizeBase}"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           VerticalAlignment="Center" Margin="0,8"/>
-                                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,8">
-                                    <TextBox x:Name="BreakfastTextBox"
-                                             Width="80" Height="32"
-                                             HorizontalContentAlignment="Center"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text="{DynamicResource Common_Minutes}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               FontSize="{StaticResource FontSizeSM}"
-                                               Margin="10,0"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Settings_CommuteTimeLabel}"
-                                           FontSize="{StaticResource FontSizeBase}"
-                                           Foreground="{DynamicResource TextPrimary}"
-                                           VerticalAlignment="Center" Margin="0,8"/>
-                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,8">
-                                    <TextBox x:Name="CommuteTextBox"
-                                             Width="80" Height="32"
-                                             HorizontalContentAlignment="Center"
-                                             VerticalContentAlignment="Center"
-                                             Style="{StaticResource DefaultTextBoxStyle}"/>
-                                    <TextBlock Text="{DynamicResource Common_Minutes}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               FontSize="{StaticResource FontSizeSM}"
-                                               Margin="10,0"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Startup Settings Card -->
-                    <Border Style="{StaticResource CardStyle}" Margin="0">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings_StartupCardTitle}" Style="{StaticResource CardTitleStyle}"/>
-                            <CheckBox x:Name="StartWithWindowsCheckBox"
-                                      Content="{DynamicResource Settings_StartWithWindows}"
-                                      IsChecked="True"
-                                      Margin="0,8,0,0"
-                                      Style="{StaticResource DefaultCheckBoxStyle}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Action Buttons -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
-                        <Button x:Name="SaveButton" Content="{DynamicResource Common_Save}"
-                                Width="120" Height="42"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Margin="0,0,10,0" Click="SaveButton_Click"/>
-                        <Button x:Name="CancelButton" Content="{DynamicResource Common_Cancel}"
-                                Width="120" Height="42"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Click="CancelButton_Click"/>
-                    </StackPanel>
-
-                </StackPanel>
-            </ScrollViewer>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </Border>
 </Window>

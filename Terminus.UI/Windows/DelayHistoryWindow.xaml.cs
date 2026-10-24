@@ -64,9 +64,9 @@ public partial class DelayHistoryWindow : Window
             {
                 var item = new Border
                 {
-                    CornerRadius = new CornerRadius(6),
-                    Padding = new Thickness(12, 10, 12, 10),
-                    Margin = new Thickness(4, 4, 4, 4)
+                    CornerRadius = new CornerRadius(12),
+                    Padding = new Thickness(14, 11, 14, 11),
+                    Margin = new Thickness(0, 0, 0, 6)
                 };
                 item.SetResourceReference(Border.BackgroundProperty, "BgTertiary");
 
