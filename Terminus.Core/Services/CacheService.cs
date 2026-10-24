@@ -24,10 +24,10 @@ public class CacheService
         JsonOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
     }
 
-    public CacheService()
+    public CacheService(string? cacheDirectory = null)
     {
-        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        _cacheDirectory = Path.Combine(localAppData, "Terminus", "cache");
+        _cacheDirectory = cacheDirectory
+            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Terminus", "cache");
         Directory.CreateDirectory(_cacheDirectory);
     }
 

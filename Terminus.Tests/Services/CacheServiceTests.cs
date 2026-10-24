@@ -11,10 +11,14 @@ namespace Terminus.Core.Tests.Services;
 /// </summary>
 public class CacheServiceTests
 {
+    /// <summary>隔離測試目錄：絕不使用真實 LocalAppData 快取目錄（曾誤刪使用者的行事曆快取）。</summary>
+    private static string NewTestDir() =>
+        Path.Combine(Path.GetTempPath(), "terminus_test_" + Guid.NewGuid().ToString("N"));
+
     [Fact]
     public async Task SaveAndLoad_RoundTrip_PreservesData()
     {
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var key = $"test_{Guid.NewGuid()}";
 
         var testData = new List<string> { "event1", "event2", "event3" };
@@ -40,7 +44,7 @@ public class CacheServiceTests
     [Fact]
     public async Task Load_NonExistentKey_ReturnsDefault()
     {
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var key = $"nonexistent_{Guid.NewGuid()}";
 
         var (data, metadata, status) = await cacheService.LoadAsync<string>(key);
@@ -53,7 +57,7 @@ public class CacheServiceTests
     [Fact]
     public async Task GetCacheAgeHours_ReturnsCorrectAge()
     {
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var key = $"age_test_{Guid.NewGuid()}";
 
         var metadata = new CacheMetadata
@@ -75,7 +79,7 @@ public class CacheServiceTests
     [Fact]
     public async Task GetCacheAgeHours_NonExistentCache_ReturnsNull()
     {
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var key = $"nonexistent_{Guid.NewGuid()}";
 
         var ageHours = await cacheService.GetCacheAgeHoursAsync(key);
@@ -86,7 +90,8 @@ public class CacheServiceTests
     [Fact]
     public async Task HandleCorruptCache_RenamesFile()
     {
-        var cacheService = new CacheService();
+        var cacheDir = NewTestDir();
+        var cacheService = new CacheService(cacheDir);
         var key = $"corrupt_test_{Guid.NewGuid()}";
 
         // Create a valid cache first
@@ -100,10 +105,7 @@ public class CacheServiceTests
 
         await cacheService.SaveAsync(key, new List<string> { "test" }, metadata);
 
-        // Manually corrupt the file by writing invalid JSON
-        var cacheDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Terminus", "cache");
+        // Manually corrupt the file by writing invalid JSON（在隔離測試目錄內操作）
         var cacheFile = Path.Combine(cacheDir, $"{key}.json");
         await File.WriteAllTextAsync(cacheFile, "{ invalid json }");
 
@@ -130,7 +132,7 @@ public class CacheServiceTests
     [Fact]
     public async Task ClearAll_RemovesAllCacheFiles()
     {
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var keys = Enumerable.Range(1, 3).Select(i => $"clear_test_{i}_{Guid.NewGuid()}").ToList();
 
         // Create multiple cache entries
@@ -162,7 +164,7 @@ public class CacheServiceTests
     public async Task SaveAsync_CreatesDirectoryIfNotExists()
     {
         // This test verifies the constructor creates the cache directory
-        var cacheService = new CacheService();
+        var cacheService = new CacheService(NewTestDir());
         var key = $"dir_test_{Guid.NewGuid()}";
 
         var metadata = new CacheMetadata

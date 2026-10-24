@@ -30,7 +30,8 @@ public class BehaviorOrchestratorTests
     /// <summary>建立 orchestrator 並注入 stub 服務。caller 可接著設定 context。</summary>
     private BehaviorOrchestrator CreateOrchestrator()
     {
-        var calSvc = new CalendarDataService(new StubICalService(), new CacheService());
+        var calSvc = new CalendarDataService(new StubICalService(), new CacheService(
+            Path.Combine(Path.GetTempPath(), "terminus_test_" + Guid.NewGuid().ToString("N"))));
         var power = new PowerManagementService();
         var orch = new BehaviorOrchestrator(calSvc, _shutdown, _notifications, _cycleState, new NullLocalizationService(), power, _clock);
         return orch;
