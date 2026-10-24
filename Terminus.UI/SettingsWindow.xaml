@@ -16,7 +16,7 @@
             BorderBrush="{DynamicResource GlassStroke}"
             BorderThickness="1"
             CornerRadius="{StaticResource CornerRadiusWindow}">
-        <Grid>
+        <Grid x:Name="RootClipHost" SizeChanged="RootClipHost_SizeChanged">
             <Grid IsHitTestVisible="False">
                 <Ellipse Width="520" Height="420" HorizontalAlignment="Left" VerticalAlignment="Top"
                          Margin="-210,-200,0,0" Fill="{DynamicResource AmbientIndigo}"/>

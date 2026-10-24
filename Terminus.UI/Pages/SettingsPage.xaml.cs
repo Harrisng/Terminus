@@ -52,6 +52,10 @@ public partial class SettingsPage : Page
 
             LoadSettings();
             _isInitialized = true;
+
+            // 側邊欄深色模式按鈕切換主題時，同步本頁開關狀態
+            _themeService.ThemeChanged += OnThemeChanged;
+            Unloaded += (_, _) => _themeService.ThemeChanged -= OnThemeChanged;
         }
         catch (Exception ex)
         {
@@ -925,6 +929,14 @@ public partial class SettingsPage : Page
     {
         if (!_isInitialized || _themeService == null) return;
         _themeService.SetTheme(AppTheme.Dark);
+    }
+
+    /// <summary>主題從外部（如側邊欄按鈕）切換時，同步本頁深色模式開關。</summary>
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        if (!_isInitialized || _themeService == null) return;
+        // 賦值會連帶觸發 Checked/Unchecked，但 SetTheme 對相同主題會短路返回，不會循環
+        DarkModeCheckBox.IsChecked = _themeService.CurrentTheme == AppTheme.Dark;
     }
 
     private void DarkModeCheckBox_Unchecked(object sender, RoutedEventArgs e)

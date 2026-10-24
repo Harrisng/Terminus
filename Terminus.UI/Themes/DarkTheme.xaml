@@ -209,7 +209,7 @@
     <SolidColorBrush x:Key="InputFocusFill" Color="#33FFFFFF"/>
     <SolidColorBrush x:Key="PopupSurface" Color="#F2212230"/>
 
-    <SolidColorBrush x:Key="ScrollThumb" Color="#29FFFFFF"/>
-    <SolidColorBrush x:Key="ScrollThumbHover" Color="#3DFFFFFF"/>
+    <SolidColorBrush x:Key="ScrollThumb" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="ScrollThumbHover" Color="#80FFFFFF"/>
 
 </ResourceDictionary>

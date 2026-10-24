@@ -14,11 +14,13 @@
         TextOptions.TextFormattingMode="Display">
 
     <!-- 玻璃卡片 -->
-    <Border Background="{DynamicResource WindowAmbientGradient}"
+    <Border x:Name="RootBorder"
+            Background="{DynamicResource WindowAmbientGradient}"
             BorderBrush="{DynamicResource GlassStroke}"
             BorderThickness="1"
-            CornerRadius="{StaticResource CornerRadiusWindow}">
-        <Grid>
+            CornerRadius="{StaticResource CornerRadiusWindow}"
+            MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
+        <Grid x:Name="RootClipHost" SizeChanged="RootClipHost_SizeChanged">
             <Grid IsHitTestVisible="False">
                 <Ellipse Width="460" Height="340" HorizontalAlignment="Left" VerticalAlignment="Top"
                          Margin="-190,-170,0,0" Fill="{DynamicResource AmbientIndigo}"/>

@@ -17,11 +17,13 @@
         Closing="Window_Closing">
 
     <!-- 玻璃卡片：環境光 + 面光 + 1px 白色描邊 -->
-    <Border Background="{DynamicResource WindowAmbientGradient}"
+    <Border x:Name="RootBorder"
+            Background="{DynamicResource WindowAmbientGradient}"
             BorderBrush="{DynamicResource GlassStroke}"
             BorderThickness="1"
-            CornerRadius="{StaticResource CornerRadiusWindow}">
-        <Grid>
+            CornerRadius="{StaticResource CornerRadiusWindow}"
+            MouseLeftButtonDown="RootBorder_MouseLeftButtonDown">
+        <Grid x:Name="RootClipHost" SizeChanged="RootClipHost_SizeChanged">
             <Grid IsHitTestVisible="False">
                 <Ellipse Width="420" Height="320" HorizontalAlignment="Left" VerticalAlignment="Top"
                          Margin="-170,-160,0,0" Fill="{DynamicResource AmbientIndigo}"/>

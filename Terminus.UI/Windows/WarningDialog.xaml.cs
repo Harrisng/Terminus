@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using Terminus.Core.Services;
 
 namespace Terminus.UI.Windows;
@@ -25,6 +26,24 @@ public partial class WarningDialog : Window
 
     /// <summary>警告模式（有延後/關機按鈕）下為 false，用戶必須選一個操作才能關閉。</summary>
     private bool _allowClose = true;
+
+    /// <summary>拖動視窗：僅在非互動控件（背景、文字、面板）上觸發。</summary>
+    private void RootBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is not (TextBlock or Border or Grid or StackPanel)) return;
+        if (e.ButtonState == MouseButtonState.Pressed)
+        {
+            try { DragMove(); } catch { /* 拖動中重入時忽略 */ }
+        }
+    }
+
+    /// <summary>WPF Border 不裁剪圓角，手動給內容 Grid 加圓角 Clip，避免環境光溢出角落。</summary>
+    private void RootClipHost_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        RootClipHost.Clip = new RectangleGeometry(
+            new Rect(0, 0, RootClipHost.ActualWidth, RootClipHost.ActualHeight),
+            21, 21);  // 外圓角 22 − 1px 描邊
+    }
 
     /// <summary>是否處於「立即關機確認模式」。確認後執行關機，取消則還原警告模式。</summary>
     private bool _isShutdownConfirmMode;

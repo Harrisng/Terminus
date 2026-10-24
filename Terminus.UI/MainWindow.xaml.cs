@@ -195,6 +195,12 @@ public partial class MainWindow : Window
         return new IntPtr(result);
     }
 
+    // 手動拖曳狀態：不用 DragMove()（其 SC_MOVE 迴圈會觸發 Win11 貼邊 Snap，
+    // 導致系統繞過我們直接改視窗尺寸，_isMaximized 狀態脫節卡死、圓角消失）。
+    private bool _isDragging;
+    private Point _dragStartScreen;    // 裝置像素
+    private Point _dragStartWindowPos; // DIP
+
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2)
@@ -233,14 +239,47 @@ public partial class MainWindow : Window
             UpdateRootClip();
         }
 
-        try
+        _dragStartScreen = PointToScreen(e.GetPosition(this));
+        _dragStartWindowPos = new Point(Left, Top);
+        _isDragging = true;
+        ((Border)sender).CaptureMouse();
+    }
+
+    private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_isDragging) return;
+
+        double dpiX = 1, dpiY = 1;
+        var ct = PresentationSource.FromVisual(this)?.CompositionTarget;
+        if (ct != null)
         {
-            DragMove();
+            dpiX = ct.TransformToDevice.M11;
+            dpiY = ct.TransformToDevice.M22;
+            if (dpiX <= 0) dpiX = 1;
+            if (dpiY <= 0) dpiY = 1;
         }
-        catch (InvalidOperationException)
-        {
-            // 拖曳期間失去滑鼠捕獲時忽略
-        }
+
+        var cur = PointToScreen(e.GetPosition(this));
+        Left = _dragStartWindowPos.X + (cur.X - _dragStartScreen.X) / dpiX;
+        Top = _dragStartWindowPos.Y + (cur.Y - _dragStartScreen.Y) / dpiY;
+    }
+
+    private void TitleBar_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (!_isDragging) return;
+        _isDragging = false;
+        ((Border)sender).ReleaseMouseCapture();
+        ClampIntoWorkArea();
+    }
+
+    /// <summary>拖曳結束後把視窗夾回工作區：標題列不可拖出螢幕頂部，保證紅綠燈永遠可點。</summary>
+    private void ClampIntoWorkArea()
+    {
+        var wa = GetCurrentMonitorWorkArea();
+        if (Top < wa.Top) Top = wa.Top;
+        if (Top > wa.Bottom - 40) Top = wa.Bottom - 40;
+        if (Left > wa.Right - 120) Left = wa.Right - 120;
+        if (Left + Width < wa.Left + 120) Left = wa.Left + 120 - Width;
     }
 
     private void BtnClose_Click(object sender, RoutedEventArgs e) => Hide();

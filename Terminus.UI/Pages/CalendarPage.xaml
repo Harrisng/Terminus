@@ -33,7 +33,7 @@
                             Background="{DynamicResource GlassFaceStrong}"
                             BorderBrush="{DynamicResource GlassStroke}"
                             BorderThickness="1"
-                            CornerRadius="{StaticResource CornerRadiusPill}"
+                            CornerRadius="9"
                             Padding="3">
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="MonthViewButton" Content="月"

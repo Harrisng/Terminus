@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Terminus.Core.Services;
 using Terminus.UI.Services;
 using Terminus.UI.Windows;
@@ -19,6 +20,14 @@ public partial class SettingsWindow : Window
         _cacheService = cacheService;
 
         LoadSettings();
+    }
+
+    /// <summary>WPF Border 不裁剪圓角，手動給內容 Grid 加圓角 Clip，避免環境光溢出角落。</summary>
+    private void RootClipHost_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        RootClipHost.Clip = new RectangleGeometry(
+            new Rect(0, 0, RootClipHost.ActualWidth, RootClipHost.ActualHeight),
+            21, 21);  // 外圓角 22 − 1px 描邊
     }
 
     private void LoadSettings()

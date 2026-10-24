@@ -47,7 +47,9 @@
                         Background="{DynamicResource BgHeader}"
                         BorderBrush="{DynamicResource BorderSecondary}"
                         BorderThickness="0,0,0,1"
-                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                        MouseMove="TitleBar_MouseMove"
+                        MouseLeftButtonUp="TitleBar_MouseLeftButtonUp">
                     <Grid>
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center"
