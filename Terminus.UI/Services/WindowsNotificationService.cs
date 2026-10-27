@@ -141,8 +141,45 @@ public class WindowsNotificationService : INotificationService
     {
         try
         {
-            return SHQueryUserNotificationState(out var state) == 0
-                && state is 2 or 3 or 4;
+            if (SHQueryUserNotificationState(out var state) == 0 && state is 2 or 3 or 4)
+                return true;
+        }
+        catch { }
+        return IsForegroundBorderlessFullScreen();
+    }
+
+    // ── 無邊框全螢幕遊戲兜底：前景視窗鋪滿螢幕且無標題列 ──
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+    [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+    [DllImport("user32.dll", CharSet = CharSet.Auto)] private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+    private const int GWL_STYLE = -16;
+    private const int WS_CAPTION = 0x00C00000;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT { public int Left, Top, Right, Bottom; }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private struct MONITORINFO { public int cbSize; public RECT rcMonitor; public RECT rcWork; public uint dwFlags; }
+
+    private static bool IsForegroundBorderlessFullScreen()
+    {
+        try
+        {
+            var hwnd = GetForegroundWindow();
+            if (hwnd == IntPtr.Zero) return false;
+            GetWindowThreadProcessId(hwnd, out var pid);
+            if (pid == Environment.ProcessId) return false; // 自己不算
+            var style = GetWindowLong(hwnd, GWL_STYLE);
+            if ((style & WS_CAPTION) == WS_CAPTION) return false; // 有標題列＝一般視窗
+            if (!GetWindowRect(hwnd, out var r)) return false;
+            var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+            if (!GetMonitorInfo(MonitorFromWindow(hwnd, 2), ref mi)) return false;
+            return r.Left <= mi.rcMonitor.Left && r.Top <= mi.rcMonitor.Top
+                && r.Right >= mi.rcMonitor.Right && r.Bottom >= mi.rcMonitor.Bottom;
         }
         catch
         {
