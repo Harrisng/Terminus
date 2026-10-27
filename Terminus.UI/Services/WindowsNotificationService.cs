@@ -1,4 +1,5 @@
 using Terminus.Core.Services;
+using System.Runtime.InteropServices;
 using System.Windows;
 using Terminus.UI.Windows;
 
@@ -102,6 +103,12 @@ public class WindowsNotificationService : INotificationService
         string? quotaText = null, bool showDelayButton = false, bool showShutdownButton = false,
         TimeSpan? quotaRemaining = null, bool isUnlimitedDelay = false)
     {
+        // 全螢幕遊戲/簡報中不打擾（行為迴圈不受影響，自動延後照舊）
+        if (IsUserInFullScreenApp())
+        {
+            LoggerService.Info($"通知已抑制（偵測到全螢幕應用）：{title}");
+            return;
+        }
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
             var dialog = new WarningDialog(title, message, quotaText,
@@ -121,6 +128,26 @@ public class WindowsNotificationService : INotificationService
                 });
             WarningDialog.ShowSingleton(dialog);
         });
+    }
+
+    /// <summary>
+    /// 偵測使用者是否在全螢幕遊戲/簡報中（Windows 通知系統同款 API）。
+    /// QUNS_BUSY=2、QUNS_RUNNING_D3D_FULL_SCREEN=3、QUNS_PRESENTATION_MODE=4。
+    /// </summary>
+    [DllImport("shell32.dll")]
+    private static extern int SHQueryUserNotificationState(out int state);
+
+    private static bool IsUserInFullScreenApp()
+    {
+        try
+        {
+            return SHQueryUserNotificationState(out var state) == 0
+                && state is 2 or 3 or 4;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
