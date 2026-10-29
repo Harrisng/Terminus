@@ -1002,6 +1002,8 @@ public class BehaviorOrchestrator
     {
         lock (_lock)
         {
+            // 冪等：已處於 ForceShutdown 狀態時不再重複彈窗（警告/延後兩條路徑可能競爭進入）
+            if (ctx.State == BehaviorState.ForceShutdown) return;
             ChangeState(ctx, BehaviorState.ForceShutdown);
         }
 
