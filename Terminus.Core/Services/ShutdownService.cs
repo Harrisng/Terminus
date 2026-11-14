@@ -34,9 +34,14 @@ public class ShutdownService
     public event EventHandler<ShutdownEventArgs>? ShutdownFailed;
     public event EventHandler<ShutdownEventArgs>? ShutdownBlocked;
 
+    // 體驗模式：設定環境變數 TERMINUS_DRYRUN=1 時只模擬關機流程，不真正執行 shutdown。
+    private static readonly bool DryRun =
+        Environment.GetEnvironmentVariable("TERMINUS_DRYRUN") is "1" or "true" or "TRUE";
+
     public ShutdownService(IClock? clock = null)
     {
         _startupTime = (clock ?? SystemClock.Instance).GetCurrentInstant();
+        if (DryRun) LoggerService.Info("ShutdownService: 體驗模式已啟用，不會真正關機");
     }
 
     /// <summary>
@@ -199,6 +204,17 @@ public class ShutdownService
     /// </summary>
     private async Task<ShutdownResult> ExecuteShutdownCommandAsync(CancellationToken cancellationToken)
     {
+        if (DryRun)
+        {
+            LoggerService.Info("ShutdownService: [體驗模式] 已略過真實關機（shutdown /s）");
+            return new ShutdownResult
+            {
+                Success = true,
+                Message = "DryRun: simulated shutdown",
+                WasCancelled = false
+            };
+        }
+
         try
         {
             var psi = new ProcessStartInfo
@@ -258,6 +274,17 @@ public class ShutdownService
     /// </summary>
     private async Task<ShutdownResult> ForceShutdownAsync(CancellationToken cancellationToken)
     {
+        if (DryRun)
+        {
+            LoggerService.Info("ShutdownService: [體驗模式] 已略過強制關機（shutdown /s /f）");
+            return new ShutdownResult
+            {
+                Success = true,
+                Message = "DryRun: simulated force shutdown",
+                WasCancelled = false
+            };
+        }
+
         try
         {
             var psi = new ProcessStartInfo

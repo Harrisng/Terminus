@@ -6,6 +6,27 @@
 
 A Windows desktop application that manages your sleep cycle by monitoring your class schedule (iCal/webcal) and enforcing calculated shutdown times. Runs silently in the system tray, warns you when it's time to sleep, and powers off your PC at the hard limit.
 
+## 🎬 Try It in 3 Minutes (for reviewers)
+
+1. Download `Terminus-win-x64.zip` from [Releases](https://github.com/Harrisng/Terminus/releases), unzip, and run `Terminus.exe`. No installer, no account, no .NET runtime required (self-contained, Windows 10/11 x64).
+2. **Want to explore the full flow without letting it power off your PC?** Launch it in demo mode:
+
+   ```powershell
+   $env:TERMINUS_DRYRUN=1; .\Terminus.exe
+   ```
+
+   In demo mode every shutdown is simulated (logged, never executed).
+3. Open **設定 (Settings)** → **日曆來源**, paste this public demo timetable, and press **儲存 (Save)**:
+
+   ```
+   https://raw.githubusercontent.com/Harrisng/Terminus/main/demo/demo-timetable.ics
+   ```
+
+   It contains Mon/Wed/Fri 09:30 lectures and Tue/Thu 14:00 workshops, so you can see both the *early-class* and *non-early* rule sets.
+4. Browse **儀表板** (live countdown, timeline, quota), **月曆** (month/week views, holiday chips), and **設定** (drag the timeline editor).
+
+> ⚠️ Real shutdown is a core feature: once armed, the app will power off the PC at the calculated hard limit. Use demo mode, or quit from the tray when you finish testing.
+
 ## ✨ Features
 
 ### 🧠 Core Sleep Management
